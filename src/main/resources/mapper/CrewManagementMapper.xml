@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.giggalpeople.backoffice.api.crew.database.mapper.CrewManagementMapper">
+    <!-- 지원자 정보 저장 -->
+    <insert id="newSuggestInfoSave" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO" useGeneratedKeys="true" keyProperty="suggestId">
+        INSERT INTO suggest (SUGGEST_ID,
+                             HOW_KNOW_INFO,
+                             CREW_NUMBER,
+                             SUGGEST_DATE,
+                             NAME,
+                             PHONE_NUMBER,
+                             SEX,
+                             EMAIL,
+                             BIRTH_DATE,
+                             AGE_INFO,
+                             MBTI,
+                             PERSONALITY,
+                             JOB_INFO,
+                             LAST_EDUCATIONAL,
+                             SCHOOL_NAME,
+                             COMPANY_NAME,
+                             TISTORY,
+                             FIGMA,
+                             NOTION,
+                             BLOG_URL,
+                             STATION_NAME,
+                             SUGGEST_PART,
+                             TECH_STACK,
+                             CAREER,
+                             GITHUB_ADDRESS,
+                             PRIVACY_INFO_AGREE,
+                             ADDENDUM_INFO_AGREE,
+                             PORTFOLIO,
+                             ETC,
+                             PARTICIPATION,
+                             MEET_DATE,
+                             DRINKING_INFO,
+                             HOBBY,
+                             PERSONAL_CLASS_INFO,
+                             LOVE_WHETHER,
+                             NOTE)
+        VALUES (#{suggestId},
+                #{howKnowInfo},
+                #{crewNumber},
+                #{suggestDate},
+                #{name},
+                #{phoneNumber},
+                #{sex},
+                #{email},
+                #{birthDate},
+                #{ageInfo},
+                #{mbti},
+                #{personality},
+                #{jobInfo},
+                #{lastEducational},
+                #{schoolName},
+                #{companyName},
+                #{tistory},
+                #{figma},
+                #{notion},
+                #{blogUrl},
+                #{stationName},
+                #{suggestPart},
+                #{techStack},
+                #{career},
+                #{githubAddress},
+                #{privacyInfoAgree},
+                #{addendumInfoAgree},
+                #{portfolio},
+                #{etc},
+                #{participation},
+                #{meetDate},
+                #{drinkingInfo},
+                #{hobby},
+                #{personalClassInfo},
+                #{loveWhether},
+                #{note})
+    </insert>
+
+    <!-- 크루 정보 저장 -->
+    <insert id="crewJoin" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO" useGeneratedKeys="true" keyProperty="crewJoinId">
+        INSERT INTO crew (
+            SUGGEST_ID,
+            JOIN_DATE,
+            USER_ID,
+            PASSWORD,
+            CREW_ROLE,
+            CREW_ALIAS
+        ) VALUES (
+                  #{suggestId},
+                  #{joinDate},
+                  #{userId},
+                  #{password},
+                  #{crewRole},
+                  #{crewAlias})
+    </insert>
+
+    <!-- 지원자 목록 개수 조회 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
+    <select id="totalSuggestCrewSearchCount" resultType="java.lang.Integer">
+        select count(suggest_id)
+        from suggest
+
+        <if test='crewSuggestSearchDTO.searchType != null and crewSuggestSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSuggestSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    where how_know_info like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'NAME'">
+                    where name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SEX'">
+                    where sex like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'MBTI'">
+                    where mbti like CONCAT('%',#{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    where last_educational like CONCAT('%',#{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SCHOOL_NAME'">
+                    where school_name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'STATION_NAME'">
+                    where station_name like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_PART'">
+                    where suggest_part like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PRIVACY_INFO_AGREE'">
+                    where privacy_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBPrivacyInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'ADDENDUM_INFO_AGREE'">
+                    where addendum_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBAddendumInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PARTICIPATION'">
+                    where participation like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSuggestSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info like CONCAT('%', #{crewSuggestSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+
+    <!-- 지원자 목록 조회 및 검색 -->
+    <select id="findByCrewSuggestInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
+        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info, last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree, participation, meet_date
+        from suggest
+
+        <if test='crewSuggestSearchDTO.searchType != null and crewSuggestSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSuggestSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    where how_know_info like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'NAME'">
+                    where name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SEX'">
+                    where sex like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'MBTI'">
+                    where mbti like CONCAT('%',#{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    where last_educational like CONCAT('%',#{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SCHOOL_NAME'">
+                    where school_name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'STATION_NAME'">
+                    where station_name like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_PART'">
+                    where suggest_part like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PRIVACY_INFO_AGREE'">
+                    where privacy_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBPrivacyInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'ADDENDUM_INFO_AGREE'">
+                    where addendum_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBAddendumInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PARTICIPATION'">
+                    where participation like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSuggestSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info like CONCAT('%', #{crewSuggestSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+
+        order by suggest_id desc
+        <if test='criteria.pageStart != null and criteria.perPageNum != null '>
+            limit #{criteria.pageStart}, #{criteria.perPageNum}
+        </if>
+    </select>
+
+    <!-- 지원자 목록 조회 및 검색 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
+    <select id="findByCrewSuggestInfoSearchOneThing"
+            resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
+        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info, last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree, participation, meet_date
+        from suggest
+
+        <if test='crewSuggestSearchDTO.searchType != null and crewSuggestSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSuggestSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    where how_know_info like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'NAME'">
+                    where name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SEX'">
+                    where sex like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'MBTI'">
+                    where mbti like CONCAT('%',#{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    where last_educational like CONCAT('%',#{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SCHOOL_NAME'">
+                    where school_name like CONCAT('%', #{crewSuggestInfoSearchEncryption}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'STATION_NAME'">
+                    where station_name like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_PART'">
+                    where suggest_part like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PRIVACY_INFO_AGREE'">
+                    where privacy_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBPrivacyInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'ADDENDUM_INFO_AGREE'">
+                    where addendum_info_agree like CONCAT('%', #{crewSuggestSearchDTO.inDBAddendumInfoAgree}, '%')
+                </when>
+                <when test="crewSuggestSearchDTO.searchType == 'PARTICIPATION'">
+                    where participation like CONCAT('%', #{crewSuggestSearchDTO.searchWord}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSuggestSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info like CONCAT('%', #{crewSuggestSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date like CONCAT('%', #{crewSuggestSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+
+    <!-- 크루 목록 개수 조회 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
+    <select id="totalCrewSearchCount" resultType="java.lang.Integer">
+        select count(c.crew_join_id)
+        from crew as c
+        inner join suggest as s
+        on c.suggest_id = s.suggest_id
+        <where>
+            s.participation = '참가'
+        </where>
+
+        <if test='crewSearchDTO.searchType != null and crewSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSearchDTO.searchType == 'CREW_NUMBER'">
+                    and s.crew_number like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    and s.how_know_info like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'NAME'">
+                    and s.name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SEX'">
+                    and s.sex like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'MBTI'">
+                    and s.mbti like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    and s.last_educational like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SCHOOL_NAME'">
+                    and s.school_name like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'STATION_NAME'">
+                    and s.station_name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SUGGEST_PART'">
+                    and s.suggest_part like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info like CONCAT('%', #{crewSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartAge gt 0 and crewSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info BETWEEN #{crewSearchDTO.inDBStartAge} AND #{crewSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartDate != null and crewSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+
+    <!-- 크루 목록 조회 및 검색 -->
+    <select id="findByCrewInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO">
+        select c.*, s.*
+        from crew as c
+        inner join suggest as s
+        on c.suggest_id = s.suggest_id
+        <where>
+            s.participation = '참가'
+        </where>
+
+        <if test='crewSearchDTO.searchType != null and crewSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSearchDTO.searchType == 'CREW_NUMBER'">
+                    and s.crew_number like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    and s.how_know_info like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'NAME'">
+                    and s.name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SEX'">
+                    and s.sex like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'MBTI'">
+                    and s.mbti like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    and s.last_educational like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SCHOOL_NAME'">
+                    and s.school_name like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'STATION_NAME'">
+                    and s.station_name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SUGGEST_PART'">
+                    and s.suggest_part like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info like CONCAT('%', #{crewSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartAge gt 0 and crewSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info BETWEEN #{crewSearchDTO.inDBStartAge} AND #{crewSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartDate != null and crewSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+
+        order by c.crew_join_id desc
+        <if test='criteria.pageStart != null and criteria.perPageNum != null '>
+            limit #{criteria.pageStart}, #{criteria.perPageNum}
+        </if>
+    </select>
+
+    <!-- 크루 목록 검색으로 조회 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
+    <select id="findByCrewInfoSearchOneThing" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO">
+        select c.*, s.*
+        from crew as c
+        inner join suggest as s
+        on c.suggest_id = s.suggest_id
+        <where>
+            s.participation = '참가'
+        </where>
+
+        <if test='crewSearchDTO.searchType != null and crewSearchDTO.searchType != "" '>
+            <choose>
+                <when test="crewSearchDTO.searchType == 'CREW_NUMBER'">
+                    and s.crew_number like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'HOW_KNOW_INFO'">
+                    and s.how_know_info like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'NAME'">
+                    and s.name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SEX'">
+                    and s.sex like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'MBTI'">
+                    and s.mbti like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'LAST_EDUCATIONAL'">
+                    and s.last_educational like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SCHOOL_NAME'">
+                    and s.school_name like CONCAT('%',#{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'STATION_NAME'">
+                    and s.station_name like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+                <when test="crewSearchDTO.searchType == 'SUGGEST_PART'">
+                    and s.suggest_part like CONCAT('%', #{crewSearchEncryptionValue}, '%')
+                </when>
+            </choose>
+
+            <if test='crewSearchDTO.inDBAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info like CONCAT('%', #{crewSearchDTO.inDBAge}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartAge gt 0 and crewSearchDTO.inDBEndAge gt 0 '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'AGE_INFO' ">
+                        and s.age_info BETWEEN #{crewSearchDTO.inDBStartAge} AND #{crewSearchDTO.inDBEndAge}
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date like CONCAT('%', #{crewSearchDTO.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='crewSearchDTO.inDBStartDate != null and crewSearchDTO.inDBEndDate != null '>
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'MEET_DATE'">
+                        and s.meet_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'SUGGEST_DATE'">
+                        and s.suggest_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+
+                <choose>
+                    <when test="crewSearchDTO.searchType == 'BIRTH_DATE'">
+                        and s.birth_date BETWEEN #{crewSearchDTO.inDBStartDate} AND #{crewSearchDTO.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+</mapper>

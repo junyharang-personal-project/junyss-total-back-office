@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 60초마다 설정 파일의 변경을 확인 하여 변경시 갱신 -->
+<configuration>
+<!--        scan="true" scanPeriod="60 seconds">-->
+    <!-- Console appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--     날짜       시간   로그레벨  로거이름  프로세스 ID  [로깅 발생 파일명]메소드 명,호출지 정보,(라인 수) 로그메세지 -->
+            <pattern>[%d{yyyy-MM-dd}] [%d{HH:mm:ss.SSS}] [%p] ${PID:-} [%F] %M (%L\) : %m%n</pattern>
+        </encoder>
+    </appender>
+
+<!--    <property resource="local-db.yml" />-->
+<!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
+<!--        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
+<!--            <driverClass>${datasource.driver-class-name}</driverClass>-->
+<!--            <url>${datasource.url}</url>-->
+<!--            <user>${datasource.username}</user>-->
+<!--            <password>${datasource.password}</password>-->
+<!--        </connectionSource>-->
+<!--    </appender>-->
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+<!--        <appender-ref ref="DB"/>-->
+    </root>
+</configuration>

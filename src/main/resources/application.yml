@@ -1,0 +1,52 @@
+spring:
+  profiles:
+    active: local
+
+---
+
+spring:
+  profiles:
+    group:
+      "local":
+        - common
+        - local-db
+        - local-environment
+        - local-logback
+        - security
+
+      "dev":
+        - common
+        - dev-db
+        - dev-environment
+        - dev-logback
+        - security
+
+      "prod":
+        - common
+        - prod-db
+        - prod-port
+        - prod-logback
+        - security
+
+#---
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: local
+#
+#---
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: local-port
+#
+#---
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: local-logback
+#
+#

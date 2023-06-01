@@ -1,0 +1,102 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.7'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.giggalpeople'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://jitpack.io'
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
+    implementation 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok'
+//    implementation 'org.springframework.boot:spring-boot-starter-jdbc' // Jdbc, Driver
+    runtimeOnly 'com.h2database:h2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    runtimeOnly 'com.mysql:mysql-connector-java'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+//    implementation 'mysql:mysql-connector-java:8.0.32'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Data 암/복호화 의존성 추가
+    implementation 'com.github.JunyHarang-Open-Source-project:Data-Aes-Secret:1.0.0b'
+
+    // MyBatis Log를 찍기 위한 의존성 추가(https://mvnrepository.com/artifact/ch.qos.logback/logback-classic)
+    testImplementation 'ch.qos.logback:logback-classic'
+
+    //SpringDoc 의존성 추가
+    // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
+
+    // 유효성 검사를 위한 의존성 추가
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 패스워드 암호화를 위한 Spring Security Core 의존성 추가
+    // https://mvnrepository.com/artifact/org.mindrot/jbcrypt
+    implementation 'org.mindrot:jbcrypt:0.4'
+
+    // AOP 사용을 위한 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-text', version: '1.10.0'
+
+    // SQL query show
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+
+    // Discord Bot 사용을 위한 JDA 의존성
+    implementation 'net.dv8tion:JDA:5.0.0-beta.5'
+
+    // https://mvnrepository.com/artifact/org.json/json
+    implementation 'org.json:json:20220924'
+
+    // https://mvnrepository.com/artifact/org.springframework/spring-web-reactive
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
+
+    // https://mvnrepository.com/artifact/io.micrometer/micrometer-core
+    implementation 'io.micrometer:micrometer-core'
+
+    // Webhook을 통해 Exception 알림을 받을 때, 사용자의 IP를 통해 위치 정보값을 가져오기 위한 의존성 추가
+    implementation 'org.geotools:gt-epsg-hsql:24.0'
+    implementation 'org.geotools:gt-shapefile:24.0'
+    implementation 'org.geotools:gt-geojson:24.0'
+    implementation 'org.geotools:gt-referencing:24.0'
+    implementation 'org.geotools:gt-epsg-extension:24.0'
+    implementation 'org.geotools:gt-coverage:24.0'
+    implementation 'org.geotools:gt-main:24.0'
+
+
+    // Spring Batch 의존성 추가
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-batch
+//    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
