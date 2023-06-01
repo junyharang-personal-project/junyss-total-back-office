@@ -13,7 +13,7 @@ pipeline {
                 discordSend description: "Jenkins CI/CD Trigger Alarm"
                     footer: "Build 성공 하였어요 😀",
                     link: env.Build_URL, result: currentBuild.currentResult,
-                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다."
+                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                     webhookURL: "https://discord.com/api/webhooks/1113782467728519228/itgIwEIK7BsnzQss2DnMpzR4tcJE5r4mlDwrIUV0ropDXQJ4nB-IGnDTwvNZsTOvBAY3"
             }
 
@@ -21,7 +21,7 @@ pipeline {
                 discordSend description: "Jenkins CI/CD Trigger Alarm"
                     footer: "Build 실패 하였어요 😢",
                     link: env.Build_URL, result: currentBuild.currentResult,
-                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다."
+                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                     webhookURL: "https://discord.com/api/webhooks/1113782467728519228/itgIwEIK7BsnzQss2DnMpzR4tcJE5r4mlDwrIUV0ropDXQJ4nB-IGnDTwvNZsTOvBAY3"
             }
         }
