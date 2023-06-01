@@ -10,7 +10,7 @@ pipeline {
 
         post {
             success {
-                discordSend description: "Jenkins CI/CD Trigger Alarm"
+                discordSend description: "Jenkins CI/CD Trigger Alarm",
                     footer: "Build 성공 하였어요. 😀",
                     link: env.BUILD_URL, result: currentBuild.currentResult,
                     title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
@@ -18,7 +18,7 @@ pipeline {
             }
 
             failure {
-                discordSend description: "Jenkins CI/CD Trigger Alarm"
+                discordSend description: "Jenkins CI/CD Trigger Alarm",
                     footer: "Build 실패 하였어요. 😢",
                     link: env.BUILD_URL, result: currentBuild.currentResult,
                     title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
