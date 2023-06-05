@@ -16,9 +16,9 @@ pipeline {
                     DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
 
                     // 소나큐브 설정
-//                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
+                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
 //                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
-//                    SONARQUBE_CREDENTIAL_ID = "BETotalBackOfficeToSonar"
+                    SONARQUBE_CREDENTIAL_ID = "Total-Back-Office-BE-SonarQube"
                 }
             }
         } // stage(SET_VARIABLE) 끝
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 script {
                     def scannerHome = tool 'SonarQube-Scanner';
-                    withSonarQubeEnv(credentialsId: "BETotalBackOfficeToSonar", installationName: 'SonarQube_BackEnd') {
+                    withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.branch.name=master \
                         -Dsonar.language=java \
