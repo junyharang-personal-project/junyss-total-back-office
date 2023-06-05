@@ -4,13 +4,14 @@
 
     <!-- Error Log 발생 혹은 이용자 요청 시 이용자 정보, 이용자 요청 정보, Error Log 정보를 각 Table에 저장할 때, 동일한 날짜와 시간이 중복 저장 되어 날짜와 시간 관련 정보 저장 -->
 
-    <insert id="save" parameterType="com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeRequestVO" useGeneratedKeys="true" keyProperty="dataCreatedDateTimeID">
+    <insert id="save" parameterType="com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeRequestVO"
+            useGeneratedKeys="true" keyProperty="dataCreatedDateTimeID">
         INSERT INTO data_created_date_time (DATA_CREATED_DATE_TIME_ID,
-                                             DATA_CREATED_DATE,
-                                             DATA_CREATED_TIME)
+        DATA_CREATED_DATE,
+        DATA_CREATED_TIME)
         VALUES (#{dataCreatedDateTimeID},
-                #{dataCreatedDate},
-                #{dataCreatedTime})
+        #{dataCreatedDate},
+        #{dataCreatedTime})
 
         <selectKey keyProperty="dataCreatedDateTimeID" resultType="java.lang.Long" order="AFTER">
             SELECT LAST_INSERT_ID()

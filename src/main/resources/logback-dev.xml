@@ -12,12 +12,12 @@
     </springProfile>
     <!-- application-dev-logback.yml에서 정보를 가져옴 -->
     <springProperty name="DISCORD_WEBHOOK_URI" source="logging.discord.webhook-uri"/>
-    <property name="LOG_ROOT_PATH" value="log" />
+    <property name="LOG_ROOT_PATH" value="log"/>
     <!-- application-dev-port.yml에서 정보를 가져옴 -->
     <springProperty name="SERVER_NAME" source="server.name"/>
     <springProperty name="ENVIRONMENT" source="server.environment"/>
     <springProperty name="PORT" source="server.port"/>
-    <property name="LOG_PATH_NAME" value="${LOG_ROOT_PATH}/${SERVER_NAME}/${ENVIRONMENT}-${PORT}/%d{yyyy-MM-dd}" />
+    <property name="LOG_PATH_NAME" value="${LOG_ROOT_PATH}/${SERVER_NAME}/${ENVIRONMENT}-${PORT}/%d{yyyy-MM-dd}"/>
     <!--Environment 내의 프로퍼티들을 개별적으로 설정할 수도 있다.-->
     <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root"/>
     <!-- err log file name -->
@@ -28,7 +28,8 @@
     <property name="FILE_LOG_PATTERN" value="%-5level %d{yy-MM-dd HH:mm:ss} [%thread] [%logger{0}:%line] - %msg%n"/>
 
     <!--DiscordAppender 적용 -->
-    <appender name="DISCORD" class="com.giggalpeople.backoffice.chatops.logback.appender.discord.config.DiscordAppender">
+    <appender name="DISCORD"
+              class="com.giggalpeople.backoffice.chatops.logback.appender.discord.config.DiscordAppender">
         <discordWebhookURL>${DISCORD_WEBHOOK_URI}</discordWebhookURL>
     </appender>
 
@@ -95,10 +96,10 @@
 
     <!-- 모든 로그 출력 (콘솔/디코/파일) -->
     <root level="${LOG_LEVEL}">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="ASYNC_DISCORD"/>
-        <appender-ref ref="FILE" />
-        <appender-ref ref="ERROR_FILE" />
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
 
     <!-- 특정패키지 로깅레벨 설정 -->

@@ -59,7 +59,7 @@ pipeline {
                 script {
                     def scannerHome = tool 'SonarQube-Scanner';
                     withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
-                    sh "${scannerHome}/bin/sonar-scanner \
+                        sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=BE-total-back-office \
                         -Dsonar.projectName=BE-total-back-office \
                         -Dsonar.branch.name=master \
@@ -83,18 +83,18 @@ pipeline {
             post {
                 success {
                     discordSend description: "소나큐브 Scan 작업 성공 하였어요. 😀",
-                        footer: "Jenkins CI/CD Trigger Alarm",
-                        link: env.BUILD_URL, result: currentBuild.currentResult,
-                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                        webhookURL: env.WEBHOOK_URL
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
                 }
 
                 failure {
                     discordSend description: "소나큐브 Scan 작업 실패 하였어요. 😢",
-                        footer: "Jenkins CI/CD Trigger Alarm",
-                        link: env.BUILD_URL, result: currentBuild.currentResult,
-                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                        webhookURL: env.WEBHOOK_URL
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
                 }
             } // Discord Send Post 끝
         } // stage(SONARQUBE_ANALYSIS) 끝
@@ -117,7 +117,7 @@ pipeline {
                             error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
 
                         } else {
-                         echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
                         }
 
                         echo "Quality Gate 검증을 모두 완료 하였어요 😎"
@@ -128,18 +128,18 @@ pipeline {
             post {
                 success {
                     discordSend description: "소나큐브 Quality Gate 작업 성공 하였어요. 😀",
-                        footer: "Jenkins CI/CD Trigger Alarm",
-                        link: env.BUILD_URL, result: currentBuild.currentResult,
-                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                        webhookURL: env.WEBHOOK_URL
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
                 }
 
                 failure {
                     discordSend description: "소나큐브 Quality Gate 작업 실패 하였어요. 😢",
-                        footer: "Jenkins CI/CD Trigger Alarm",
-                        link: env.BUILD_URL, result: currentBuild.currentResult,
-                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                        webhookURL: env.WEBHOOK_URL
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
                 }
             } // Discord Send Post 끝
         } // stage(SONARQUBE_QUALITY_GATE) 끝

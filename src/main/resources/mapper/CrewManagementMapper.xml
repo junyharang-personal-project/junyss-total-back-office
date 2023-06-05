@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.giggalpeople.backoffice.api.crew.database.mapper.CrewManagementMapper">
     <!-- 지원자 정보 저장 -->
-    <insert id="newSuggestInfoSave" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO" useGeneratedKeys="true" keyProperty="suggestId">
+    <insert id="newSuggestInfoSave" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO"
+            useGeneratedKeys="true" keyProperty="suggestId">
         INSERT INTO suggest (SUGGEST_ID,
                              HOW_KNOW_INFO,
                              CREW_NUMBER,
@@ -78,21 +79,20 @@
     </insert>
 
     <!-- 크루 정보 저장 -->
-    <insert id="crewJoin" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO" useGeneratedKeys="true" keyProperty="crewJoinId">
-        INSERT INTO crew (
-            SUGGEST_ID,
-            JOIN_DATE,
-            USER_ID,
-            PASSWORD,
-            CREW_ROLE,
-            CREW_ALIAS
-        ) VALUES (
-                  #{suggestId},
-                  #{joinDate},
-                  #{userId},
-                  #{password},
-                  #{crewRole},
-                  #{crewAlias})
+    <insert id="crewJoin" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO"
+            useGeneratedKeys="true" keyProperty="crewJoinId">
+        INSERT INTO crew (SUGGEST_ID,
+                          JOIN_DATE,
+                          USER_ID,
+                          PASSWORD,
+                          CREW_ROLE,
+                          CREW_ALIAS)
+        VALUES (#{suggestId},
+                #{joinDate},
+                #{userId},
+                #{password},
+                #{crewRole},
+                #{crewAlias})
     </insert>
 
     <!-- 지원자 목록 개수 조회 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
@@ -148,7 +148,8 @@
             <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
-                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND
+                        #{crewSuggestSearchDTO.inDBEndAge}
                     </when>
                 </choose>
             </if>
@@ -176,19 +177,22 @@
             <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
-                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
-                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
-                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>
@@ -197,7 +201,9 @@
 
     <!-- 지원자 목록 조회 및 검색 -->
     <select id="findByCrewSuggestInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
-        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info, last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree, participation, meet_date
+        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info,
+        last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree,
+        participation, meet_date
         from suggest
 
         <if test='crewSuggestSearchDTO.searchType != null and crewSuggestSearchDTO.searchType != "" '>
@@ -248,7 +254,8 @@
             <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
-                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND
+                        #{crewSuggestSearchDTO.inDBEndAge}
                     </when>
                 </choose>
             </if>
@@ -276,19 +283,22 @@
             <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
-                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
-                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
-                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>
@@ -303,7 +313,9 @@
     <!-- 지원자 목록 조회 및 검색 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
     <select id="findByCrewSuggestInfoSearchOneThing"
             resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
-        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info, last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree, participation, meet_date
+        select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info,
+        last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree,
+        participation, meet_date
         from suggest
 
         <if test='crewSuggestSearchDTO.searchType != null and crewSuggestSearchDTO.searchType != "" '>
@@ -354,7 +366,8 @@
             <if test='crewSuggestSearchDTO.inDBStartAge gt 0 and crewSuggestSearchDTO.inDBEndAge gt 0 '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'AGE_INFO' ">
-                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND #{crewSuggestSearchDTO.inDBEndAge}
+                        where age_info BETWEEN #{crewSuggestSearchDTO.inDBStartAge} AND
+                        #{crewSuggestSearchDTO.inDBEndAge}
                     </when>
                 </choose>
             </if>
@@ -382,19 +395,22 @@
             <if test='crewSuggestSearchDTO.inDBStartDate != null and crewSuggestSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'MEET_DATE'">
-                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where meet_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'SUGGEST_DATE'">
-                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where suggest_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
 
                 <choose>
                     <when test="crewSuggestSearchDTO.searchType == 'BIRTH_DATE'">
-                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND #{crewSuggestSearchDTO.inDBEndDate}
+                        where birth_date BETWEEN #{crewSuggestSearchDTO.inDBStartDate} AND
+                        #{crewSuggestSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>

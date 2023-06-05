@@ -5,28 +5,28 @@ package com.giggalpeople.backoffice.api.common.constant;
  */
 public interface APIUriInfo {
 
-    String LOCAL_ENV_DEFAULT_URL = "http://localhost:9999";
+	String LOCAL_ENV_DEFAULT_URL = "http://localhost:9999";
 
-    String DEV_ENV_DEFAULT_URL = "http://localhost:9998";
+	String DEV_ENV_DEFAULT_URL = "http://localhost:9998";
 
-    String PROD_ENV_DEFAULT_URL = "http://localhost:8080";
+	String PROD_ENV_DEFAULT_URL = "http://localhost:8080";
 
-    String API_PREFIX_URN = "/api";
+	String API_PREFIX_URN = "/api";
 
-    String API_CALLER_DISCORD_BOT = "/discord/bot";
+	String API_CALLER_DISCORD_BOT = "/discord/bot";
 
-    String API_VERSION = "/v1";
+	String API_VERSION = "/v1";
 
-    String TEST = "/test";
+	String TEST = "/test";
 
-    String WEB_HOOK = "/web-hook";
+	String WEB_HOOK = "/web-hook";
 
-    // CREW 지원 및 합류자 관련
-    String API_CREW = "/crews";
+	// CREW 지원 및 합류자 관련
+	String API_CREW = "/crews";
 
-    String API_SUGGEST = "/suggests";
+	String API_SUGGEST = "/suggests";
 
-    String CONNECTED_USER = "/connected/user";
+	String CONNECTED_USER = "/connected/user";
 
-    String LOG = "/logs";
+	String LOG = "/logs";
 }

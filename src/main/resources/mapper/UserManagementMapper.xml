@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.giggalpeople.backoffice.api.user.database.mapper.UserManagementMapper">
     <!-- 서비스 접속 이용자 정보 저장 -->
-    <insert id="connectedUserSave" parameterType="com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVO" useGeneratedKeys="true" keyProperty="connectedUserID">
+    <insert id="connectedUserSave" parameterType="com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVO"
+            useGeneratedKeys="true" keyProperty="connectedUserID">
         INSERT INTO connected_user (CONNECTED_USER_ID,
                                     INTERNAL_SERVER_ID,
                                     DATA_CREATED_DATE_TIME_ID,
@@ -18,7 +19,9 @@
     </insert>
 
     <!-- 서비스 접속 이용자 요청 정보 저장 -->
-    <insert id="findByRequestInfoSave" parameterType="com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVO" useGeneratedKeys="true" keyProperty="connectedUserRequestInfoID">
+    <insert id="findByRequestInfoSave"
+            parameterType="com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVO"
+            useGeneratedKeys="true" keyProperty="connectedUserRequestInfoID">
         INSERT INTO connected_user_request_info (CONNECTED_USER_REQUEST_INFO_ID,
                                                  INTERNAL_SERVER_ID,
                                                  DATA_CREATED_DATE_TIME_ID,
@@ -37,18 +40,21 @@
                 #{requestBody})
     </insert>
 
-    <update id="updateCount" parameterType="com.giggalpeople.backoffice.api.user.model.UpdateUserInfo" useGeneratedKeys="true" keyProperty="java.lang.Long">
+    <update id="updateCount" parameterType="com.giggalpeople.backoffice.api.user.model.UpdateUserInfo"
+            useGeneratedKeys="true" keyProperty="java.lang.Long">
         UPDATE connected_user
         set connected_user_count = connected_user_count + 1,
 
-            <if test='updateUserInfo.dataCreatedDateTimeID != null and updateUserInfo.dataCreatedDateTimeID != "" '>
-                data_created_date_time_id = #{updateUserInfo.dataCreatedDateTimeID}
-            </if>
+        <if test='updateUserInfo.dataCreatedDateTimeID != null and updateUserInfo.dataCreatedDateTimeID != "" '>
+            data_created_date_time_id = #{updateUserInfo.dataCreatedDateTimeID}
+        </if>
 
         WHERE connected_user_id = #{updateUserInfo.connectedUserID}
     </update>
 
-    <update id="updateConnectedSameRequestCount" parameterType="com.giggalpeople.backoffice.api.user.request_info.model.UpdateUserRequestInfo" useGeneratedKeys="true" keyProperty="java.lang.Long">
+    <update id="updateConnectedSameRequestCount"
+            parameterType="com.giggalpeople.backoffice.api.user.request_info.model.UpdateUserRequestInfo"
+            useGeneratedKeys="true" keyProperty="java.lang.Long">
         UPDATE connected_user_request_info
         SET connected_user_same_request_count = connected_user_same_request_count + 1,
 
@@ -72,7 +78,7 @@
         inner join server_info as si
         on curi.internal_server_id = si.internal_server_id
         inner join connected_user as cu
-       on curi.connected_user_id = cu.connected_user_id
+        on curi.connected_user_id = cu.connected_user_id
 
         <if test='userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType != "" '>
             <choose>
@@ -100,7 +106,8 @@
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
-                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND #{userInfoSearchDTO.inDBEndDate}
+                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
+                        #{userInfoSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>
@@ -108,13 +115,14 @@
     </select>
 
     <!-- 이용자 접속 및 요청 정보 목록 및 검색 조회 시 조회 개수가 한 개라면 limit 절을 타지 않기 위해 사용 -->
-    <select id="findByUserInfoSearchOneThing" resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO">
+    <select id="findByUserInfoSearchOneThing"
+            resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO">
         select curi.connected_user_request_info_id,
-               dcdt.data_created_date,
-               dcdt.data_created_time,
-               si.server_name,
-               si.server_ip,
-               cu.user_ip
+        dcdt.data_created_date,
+        dcdt.data_created_time,
+        si.server_name,
+        si.server_ip,
+        cu.user_ip
 
         from connected_user_request_info as curi
         inner join data_created_date_time as dcdt
@@ -151,7 +159,8 @@
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
-                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND #{userInfoSearchDTO.inDBEndDate}
+                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
+                        #{userInfoSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>
@@ -202,7 +211,8 @@
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
                     <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
-                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND #{userInfoSearchDTO.inDBEndDate}
+                        where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
+                        #{userInfoSearchDTO.inDBEndDate}
                     </when>
                 </choose>
             </if>

@@ -110,7 +110,7 @@ checkstyle {
     // 규칙이 어긋나는 코드가 하나라도 있을 경우 빌드 fail
     // maxWarnings = 0
     configFile = file('config/checkstyle/naver-checkstyle-rules.xml') // 설정 파일 경로 지정
-    configProperties = ["suppressionFile" : "config/checkstyle/naver-checkstyle-suppressions.xml"]
+    configProperties = ["suppressionFile": "config/checkstyle/naver-checkstyle-suppressions.xml"]
     reportsDir = file("build/reports/checkstyle-output")
     // 낮은 버전 사용 시 깨지는 현상 발생. 설정 파일의 내용에 맞는 버전을 선택 필요
     toolVersion = "10.2"

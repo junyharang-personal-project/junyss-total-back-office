@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- 60초마다 설정 파일의 변경을 확인 하여 변경시 갱신 -->
 <configuration>
-<!--        scan="true" scanPeriod="60 seconds">-->
+    <!--        scan="true" scanPeriod="60 seconds">-->
     <!-- Console appender 설정 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -10,18 +10,18 @@
         </encoder>
     </appender>
 
-<!--    <property resource="local-db.yml" />-->
-<!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
-<!--        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
-<!--            <driverClass>${datasource.driver-class-name}</driverClass>-->
-<!--            <url>${datasource.url}</url>-->
-<!--            <user>${datasource.username}</user>-->
-<!--            <password>${datasource.password}</password>-->
-<!--        </connectionSource>-->
-<!--    </appender>-->
+    <!--    <property resource="local-db.yml" />-->
+    <!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
+    <!--        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
+    <!--            <driverClass>${datasource.driver-class-name}</driverClass>-->
+    <!--            <url>${datasource.url}</url>-->
+    <!--            <user>${datasource.username}</user>-->
+    <!--            <password>${datasource.password}</password>-->
+    <!--        </connectionSource>-->
+    <!--    </appender>-->
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
-<!--        <appender-ref ref="DB"/>-->
+        <!--        <appender-ref ref="DB"/>-->
     </root>
 </configuration>

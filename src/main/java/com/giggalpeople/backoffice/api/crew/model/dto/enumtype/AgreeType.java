@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public enum AgreeType {
 
-    AGREE("동의", true),
-    DISAGREE("미동의", false);
+	AGREE("동의", true),
+	DISAGREE("미동의", false);
 
-    private String description;
-    private boolean checkAgree;
+	private String description;
+	private boolean checkAgree;
 }

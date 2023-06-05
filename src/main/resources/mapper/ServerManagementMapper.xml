@@ -2,20 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.giggalpeople.backoffice.api.server.database.mapper.ServerManagementMapper">
     <!-- WAS 정보 저장 -->
-    <insert id="save" parameterType="com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVO" useGeneratedKeys="true" keyProperty="internalServerID">
-INSERT INTO server_info (
-                         INTERNAL_SERVER_ID,
-                         SERVER_NAME,
-                         SERVER_VM_INFO,
-                         SERVER_OS_INFO,
-                         SERVER_IP,
-                         SERVER_ENVIRONMENT)
-    VALUES (
-            #{internalServerID},
-            #{serverName},
-            #{serverVmInfo},
-            #{serverOsInfo},
-            #{serverIP},
-            #{serverEnvironment})
+    <insert id="save" parameterType="com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVO"
+            useGeneratedKeys="true" keyProperty="internalServerID">
+        INSERT INTO server_info (INTERNAL_SERVER_ID,
+                                 SERVER_NAME,
+                                 SERVER_VM_INFO,
+                                 SERVER_OS_INFO,
+                                 SERVER_IP,
+                                 SERVER_ENVIRONMENT)
+        VALUES (#{internalServerID},
+                #{serverName},
+                #{serverVmInfo},
+                #{serverOsInfo},
+                #{serverIP},
+                #{serverEnvironment})
     </insert>
 </mapper>

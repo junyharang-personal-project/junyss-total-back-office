@@ -8,10 +8,10 @@ import lombok.Data;
 
 @Data
 public class ServerInfoDetailResponseDTO {
-    private Long internalServerID;
-    private String serverName;
-    private String serverVmInfo;
-    private String serverOsInfo;
-    private String serverIP;
-    private String serverEnvironment;
+	private Long internalServerID;
+	private String serverName;
+	private String serverVmInfo;
+	private String serverOsInfo;
+	private String serverIP;
+	private String serverEnvironment;
 }

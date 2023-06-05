@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public enum ServerType {
 
-    @Schema(description = "통합 Back Office", nullable = true, example = "TOTAL_BACK_OFFICE")
-    TOTAL_BACK_OFFICE("Giggal-Total-Back-Office", "통합관리서버");
+	@Schema(description = "통합 Back Office", nullable = true, example = "TOTAL_BACK_OFFICE")
+	TOTAL_BACK_OFFICE("Giggal-Total-Back-Office", "통합관리서버");
 
-    private String description;
-    private String searchCommand;
+	private String description;
+	private String searchCommand;
 }

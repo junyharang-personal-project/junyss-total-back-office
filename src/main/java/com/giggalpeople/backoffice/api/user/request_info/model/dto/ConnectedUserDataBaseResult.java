@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ConnectedUserDataBaseResult {
-    private Long connectedUserID;
-    private Long internalServerID;
+	private Long connectedUserID;
+	private Long internalServerID;
 }

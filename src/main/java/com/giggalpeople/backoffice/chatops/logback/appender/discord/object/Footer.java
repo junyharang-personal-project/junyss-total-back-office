@@ -1,6 +1,5 @@
 package com.giggalpeople.backoffice.chatops.logback.appender.discord.object;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,6 +9,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class Footer {
-    private final String text;
-    private final String iconUrl;
+	private final String text;
+	private final String iconUrl;
 }

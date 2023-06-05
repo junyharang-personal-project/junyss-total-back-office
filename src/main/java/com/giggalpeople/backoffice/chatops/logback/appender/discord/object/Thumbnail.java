@@ -9,5 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class Thumbnail {
-    private final String url;
+	private final String url;
 }

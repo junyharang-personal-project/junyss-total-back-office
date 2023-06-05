@@ -9,18 +9,19 @@ import lombok.Data;
 
 @Data
 public class ServerInfoSaveRequestDTO {
-    private String serverName;
-    private String serverVmInfo;
-    private String serverOsInfo;
-    private String serverIP;
-    private String serverEnvironment;
+	private String serverName;
+	private String serverVmInfo;
+	private String serverOsInfo;
+	private String serverIP;
+	private String serverEnvironment;
 
-    @Builder
-    public ServerInfoSaveRequestDTO(String serverName, String serverVmInfo, String serverOsInfo, String serverIP, String serverEnvironment) {
-        this.serverName = serverName;
-        this.serverVmInfo = serverVmInfo;
-        this.serverOsInfo = serverOsInfo;
-        this.serverIP = serverIP;
-        this.serverEnvironment = serverEnvironment;
-    }
+	@Builder
+	public ServerInfoSaveRequestDTO(String serverName, String serverVmInfo, String serverOsInfo, String serverIP,
+		String serverEnvironment) {
+		this.serverName = serverName;
+		this.serverVmInfo = serverVmInfo;
+		this.serverOsInfo = serverOsInfo;
+		this.serverIP = serverIP;
+		this.serverEnvironment = serverEnvironment;
+	}
 }
