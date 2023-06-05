@@ -16,9 +16,9 @@ pipeline {
                     DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
 
                     // 소나큐브 설정
-                    SONARQUBE_SERVER_NAME = 'Jenkins SonarQube Server 설정의 Name'
+                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
                     SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
-                    SONARQUBE_CREDENTIAL_ID = "Jenkins에서 등록한 SonarQube Crendential ID"
+                    SONARQUBE_CREDENTIAL_ID = "BETotalBackOfficeToSonar"
                 }
             }
         } // stage(SET_VARIABLE) 끝
