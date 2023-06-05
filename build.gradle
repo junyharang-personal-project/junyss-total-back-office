@@ -93,13 +93,13 @@ dependencies {
     implementation 'io.micrometer:micrometer-core'
 
     // Webhook을 통해 Exception 알림을 받을 때, 사용자의 IP를 통해 위치 정보값을 가져오기 위한 의존성 추가
-    implementation 'org.geotools:gt-epsg-hsql'
-    implementation 'org.geotools:gt-shapefile'
-    implementation 'org.geotools:gt-geojson'
-    implementation 'org.geotools:gt-referencing'
-    implementation 'org.geotools:gt-epsg-extension'
-    implementation 'org.geotools:gt-coverage'
-    implementation 'org.geotools:gt-main'
+//    implementation 'org.geotools:gt-epsg-hsql'
+//    implementation 'org.geotools:gt-shapefile'
+//    implementation 'org.geotools:gt-geojson'
+//    implementation 'org.geotools:gt-referencing'
+//    implementation 'org.geotools:gt-epsg-extension'
+//    implementation 'org.geotools:gt-coverage'
+//    implementation 'org.geotools:gt-main'
 
 
     // Spring Batch 의존성 추가
