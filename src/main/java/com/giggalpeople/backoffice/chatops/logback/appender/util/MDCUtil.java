@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
 
-import javax.servlet.http.Cookie;
-
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.JSON_PARSER_ERROR;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

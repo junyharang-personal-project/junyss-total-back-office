@@ -4,7 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
-import com.giggalpeople.backoffice.chatops.logback.appender.database.config.DataBaseAppender;
+import com.giggalpeople.backoffice.chatops.logback.appender.database.append.DataBaseAppender;
 import com.giggalpeople.backoffice.chatops.logback.appender.discord.object.EmbedObject;
 import com.giggalpeople.backoffice.chatops.logback.appender.exception.ErrorLogAppenderException;
 import com.giggalpeople.backoffice.chatops.logback.appender.util.MDCUtil;

@@ -1,4 +1,4 @@
-package com.giggalpeople.backoffice.chatops.logback.appender.database.config;
+package com.giggalpeople.backoffice.chatops.logback.appender.database.append;
 
 import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDTO;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.common.BackOfficeAPICaller;

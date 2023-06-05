@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * <h2><b>HttpServletRequest에서 들어온 이용자 정보를 파싱하여 전달하기 위한 Util Class</b></h2>
