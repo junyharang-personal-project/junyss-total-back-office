@@ -67,7 +67,7 @@ pipeline {
                         title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                         webhookURL: env.WEBHOOK_URL
                 }
-            }
+            } // Discord Send Post 끝
         } // stage(SONARQUBE_ANALYSIS) 끝
 
         stage(SONARQUBE_QUALITY_GATE) {
@@ -79,15 +79,12 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     script {
                         echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
-
                         def sonarQubeQualityGate = waitForQualityGate()
                         def qualityGateStatus = sonarQubeQualityGate.status
-
                         echo "Quality Gate 상태: ${qualityGateStatus}"
 
                         if (qualityGateStatus != 'OK') {
                             echo "Quality Gate 검증 상태: ${qualityGateStatus}"
-
                             error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
 
                         } else {
@@ -115,25 +112,31 @@ pipeline {
                         title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                         webhookURL: env.WEBHOOK_URL
                 }
-            }
+            } // Discord Send Post 끝
         } // stage(SONARQUBE_QUALITY_GATE) 끝
 
-        post {
-            success {
-                discordSend description: "Build 성공 하였어요. 😀",
-                    footer: "Jenkins CI/CD Trigger Alarm",
-                    link: env.BUILD_URL, result: currentBuild.currentResult,
-                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                    webhookURL: env.WEBHOOK_URL
+        stage('Jenkins CI/CD 작업 완료') {
+            steps {
+                sh 'echo "Jenkins CI/CD 작업이 완료 되었어요. 😎"'
             }
 
-            failure {
-                discordSend description: "Build 실패 하였어요. 😢",
-                    footer: "Jenkins CI/CD Trigger Alarm",
-                    link: env.BUILD_URL, result: currentBuild.currentResult,
-                    title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                    webhookURL: env.WEBHOOK_URL
-            }
-        }
-    }
+            post {
+                success {
+                    discordSend description: "Build 성공 하였어요. 😀",
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
+                }
+
+                failure {
+                    discordSend description: "Build 실패 하였어요. 😢",
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
+                }
+            } // Discord Send Post 끝
+        } // stage('Jenkins CI/CD 작업 완료') 끝
+    } // stages 끝
 }
