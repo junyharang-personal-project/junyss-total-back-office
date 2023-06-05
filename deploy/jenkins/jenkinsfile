@@ -33,20 +33,21 @@ pipeline {
             script {
                 def scannerHome = tool 'SonarQube-Scanner';
                 withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
-                    sh "${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.branch.name=master \
-                        -Dsonar.language=java \
-                        -Dsonar.java.source=1.8 \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.test=src/test/java \
-                        -Dsonar.test.inclusion=**/*Test.java \
-                        -Dsonar.issuesReport.console.enable=true \
-                        -Dsonar.junit.reportPaths=build/test-results/test \
-                        -Dsonar.java.binaries=build/classes \
-                        -Dsonar.java.libraries.empty=true \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.exclusions=**/dto/**,**/exception/**,**/constant/**,**/SpringInitProjectApplication.java,**/WebRestController.java,**/FileUploadYaml.java \
-                        -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle-output/checkstyle-report.xml \"
+                sh "${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.branch.name=master \
+                    -Dsonar.language=java \
+                    -Dsonar.java.source=1.8 \
+                    -Dsonar.sources=src/main/java \
+                    -Dsonar.test=src/test/java \
+                    -Dsonar.test.inclusion=**/*Test.java \
+                    -Dsonar.issuesReport.console.enable=true \
+                    -Dsonar.junit.reportPaths=build/test-results/test \
+                    -Dsonar.java.binaries=build/classes \
+                    -Dsonar.java.libraries.empty=true \
+                    -Dsonar.sourceEncoding=UTF-8 \
+                    -Dsonar.exclusions=**/dto/**,**/exception/**,**/constant/**,**/SpringInitProjectApplication.java,**/WebRestController.java,**/FileUploadYaml.java \
+                    -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle-output/checkstyle-report.xml \
+                    "
                 }
             }
         }
