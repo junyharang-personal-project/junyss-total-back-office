@@ -1,3 +1,7 @@
+def SET_VARIABLE = "Jenkins File 변수 설정"
+def SONARQUBE_ANALYSIS = "소나큐브 Analysis 확인"
+def SONARQUBE_QUALITY_GATE = "소나큐브 Quality Gate 확인"
+
 pipeline {
     agent any
     environment {
@@ -5,25 +9,90 @@ pipeline {
     }
 
     stages {
-        stage('Start') {
+        stage(SET_VARIABLE) {
             steps {
-                echo "Hello, Juny hehe!! 😀"
+                script {
+                    // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
+                    DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+
+                    // 소나큐브 설정
+                    SONARQUBE_SERVER_NAME = 'Jenkins SonarQube Server 설정의 Name'
+                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
+                    SONARQUBE_CREDENTIAL_ID = "Jenkins에서 등록한 SonarQube Crendential ID"
+                }
             }
         }
-    }
+    } // stage(SET_VARIABLE) 끝
+
+    stage(SONARQUBE_ANALYSIS) {
+        when {
+            branch pattern: "(develop|master)", comparator: "REGEXP"
+        }
+
+        steps {
+            script {
+                def scannerHome = tool 'SonarQube-Scanner';
+                withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.branch.name=master \
+                        -Dsonar.language=java \
+                        -Dsonar.java.source=1.8 \
+                        -Dsonar.sources=src/main/java \
+                        -Dsonar.test=src/test/java \
+                        -Dsonar.test.inclusion=**/*Test.java \
+                        -Dsonar.issuesReport.console.enable=true \
+                        -Dsonar.junit.reportPaths=build/test-results/test \
+                        -Dsonar.java.binaries=build/classes \
+                        -Dsonar.java.libraries.empty=true \
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.exclusions=**/dto/**,**/exception/**,**/constant/**,**/SpringInitProjectApplication.java,**/WebRestController.java,**/FileUploadYaml.java \
+                        -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle-output/checkstyle-report.xml \"
+                }
+            }
+        }
+    } // stage(SONARQUBE_ANALYSIS) 끝
+
+    stage(SONARQUBE_QUALITY_GATE) {
+        when {
+            branch pattern: "(feature*|develop)", comparator: "REGEXP"
+        }
+
+        steps {
+            timeout(time: 5, unit: 'MINUTES') {
+                script {
+                    echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
+
+                    def sonarQubeQualityGate = waitForQualityGate()
+                    def qualityGateStatus = sonarQubeQualityGate.status
+
+                    echo "Quality Gate 상태: ${qualityGateStatus}"
+
+                    if (qualityGateStatus != 'OK') {
+                        echo "Quality Gate 검증 상태: ${qualityGateStatus}"
+
+                        error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
+
+                    } else {
+                     echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+                }
+
+                echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+            }
+        }
+    } // stage(SONARQUBE_QUALITY_GATE) 끝
 
     post {
         success {
-            discordSend description: "Jenkins CI/CD Trigger Alarm",
-                footer: "Build 성공 하였어요. 😀",
+            discordSend description: "Build 성공 하였어요. 😀",
+                footer: "Jenkins CI/CD Trigger Alarm",
                 link: env.BUILD_URL, result: currentBuild.currentResult,
                 title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                 webhookURL: env.WEBHOOK_URL
         }
 
         failure {
-            discordSend description: "Jenkins CI/CD Trigger Alarm",
-                footer: "Build 실패 하였어요. 😢",
+            discordSend description: "Build 실패 하였어요. 😢",
+                footer: "Jenkins CI/CD Trigger Alarm",
                 link: env.BUILD_URL, result: currentBuild.currentResult,
                 title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
                 webhookURL: env.WEBHOOK_URL

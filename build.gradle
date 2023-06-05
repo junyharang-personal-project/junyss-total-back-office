@@ -2,6 +2,17 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.7'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    //Check Style (Code Convention) Plugins
+    id 'checkstyle'
+    id 'org.ec4j.editorconfig' version '0.0.3'
+    // Gradle 6.0 이상에서 Lombok 사이 호환성 문제로 Build 때, QueryDsl Error 발생을 막기 위한 설정
+    // franzbecker는 Lombok Annotation Process를 단순화 하는 Plugin
+    id "io.franzbecker.gradle-lombok" version "3.0.0"
+}
+
+//빌드 시 plain jar 파일 생성하지 않도록
+jar {
+    enabled = false
 }
 
 group = 'com.giggalpeople'
@@ -32,7 +43,7 @@ dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-jdbc' // Jdbc, Driver
     runtimeOnly 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    runtimeOnly 'com.mysql:mysql-connector-java'
+    runtimeOnly 'com.mysql:mysql-connector-j'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
 //    implementation 'mysql:mysql-connector-java:8.0.32'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
@@ -82,13 +93,13 @@ dependencies {
     implementation 'io.micrometer:micrometer-core'
 
     // Webhook을 통해 Exception 알림을 받을 때, 사용자의 IP를 통해 위치 정보값을 가져오기 위한 의존성 추가
-    implementation 'org.geotools:gt-epsg-hsql:24.0'
-    implementation 'org.geotools:gt-shapefile:24.0'
-    implementation 'org.geotools:gt-geojson:24.0'
-    implementation 'org.geotools:gt-referencing:24.0'
-    implementation 'org.geotools:gt-epsg-extension:24.0'
-    implementation 'org.geotools:gt-coverage:24.0'
-    implementation 'org.geotools:gt-main:24.0'
+    implementation 'org.geotools:gt-epsg-hsql'
+    implementation 'org.geotools:gt-shapefile'
+    implementation 'org.geotools:gt-geojson'
+    implementation 'org.geotools:gt-referencing'
+    implementation 'org.geotools:gt-epsg-extension'
+    implementation 'org.geotools:gt-coverage'
+    implementation 'org.geotools:gt-main'
 
 
     // Spring Batch 의존성 추가
@@ -99,4 +110,32 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+//checkstyle 설정
+checkstyle {
+    // 분석 결과에서 예외 발생 시 빌드 실패 발생 제외
+    ignoreFailures = true
+    // 규칙이 어긋나는 코드가 하나라도 있을 경우 빌드 fail
+    // maxWarnings = 0
+    configFile = file('config/checkstyle/naver-checkstyle-rules.xml') // 설정 파일 경로 지정
+    configProperties = ["suppressionFile" : "config/checkstyle/naver-checkstyle-suppressions.xml"]
+    reportsDir = file("build/reports/checkstyle-output")
+    // 낮은 버전 사용 시 깨지는 현상 발생. 설정 파일의 내용에 맞는 버전을 선택 필요
+    toolVersion = "10.2"
+    //지정 안해주면 빌드시 compileQuerydslJava 오류 발생
+    sourceSets = [sourceSets.main]
+    // 규칙 위반을 콘솔 표시 여부
+    showViolations = true
+}
+
+check.dependsOn editorconfigCheck
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+checkstyleMain {
+    reports {
+        // Report File 위치 및 파일명 지정
+        xml.destination = file("${checkstyle.reportsDir}/checkstyle-report.xml")
+    }
 }
