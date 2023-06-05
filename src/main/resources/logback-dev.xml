@@ -29,7 +29,7 @@
 
     <!--DiscordAppender 적용 -->
     <appender name="DISCORD"
-              class="com.giggalpeople.backoffice.chatops.logback.appender.discord.config.DiscordAppender">
+              class="com.giggalpeople.backoffice.chatops.logback.appender.discord.append.DiscordAppender">
         <discordWebhookURL>${DISCORD_WEBHOOK_URI}</discordWebhookURL>
     </appender>
 

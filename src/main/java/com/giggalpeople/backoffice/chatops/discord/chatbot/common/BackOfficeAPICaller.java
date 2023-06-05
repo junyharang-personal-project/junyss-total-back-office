@@ -15,8 +15,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import com.giggalpeople.backoffice.api.common.constant.APIUriInfo;
 import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDTO;
-import com.giggalpeople.backoffice.chatops.discord.chatbot.command.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
+import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.util.HttpUtil;
 import com.giggalpeople.backoffice.common.enumtype.CrewGrade;

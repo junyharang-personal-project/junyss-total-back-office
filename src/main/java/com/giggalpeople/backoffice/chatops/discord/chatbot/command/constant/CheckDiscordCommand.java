@@ -1,4 +1,4 @@
-package com.giggalpeople.backoffice.chatops.discord.chatbot.command;
+package com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant;
 
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
 

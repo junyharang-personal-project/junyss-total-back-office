@@ -22,9 +22,9 @@ import com.giggalpeople.backoffice.api.crew.exception.CrewException;
 import com.giggalpeople.backoffice.api.crew.exception.SuggestException;
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.Participation;
 import com.giggalpeople.backoffice.api.log.exception.ErrorLogException;
-import com.giggalpeople.backoffice.chatops.discord.chatbot.command.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.CommandUtil;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
+import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
 import com.giggalpeople.backoffice.common.env.Environment;
 import com.giggalpeople.backoffice.common.util.DataTypeChangerUtil;
 

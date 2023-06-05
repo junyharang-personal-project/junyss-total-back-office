@@ -1,4 +1,4 @@
-package com.giggalpeople.backoffice.chatops.logback.appender.discord.config;
+package com.giggalpeople.backoffice.chatops.logback.appender.discord.append;
 
 import java.awt.*;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.giggalpeople.backoffice.chatops.logback.appender.database.append.DataBaseAppender;
+import com.giggalpeople.backoffice.chatops.logback.appender.discord.config.DiscordWebHook;
 import com.giggalpeople.backoffice.chatops.logback.appender.discord.object.EmbedObject;
 import com.giggalpeople.backoffice.chatops.logback.appender.exception.ErrorLogAppenderException;
 import com.giggalpeople.backoffice.chatops.logback.appender.util.MDCUtil;

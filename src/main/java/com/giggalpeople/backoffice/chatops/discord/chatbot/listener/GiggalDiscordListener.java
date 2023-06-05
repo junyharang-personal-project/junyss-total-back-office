@@ -12,8 +12,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import com.giggalpeople.backoffice.chatops.discord.chatbot.command.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
+import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
 
 import lombok.extern.slf4j.Slf4j;
