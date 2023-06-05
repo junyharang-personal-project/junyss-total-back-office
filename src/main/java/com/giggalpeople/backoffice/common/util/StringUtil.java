@@ -2,7 +2,6 @@ package com.giggalpeople.backoffice.common.util;
 
 import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDTO;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
-import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 import com.giggalpeople.backoffice.common.env.ServerType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
