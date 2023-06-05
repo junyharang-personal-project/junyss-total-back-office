@@ -8,6 +8,7 @@ plugins {
     // Gradle 6.0 이상에서 Lombok 사이 호환성 문제로 Build 때, QueryDsl Error 발생을 막기 위한 설정
     // franzbecker는 Lombok Annotation Process를 단순화 하는 Plugin
     id "io.franzbecker.gradle-lombok" version "3.0.0"
+    id "org.sonarqube" version "3.5.0.2730"
 }
 
 //빌드 시 plain jar 파일 생성하지 않도록

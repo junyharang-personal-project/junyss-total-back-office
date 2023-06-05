@@ -60,6 +60,8 @@ pipeline {
                     def scannerHome = tool 'SonarQube-Scanner';
                     withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
                     sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=BE-Total-Back-Office \
+                        -Dsonar.projectName=BE-Total-Back-Office \
                         -Dsonar.branch.name=master \
                         -Dsonar.language=java \
                         -Dsonar.java.source=1.8 \
