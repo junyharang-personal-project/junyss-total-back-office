@@ -50,11 +50,29 @@ pipeline {
                     }
                 }
             }
+
+            post {
+                success {
+                    discordSend description: "소나큐브 Scan 작업 성공 하였어요. 😀",
+                        footer: "Jenkins CI/CD Trigger Alarm",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                        webhookURL: env.WEBHOOK_URL
+                }
+
+                failure {
+                    discordSend description: "소나큐브 Scan 작업 실패 하였어요. 😢",
+                        footer: "Jenkins CI/CD Trigger Alarm",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                        webhookURL: env.WEBHOOK_URL
+                }
+            }
         } // stage(SONARQUBE_ANALYSIS) 끝
 
         stage(SONARQUBE_QUALITY_GATE) {
             when {
-                branch pattern: "(feature*|develop)", comparator: "REGEXP"
+                branch pattern: "(develop|master)", comparator: "REGEXP"
             }
 
             steps {
@@ -74,9 +92,28 @@ pipeline {
 
                         } else {
                          echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
-                    }
+                        }
 
-                    echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+                    }
+                }
+            }
+
+            post {
+                success {
+                    discordSend description: "소나큐브 Quality Gate 작업 성공 하였어요. 😀",
+                        footer: "Jenkins CI/CD Trigger Alarm",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                        webhookURL: env.WEBHOOK_URL
+                }
+
+                failure {
+                    discordSend description: "소나큐브 Quality Gate 작업 실패 하였어요. 😢",
+                        footer: "Jenkins CI/CD Trigger Alarm",
+                        link: env.BUILD_URL, result: currentBuild.currentResult,
+                        title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                        webhookURL: env.WEBHOOK_URL
                 }
             }
         } // stage(SONARQUBE_QUALITY_GATE) 끝
