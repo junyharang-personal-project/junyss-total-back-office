@@ -1,10 +1,18 @@
 package com.giggalpeople.backoffice.chatops.discord.chatbot.util;
 
-import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
-import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.*;
-import static com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType.*;
-import static com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType.*;
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CALLER_DISCORD_BOT;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CREW;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_SUGGEST;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.CONNECTED_USER;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.LOG;
+import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.AGE_INFO;
+import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.BIRTH_DATE;
+import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.JOIN_DATE;
+import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.MEET_DATE;
+import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.SUGGEST_DATE;
+import static com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType.LOG_CREATE_DATE;
+import static com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType.USER_CONNECTED_DATE;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CREATE_API_URL_ERROR;
 
 import java.io.IOException;
 import java.net.URL;

@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.chatops.discord.chatbot.common;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.API_RESPONSE_NOT_FOUND;
 
 import java.io.IOException;
 import java.net.URL;
