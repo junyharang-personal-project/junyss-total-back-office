@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Schema(description = "Log 상세 조회를 위한 DTO")
 @Data
-public class ErrorLogDetailSearchRequestDto {
+public class ErrorRecordDetailSearchRequestDto {
 
 	@Schema(description = "조회 대상 Log ID", nullable = false, example = "1")
 	private String logId;

@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.api.record.model.dto.response;
 
-import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-public class ErrorLogListResponseDto {
+public class ErrorRecordListResponseDto {
 	@Schema(description = "Log 번호", nullable = false, example = "1")
 	private Long logId;
 
@@ -34,7 +34,7 @@ public class ErrorLogListResponseDto {
 	private String exceptionBrief;
 
 	@Builder
-	public ErrorLogListResponseDto(Long logId, String createdDateTime, String level, String serverName,
+	public ErrorRecordListResponseDto(Long logId, String createdDateTime, String level, String serverName,
 		String serverEnvironment, String serverIP, String exceptionBrief) {
 		this.logId = logId;
 		this.createdDateTime = createdDateTime;
@@ -45,15 +45,16 @@ public class ErrorLogListResponseDto {
 		this.exceptionBrief = exceptionBrief;
 	}
 
-	public static ErrorLogListResponseDto toDTO(LogTotalInfoVo logTotalInfoVO) {
-		return ErrorLogListResponseDto.builder()
-			.logId(logTotalInfoVO.getLogId())
-			.createdDateTime(logTotalInfoVO.getDataCreatedDate() + " " + logTotalInfoVO.getDataCreatedTime())
-			.level(logTotalInfoVO.getLevel())
-			.serverName(logTotalInfoVO.getServerName())
-			.serverIP(logTotalInfoVO.getServerip())
-			.serverEnvironment(logTotalInfoVO.getServerEnvironment())
-			.exceptionBrief(logTotalInfoVO.getExceptionBrief())
+	public static ErrorRecordListResponseDto toDTO(ErrorRecordTotalInfoVo errorRecordTotalInfoVO) {
+		return ErrorRecordListResponseDto.builder()
+			.logId(errorRecordTotalInfoVO.getLogId())
+			.createdDateTime(
+				errorRecordTotalInfoVO.getDataCreatedDate() + " " + errorRecordTotalInfoVO.getDataCreatedTime())
+			.level(errorRecordTotalInfoVO.getLevel())
+			.serverName(errorRecordTotalInfoVO.getServerName())
+			.serverIP(errorRecordTotalInfoVO.getServerip())
+			.serverEnvironment(errorRecordTotalInfoVO.getServerEnvironment())
+			.exceptionBrief(errorRecordTotalInfoVO.getExceptionBrief())
 			.build();
 	}
 }

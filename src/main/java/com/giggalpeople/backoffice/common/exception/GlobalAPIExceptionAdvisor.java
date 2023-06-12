@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 
 import com.giggalpeople.backoffice.api.crew.exception.CrewException;
 import com.giggalpeople.backoffice.api.crew.exception.SuggestException;
-import com.giggalpeople.backoffice.api.record.exception.ErrorLogException;
+import com.giggalpeople.backoffice.api.record.exception.ErrorRecordException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.APICallException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
 import com.giggalpeople.backoffice.chatops.logback.appender.exception.ErrorLogAppenderException;
@@ -62,7 +62,7 @@ public class GlobalAPIExceptionAdvisor {
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	@ExceptionHandler({NoSuchElementException.class, SuggestException.class, CrewException.class,
-		ErrorLogException.class})
+		ErrorRecordException.class})
 	public DefaultResponse<Void> handleSuggestException(Exception exception) {
 		log.warn("{}", exception);
 		return DefaultResponse.error(ErrorCode.NOT_FOUND, ErrorCode.NOT_FOUND.getMessage());

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.common.BackOfficeAPICaller;
 import com.giggalpeople.backoffice.chatops.logback.appender.util.MDCUtil;
 import com.giggalpeople.backoffice.common.entity.ServerInfo;
@@ -28,44 +28,44 @@ public class DataBaseAppender {
 	 */
 	public void inDBInsert(String level, String exceptionBrief, String exceptionDetail, ServerInfo serverInfo,
 		Map<String, String> mdcPropertyMap) throws IOException {
-		TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO = new TotalErrorLogSaveRequestDto();
-		totalErrorLogSaveRequestDTO.setServerEnvironment(Environment.checkServerEnvironment());
-		totalErrorLogSaveRequestDTO.setLevel(level);
-		totalErrorLogSaveRequestDTO.setCreatedAt(
+		TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO = new TotalErrorRecordSaveRequestDto();
+		totalErrorRecordSaveRequestDTO.setServerEnvironment(Environment.checkServerEnvironment());
+		totalErrorRecordSaveRequestDTO.setLevel(level);
+		totalErrorRecordSaveRequestDTO.setCreatedAt(
 			LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-		totalErrorLogSaveRequestDTO.setServerName(serverInfo.getServerName());
-		totalErrorLogSaveRequestDTO.setVmInfo(serverInfo.getVmInfo());
-		totalErrorLogSaveRequestDTO.setOsInfo(serverInfo.getOsInfo());
-		totalErrorLogSaveRequestDTO.setServerIP(serverInfo.getServerIP());
-		totalErrorLogSaveRequestDTO.setServerEnvironment(serverInfo.getServerEnvironment());
+		totalErrorRecordSaveRequestDTO.setServerName(serverInfo.getServerName());
+		totalErrorRecordSaveRequestDTO.setVmInfo(serverInfo.getVmInfo());
+		totalErrorRecordSaveRequestDTO.setOsInfo(serverInfo.getOsInfo());
+		totalErrorRecordSaveRequestDTO.setServerIP(serverInfo.getServerIP());
+		totalErrorRecordSaveRequestDTO.setServerEnvironment(serverInfo.getServerEnvironment());
 
 		for (Map.Entry<String, String> entry : mdcPropertyMap.entrySet()) {
 			String key = entry.getKey();
 			String value = entry.getValue();
 
 			if (key.equals(MDCUtil.USER_IP_MDC)) {
-				totalErrorLogSaveRequestDTO.setUserIp(value);
+				totalErrorRecordSaveRequestDTO.setUserIp(value);
 			} else if (key.equals(MDCUtil.USER_LOCATION_MDC)) {
-				totalErrorLogSaveRequestDTO.setUserLocation(value);
+				totalErrorRecordSaveRequestDTO.setUserLocation(value);
 			} else if (key.equals(MDCUtil.HEADER_MAP_MDC)) {
-				totalErrorLogSaveRequestDTO.setRequestHeader(value);
+				totalErrorRecordSaveRequestDTO.setRequestHeader(value);
 			} else if (key.equals(MDCUtil.PARAMETER_MAP_MDC)) {
-				totalErrorLogSaveRequestDTO.setRequestParameter(value);
+				totalErrorRecordSaveRequestDTO.setRequestParameter(value);
 			} else if (key.equals(MDCUtil.USER_AGENT_DETAIL_MDC)) {
-				totalErrorLogSaveRequestDTO.setUserEnvironment(value);
+				totalErrorRecordSaveRequestDTO.setUserEnvironment(value);
 			} else if (key.equals(MDCUtil.BODY_MDC)) {
-				totalErrorLogSaveRequestDTO.setRequestBody(value);
+				totalErrorRecordSaveRequestDTO.setRequestBody(value);
 			}
 
 			if (exceptionBrief != null) {
-				totalErrorLogSaveRequestDTO.setExceptionBrief(exceptionBrief);
+				totalErrorRecordSaveRequestDTO.setExceptionBrief(exceptionBrief);
 			}
 
 			if (exceptionDetail != null) {
-				totalErrorLogSaveRequestDTO.setExceptionDetail(exceptionDetail);
+				totalErrorRecordSaveRequestDTO.setExceptionDetail(exceptionDetail);
 			}
 		}
 
-		BackOfficeAPICaller.logSaveAPICall(totalErrorLogSaveRequestDTO);
+		BackOfficeAPICaller.logSaveAPICall(totalErrorRecordSaveRequestDTO);
 	}
 }

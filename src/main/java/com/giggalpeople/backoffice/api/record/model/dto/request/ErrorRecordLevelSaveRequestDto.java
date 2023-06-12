@@ -8,12 +8,12 @@ import lombok.Data;
  */
 
 @Data
-public class ErrorLogLevelSaveRequestDto {
+public class ErrorRecordLevelSaveRequestDto {
 	private Long logLevelID;
 	private String level;
 
 	@Builder
-	public ErrorLogLevelSaveRequestDto(Long logLevelID, String level) {
+	public ErrorRecordLevelSaveRequestDto(Long logLevelID, String level) {
 		this.logLevelID = logLevelID;
 		this.level = level;
 	}

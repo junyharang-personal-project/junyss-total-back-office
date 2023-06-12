@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorLogSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
 import com.giggalpeople.backoffice.common.util.StringUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,7 +23,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorLogSearchDto {
+public class ErrorRecordSearchDto {
 
 	@Schema(description = "검색 조건(종류) - LOG_ID: Log ID(생성 순번), " +
 		"LOG_CREATE_DATE: Log 생성일, " +
@@ -33,7 +33,7 @@ public class ErrorLogSearchDto {
 		"USER_IP: 이용자 IP 주소, " +
 		"EXCEPTION_BRIEF: Exception 간략 내용",
 		nullable = true, example = "SERVER_NAME")
-	private ErrorLogSearchType inputSearchType;
+	private ErrorRecordSearchType inputSearchType;
 
 	/**
 	 * <b>MyBatis에 Mapping하기 위한 검색 Type(검색 조건)</b>
@@ -126,7 +126,7 @@ public class ErrorLogSearchDto {
 	 * @param inputSearchType 이용자가 요청한 검색 타입
 	 * @return 이용자가 요청한 검색 타입을 Data Base에서 조회할 수 있는 값으로 바꾼 문자열
 	 */
-	private String putSearchTypeValue(ErrorLogSearchType inputSearchType) {
+	private String putSearchTypeValue(ErrorRecordSearchType inputSearchType) {
 		setSearchType(inputSearchType.getDescription());
 		return this.inputSearchType.getDescription();
 	}

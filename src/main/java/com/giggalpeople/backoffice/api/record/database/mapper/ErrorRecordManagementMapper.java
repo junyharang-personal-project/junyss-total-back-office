@@ -9,10 +9,10 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.record.model.vo.LogLevelVo;
-import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
-import com.giggalpeople.backoffice.api.record.model.vo.LogVo;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordLevelVo;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo;
 
 /**
  * <h2><b>Log 관리 Mybatis를 이용한 Data Base Handler</b></h2>
@@ -20,7 +20,7 @@ import com.giggalpeople.backoffice.api.record.model.vo.LogVo;
 
 @Mapper
 @Repository
-public interface LogManagementMapper {
+public interface ErrorRecordManagementMapper {
 
 	/**
 	 * <b>Data Base에 등록된 Error Log Level을 찾기 위한 Method</b>
@@ -33,46 +33,46 @@ public interface LogManagementMapper {
 
 	/**
 	 * <b>Error Log Level Table에 Error Log Level 저장</b>
-	 * @param logLevelVo Application에서 발생된 Error Level
+	 * @param errorRecordLevelVo Application에서 발생된 Error Level
 	 * @return 저장 뒤 해당 Error Level PK
 	 */
 
-	Long errorLogLevelSave(LogLevelVo logLevelVo);
+	Long errorLogLevelSave(ErrorRecordLevelVo errorRecordLevelVo);
 
 	/**
 	 * <b>Log 저장</b>
-	 * @param logVO log 정보를 Data Base에 저장하기 위한 Value Object
+	 * @param errorRecordVO log 정보를 Data Base에 저장하기 위한 Value Object
 	 * @return Log 저장 뒤 생성된 Log ID
 	 */
 
-	Long save(LogVo logVO);
+	Long save(ErrorRecordVo errorRecordVO);
 
 	/**
 	 * <b>Error Log 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
-	 * @param errorLogSearchDto Error Log 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
 	 * @return Data Base에서 조회된 Data의 ID 개수
 	 */
 
-	int totalErrorLogSearchCount(@Param("errorLogSearchDto") ErrorLogSearchDto errorLogSearchDto);
+	int totalErrorLogSearchCount(@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
-	 * @param errorLogSearchDto Error Log 검색을 위한 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
 
-	Optional<LogTotalInfoVo> findByErrorLogInfoSearchOneThing(
-		@Param("errorLogSearchDto") ErrorLogSearchDto errorLogSearchDto);
+	Optional<ErrorRecordTotalInfoVo> findByErrorLogInfoSearchOneThing(
+		@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개 이상 검색 결과가 있을 경우 Limit 절을 태워 Paging 처리를 하기 위한 Method</b>
 	 * @param criteria Paging 처리를 위한 객체
-	 * @param errorLogSearchDto Error Log 검색을 위한 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Data 목록
 	 */
 
-	List<LogTotalInfoVo> findByErrorLogInfoList(@Param("criteria") Criteria criteria,
-		@Param("errorLogSearchDto") ErrorLogSearchDto errorLogSearchDto);
+	List<ErrorRecordTotalInfoVo> findByErrorLogInfoList(@Param("criteria") Criteria criteria,
+		@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Discord Bot을 통해 팀장 이상 크루가 Error Log 상세 조회 시 이용자 정보 포함한 정보 반환 Method</b>
@@ -93,7 +93,7 @@ public interface LogManagementMapper {
 		"inner join server_info as si " +
 		"on l.internal_server_id = si.internal_server_id " +
 		"where l.log_id = #{logId}")
-	Optional<LogTotalInfoVo> detailErrorInfoFind(String logId);
+	Optional<ErrorRecordTotalInfoVo> detailErrorInfoFind(String logId);
 
 	/**
 	 * <b>Discord Bot을 통해 팀장 이하 크루가 Error Log 상세 조회 시 이용자 정보 제외한 정보 반환 Method</b>
@@ -109,5 +109,5 @@ public interface LogManagementMapper {
 		"inner join server_info as si " +
 		"on l.internal_server_id = si.internal_server_id " +
 		"where l.log_id = #{logId}")
-	Optional<LogTotalInfoVo> forGeneralCrewDetailErrorInfoFind(String logId);
+	Optional<ErrorRecordTotalInfoVo> forGeneralCrewDetailErrorInfoFind(String logId);
 }

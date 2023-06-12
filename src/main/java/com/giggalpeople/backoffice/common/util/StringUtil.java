@@ -2,7 +2,7 @@ package com.giggalpeople.backoffice.common.util;
 
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.BAD_REQUEST;
 
-import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
 import com.giggalpeople.backoffice.common.env.ServerType;
 
@@ -91,13 +91,13 @@ public class StringUtil {
 
 	/**
 	 * <b>Error Log 발생으로 인한 API 발동 시 발생 날짜와 시각을 나누기 위한 Method</b>
-	 * @param totalErrorLogSaveRequestDTO 이용자 정보, 이용자 접속 정보, Error Log 등의 정보를 담은 요청 DTO
+	 * @param totalErrorRecordSaveRequestDTO 이용자 정보, 이용자 접속 정보, Error Log 등의 정보를 담은 요청 DTO
 	 */
-	public static void dateTimeSplit(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) {
-		String[] splitCreateDateTime = totalErrorLogSaveRequestDTO.getCreatedAt().split(" ");
+	public static void dateTimeSplit(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
+		String[] splitCreateDateTime = totalErrorRecordSaveRequestDTO.getCreatedAt().split(" ");
 
-		totalErrorLogSaveRequestDTO.setCreatedDate(splitCreateDateTime[0]);
-		totalErrorLogSaveRequestDTO.setCreatedTime(splitCreateDateTime[1]);
+		totalErrorRecordSaveRequestDTO.setCreatedDate(splitCreateDateTime[0]);
+		totalErrorRecordSaveRequestDTO.setCreatedTime(splitCreateDateTime[1]);
 	}
 
 	/**

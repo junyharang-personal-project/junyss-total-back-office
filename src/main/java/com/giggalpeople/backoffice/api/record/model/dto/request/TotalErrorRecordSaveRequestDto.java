@@ -11,7 +11,7 @@ import lombok.Data;
  */
 
 @Data
-public class TotalErrorLogSaveRequestDto {
+public class TotalErrorRecordSaveRequestDto {
 	private String createdAt;
 	@JsonIgnore
 	private String createdDate;

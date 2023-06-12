@@ -14,7 +14,7 @@ import org.json.JSONObject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import com.giggalpeople.backoffice.api.common.constant.APIUriInfo;
-import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
@@ -272,11 +272,12 @@ public class BackOfficeAPICaller {
 
 	/**
 	 * <b>Log Back을 통한 Log 저장 API를 호출하여 Data Base에 Log를 저장하기 위하여 API 호출 처리를 위한 Method</b>
-	 * @param totalErrorLogSaveRequestDTO Log 정보를 담은 DTO
+	 * @param totalErrorRecordSaveRequestDTO Log 정보를 담은 DTO
 	 * @throws IOException JSONObject 처리에 문제 발생 시 발생하는 Exception
 	 */
-	public static void logSaveAPICall(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) throws IOException {
+	public static void logSaveAPICall(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) throws
+		IOException {
 		StringBuilder suffixURL = new StringBuilder(APIUriInfo.LOG);
-		ApiCallUtil.callDiscordBotPostAPI(suffixURL, totalErrorLogSaveRequestDTO);
+		ApiCallUtil.callDiscordBotPostAPI(suffixURL, totalErrorRecordSaveRequestDTO);
 	}
 }

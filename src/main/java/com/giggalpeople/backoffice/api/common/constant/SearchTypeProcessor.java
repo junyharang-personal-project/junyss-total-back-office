@@ -1,7 +1,7 @@
 package com.giggalpeople.backoffice.api.common.constant;
 
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearchType;
-import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorLogSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 
 import lombok.AccessLevel;
@@ -61,20 +61,20 @@ public class SearchTypeProcessor {
 	 */
 
 	public static String changeErrorLogSearchType(String searchType) {
-		if (searchType.equals(ErrorLogSearchType.LOG_ID.getSearchCommand())) {
-			return ErrorLogSearchType.LOG_ID.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.LOG_CREATE_DATE.getSearchCommand())) {
-			return ErrorLogSearchType.LOG_CREATE_DATE.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.LOG_LEVEL.getSearchCommand())) {
-			return ErrorLogSearchType.LOG_LEVEL.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.SERVER_NAME.getSearchCommand())) {
-			return ErrorLogSearchType.SERVER_NAME.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.SERVER_IP.getSearchCommand())) {
-			return ErrorLogSearchType.SERVER_IP.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.USER_IP.getSearchCommand())) {
-			return ErrorLogSearchType.USER_IP.getDescription();
-		} else if (searchType.equals(ErrorLogSearchType.EXCEPTION_BRIEF.getSearchCommand())) {
-			return ErrorLogSearchType.EXCEPTION_BRIEF.getDescription();
+		if (searchType.equals(ErrorRecordSearchType.LOG_ID.getSearchCommand())) {
+			return ErrorRecordSearchType.LOG_ID.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.LOG_CREATE_DATE.getSearchCommand())) {
+			return ErrorRecordSearchType.LOG_CREATE_DATE.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.LOG_LEVEL.getSearchCommand())) {
+			return ErrorRecordSearchType.LOG_LEVEL.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.SERVER_NAME.getSearchCommand())) {
+			return ErrorRecordSearchType.SERVER_NAME.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.SERVER_IP.getSearchCommand())) {
+			return ErrorRecordSearchType.SERVER_IP.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.USER_IP.getSearchCommand())) {
+			return ErrorRecordSearchType.USER_IP.getDescription();
+		} else if (searchType.equals(ErrorRecordSearchType.EXCEPTION_BRIEF.getSearchCommand())) {
+			return ErrorRecordSearchType.EXCEPTION_BRIEF.getDescription();
 		} else {
 			return searchType;
 		}

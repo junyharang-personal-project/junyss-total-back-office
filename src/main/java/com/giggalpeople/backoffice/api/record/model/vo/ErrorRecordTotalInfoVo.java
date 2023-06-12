@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class LogTotalInfoVo {
+public class ErrorRecordTotalInfoVo {
 	private Long logId;
 	private String dataCreatedDate;
 	private String dataCreatedTime;
@@ -53,7 +53,7 @@ public class LogTotalInfoVo {
 	 * @param exceptionBrief Exeception 간략 정보
 	 * @param exceptionDetail Exception 상세 정보
 	 */
-	public LogTotalInfoVo(Long logId,
+	public ErrorRecordTotalInfoVo(Long logId,
 		String dataCreatedDate,
 		String dataCreatedTime,
 		String level,

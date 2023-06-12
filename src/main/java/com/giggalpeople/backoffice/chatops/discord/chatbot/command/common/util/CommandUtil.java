@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import com.giggalpeople.backoffice.api.common.constant.APIUriInfo;
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType;
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearchType;
-import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorLogSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.common.BackOfficeAPICaller;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.common.message.DiscordBotResponseMessage;
@@ -483,12 +483,12 @@ public class CommandUtil {
 	 */
 
 	public static boolean checkErrorLogSearchType(String key) {
-		return key.matches(ErrorLogSearchType.LOG_ID.getDescription()) ||
-			key.matches(ErrorLogSearchType.LOG_LEVEL.getDescription()) ||
-			key.matches(ErrorLogSearchType.SERVER_NAME.getDescription()) ||
-			key.matches(ErrorLogSearchType.SERVER_IP.getDescription()) ||
-			key.matches(ErrorLogSearchType.USER_IP.getDescription()) ||
-			key.matches(ErrorLogSearchType.EXCEPTION_BRIEF.getDescription());
+		return key.matches(ErrorRecordSearchType.LOG_ID.getDescription()) ||
+			key.matches(ErrorRecordSearchType.LOG_LEVEL.getDescription()) ||
+			key.matches(ErrorRecordSearchType.SERVER_NAME.getDescription()) ||
+			key.matches(ErrorRecordSearchType.SERVER_IP.getDescription()) ||
+			key.matches(ErrorRecordSearchType.USER_IP.getDescription()) ||
+			key.matches(ErrorRecordSearchType.EXCEPTION_BRIEF.getDescription());
 	}
 
 	/**

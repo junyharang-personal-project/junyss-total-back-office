@@ -8,32 +8,33 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
-public class ErrorLogException extends RuntimeException {
+public class ErrorRecordException extends RuntimeException {
 
 	private ErrorCode errorCode;
 
-	public ErrorLogException(ErrorCode errorCode) {
+	public ErrorRecordException(ErrorCode errorCode) {
 		this.errorCode = errorCode;
 	}
 
-	public ErrorLogException(String message) {
+	public ErrorRecordException(String message) {
 		super(message);
 	}
 
-	public ErrorLogException(ErrorCode errorCode, String message) {
+	public ErrorRecordException(ErrorCode errorCode, String message) {
 		super(message);
 		this.errorCode = errorCode;
 	}
 
-	public ErrorLogException(String message, Throwable cause) {
+	public ErrorRecordException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public ErrorLogException(Throwable cause) {
+	public ErrorRecordException(Throwable cause) {
 		super(cause);
 	}
 
-	public ErrorLogException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+	public ErrorRecordException(String message, Throwable cause, boolean enableSuppression,
+		boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }

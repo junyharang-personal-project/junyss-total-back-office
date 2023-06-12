@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class ErrorLogSaveRequestDto {
+public class ErrorRecordSaveRequestDto {
 	private Long internalServerID;
 	private Long dataCreatedDateTimeID;
 	private Long connectedUserID;
@@ -14,7 +14,7 @@ public class ErrorLogSaveRequestDto {
 	private String exceptionDetail;
 
 	@Builder
-	public ErrorLogSaveRequestDto(Long internalServerID, Long dataCreatedDateTimeID, Long connectedUserID,
+	public ErrorRecordSaveRequestDto(Long internalServerID, Long dataCreatedDateTimeID, Long connectedUserID,
 		Long connectedUserRequestInfoID, Long logLevelID, String exceptionBrief, String exceptionDetail) {
 		this.internalServerID = internalServerID;
 		this.dataCreatedDateTimeID = dataCreatedDateTimeID;

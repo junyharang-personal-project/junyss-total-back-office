@@ -14,8 +14,8 @@ import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearch
 import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
 import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo;
 import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
@@ -242,21 +242,22 @@ public class CryptoUtil {
 
 	/**
 	 * <b>기깔나는 사람들 서비스에 접속한 이용자 정보를 암호화 하여 Data Base에 저장되어 있기 때문에 검색 시 암호화 하여 Data Base에 검색하기 위한 Method</b>
-	 * @param errorLogSearchDto Client가 검색을 위해 입력한 내용을 담은 객체
+	 * @param errorRecordSearchDto Client가 검색을 위해 입력한 내용을 담은 객체
 	 * @return 암호화된 이용자 검색 요청 DTO 객체
 	 */
 
-	public static ErrorLogSearchDto errorLogSearchEncrypt(ErrorLogSearchDto errorLogSearchDto) {
-		if (errorLogSearchDto == null) {
-			return errorLogSearchDto;
+	public static ErrorRecordSearchDto errorLogSearchEncrypt(ErrorRecordSearchDto errorRecordSearchDto) {
+		if (errorRecordSearchDto == null) {
+			return errorRecordSearchDto;
 		}
 
-		if (errorLogSearchDto.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
-			errorLogSearchDto.setSearchWord(
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), errorLogSearchDto.getSearchWord(),
+		if (errorRecordSearchDto.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
+			errorRecordSearchDto.setSearchWord(
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordSearchDto.getSearchWord(),
 					1));
 		}
-		return errorLogSearchDto;
+		return errorRecordSearchDto;
 	}
 
 	/**
@@ -312,76 +313,90 @@ public class CryptoUtil {
 	/**
 	 * <b>Data Base에 저장된 암호화된 이용자 요청 정보를 복호화 하기 위한 Method</b>
 	 *
-	 * @param logTotalInfoVO Error Log의 모든 정보를 Data Base에서 가져온 VO 객체
+	 * @param errorRecordTotalInfoVO Error Log의 모든 정보를 Data Base에서 가져온 VO 객체
 	 */
-	public static LogTotalInfoVo forGeneralCrewErrorLogDetailRequestInfoDecrypt(LogTotalInfoVo logTotalInfoVO) {
-		return new LogTotalInfoVo(
-			logTotalInfoVO.getLogId(), logTotalInfoVO.getDataCreatedDate(), logTotalInfoVO.getDataCreatedTime(),
-			logTotalInfoVO.getLevel(), logTotalInfoVO.getServerName(), logTotalInfoVO.getServerVmInfo(),
-			logTotalInfoVO.getServerOsInfo(), logTotalInfoVO.getServerip(), logTotalInfoVO.getServerEnvironment(),
+	public static ErrorRecordTotalInfoVo forGeneralCrewErrorLogDetailRequestInfoDecrypt(
+		ErrorRecordTotalInfoVo errorRecordTotalInfoVO) {
+		return new ErrorRecordTotalInfoVo(
+			errorRecordTotalInfoVO.getLogId(), errorRecordTotalInfoVO.getDataCreatedDate(),
+			errorRecordTotalInfoVO.getDataCreatedTime(),
+			errorRecordTotalInfoVO.getLevel(), errorRecordTotalInfoVO.getServerName(),
+			errorRecordTotalInfoVO.getServerVmInfo(),
+			errorRecordTotalInfoVO.getServerOsInfo(), errorRecordTotalInfoVO.getServerip(),
+			errorRecordTotalInfoVO.getServerEnvironment(),
 			"", "", "", "", "", "", "",
-			logTotalInfoVO.getExceptionBrief(), logTotalInfoVO.getExceptionDetail());
+			errorRecordTotalInfoVO.getExceptionBrief(), errorRecordTotalInfoVO.getExceptionDetail());
 	}
 
 	/**
 	 * <b>Error Log 상세 조회 시 Data Base에 암호화 되어 저장 되어 있는 이용자 접속 및 요청 정보 복호화 하기 위한 Method</b>
-	 * @param logTotalInfoVO Error Log 관련 모든 정보 담고 있는 VO
+	 * @param errorRecordTotalInfoVO Error Log 관련 모든 정보 담고 있는 VO
 	 * @return 복호화 된 Error Log 관련 모든 정보 담고 있는 VO
 	 */
-	public static LogTotalInfoVo errorLogDetailUserTotalInfoDecrypt(LogTotalInfoVo logTotalInfoVO) {
+	public static ErrorRecordTotalInfoVo errorLogDetailUserTotalInfoDecrypt(
+		ErrorRecordTotalInfoVo errorRecordTotalInfoVO) {
 
-		if (logTotalInfoVO.getRequestBody() != null) {
-			return new LogTotalInfoVo(
-				logTotalInfoVO.getLogId(),
-				logTotalInfoVO.getDataCreatedDate(),
-				logTotalInfoVO.getDataCreatedTime(),
-				logTotalInfoVO.getLevel(),
-				logTotalInfoVO.getServerName(),
-				logTotalInfoVO.getServerVmInfo(),
-				logTotalInfoVO.getServerOsInfo(),
-				logTotalInfoVO.getServerip(),
-				logTotalInfoVO.getServerEnvironment(),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserIP(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					logTotalInfoVO.getUserEnvironment(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserLocation(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getRequestHeader(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserCookies(),
+		if (errorRecordTotalInfoVO.getRequestBody() != null) {
+			return new ErrorRecordTotalInfoVo(
+				errorRecordTotalInfoVO.getLogId(),
+				errorRecordTotalInfoVO.getDataCreatedDate(),
+				errorRecordTotalInfoVO.getDataCreatedTime(),
+				errorRecordTotalInfoVO.getLevel(),
+				errorRecordTotalInfoVO.getServerName(),
+				errorRecordTotalInfoVO.getServerVmInfo(),
+				errorRecordTotalInfoVO.getServerOsInfo(),
+				errorRecordTotalInfoVO.getServerip(),
+				errorRecordTotalInfoVO.getServerEnvironment(),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), errorRecordTotalInfoVO.getUserIP(),
 					2),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					logTotalInfoVO.getRequestParameter(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getRequestBody(),
+					errorRecordTotalInfoVO.getUserEnvironment(), 2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getUserLocation(),
 					2),
-				logTotalInfoVO.getExceptionBrief(),
-				logTotalInfoVO.getExceptionDetail());
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getRequestHeader(),
+					2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getUserCookies(),
+					2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getRequestParameter(), 2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getRequestBody(),
+					2),
+				errorRecordTotalInfoVO.getExceptionBrief(),
+				errorRecordTotalInfoVO.getExceptionDetail());
 
 		} else {
-			return new LogTotalInfoVo(
-				logTotalInfoVO.getLogId(),
-				logTotalInfoVO.getDataCreatedDate(),
-				logTotalInfoVO.getDataCreatedTime(),
-				logTotalInfoVO.getLevel(),
-				logTotalInfoVO.getServerName(),
-				logTotalInfoVO.getServerVmInfo(),
-				logTotalInfoVO.getServerOsInfo(),
-				logTotalInfoVO.getServerip(),
-				logTotalInfoVO.getServerEnvironment(),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserIP(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					logTotalInfoVO.getUserEnvironment(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserLocation(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getRequestHeader(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserCookies(),
+			return new ErrorRecordTotalInfoVo(
+				errorRecordTotalInfoVO.getLogId(),
+				errorRecordTotalInfoVO.getDataCreatedDate(),
+				errorRecordTotalInfoVO.getDataCreatedTime(),
+				errorRecordTotalInfoVO.getLevel(),
+				errorRecordTotalInfoVO.getServerName(),
+				errorRecordTotalInfoVO.getServerVmInfo(),
+				errorRecordTotalInfoVO.getServerOsInfo(),
+				errorRecordTotalInfoVO.getServerip(),
+				errorRecordTotalInfoVO.getServerEnvironment(),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), errorRecordTotalInfoVO.getUserIP(),
 					2),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					logTotalInfoVO.getRequestParameter(), 2),
-				logTotalInfoVO.getRequestBody(),
-				logTotalInfoVO.getExceptionBrief(),
-				logTotalInfoVO.getExceptionDetail());
+					errorRecordTotalInfoVO.getUserEnvironment(), 2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getUserLocation(),
+					2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getRequestHeader(),
+					2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getUserCookies(),
+					2),
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+					errorRecordTotalInfoVO.getRequestParameter(), 2),
+				errorRecordTotalInfoVO.getRequestBody(),
+				errorRecordTotalInfoVO.getExceptionBrief(),
+				errorRecordTotalInfoVO.getExceptionDetail());
 		}
 	}
 

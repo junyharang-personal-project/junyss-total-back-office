@@ -26,17 +26,17 @@ import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.Pagination;
 import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
 import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
-import com.giggalpeople.backoffice.api.record.database.dao.LogManagementDao;
-import com.giggalpeople.backoffice.api.record.exception.ErrorLogException;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogDetailSearchRequestDto;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSaveRequestDto;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
-import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorLogListResponseDto;
-import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorLogTotalDetailResponseDto;
-import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
-import com.giggalpeople.backoffice.api.record.model.vo.LogVo;
-import com.giggalpeople.backoffice.api.record.service.LogService;
+import com.giggalpeople.backoffice.api.record.database.dao.ErrorRecordManagementDao;
+import com.giggalpeople.backoffice.api.record.exception.ErrorRecordException;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordListResponseDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordTotalDetailResponseDto;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo;
+import com.giggalpeople.backoffice.api.record.service.ErrorRecordService;
 import com.giggalpeople.backoffice.api.server.database.dao.ServerInfoDao;
 import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
@@ -61,38 +61,38 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class LogServiceImpl implements LogService {
+public class ErrorRecordServiceImpl implements ErrorRecordService {
 
 	private final ServerInfoDao serverInfoDAO;
 	private final OccurrenceDataDateTimeManagementDao occurrenceDataDateTimeManagementDAO;
 	private final UserInfoDao userInfoDAO;
-	private final LogManagementDao logManagementDao;
+	private final ErrorRecordManagementDao errorRecordManagementDao;
 
 	/**
 	 * <b>Log 저장</b>
 	 *
-	 * @param totalErrorLogSaveRequestDto log 정보를 담은 DTO
+	 * @param totalErrorRecordSaveRequestDto log 정보를 담은 DTO
 	 * @return Log 저장 뒤 생성된 Log ID
 	 */
 
 	@Override
-	public DefaultResponse<Map<String, Long>> save(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto) {
+	public DefaultResponse<Map<String, Long>> save(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
 
-		if (!checkNotNull(totalErrorLogSaveRequestDto)) {
-			throw new ErrorLogException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
+		if (!checkNotNull(totalErrorRecordSaveRequestDto)) {
+			throw new ErrorRecordException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
 		}
 
 		Map<String, Long> resultMap = new HashMap<>();
 
-		StringUtil.dateTimeSplit(totalErrorLogSaveRequestDto);
+		StringUtil.dateTimeSplit(totalErrorRecordSaveRequestDto);
 
-		Long internalServerSaveID = processServerInfoSave(totalErrorLogSaveRequestDto);
-		Long occurrenceInfoDateTimeSaveID = processOccurrenceInfoDateTimeSave(totalErrorLogSaveRequestDto);
-		Long connectedUserSaveID = processUserInfoSave(totalErrorLogSaveRequestDto, internalServerSaveID,
+		Long internalServerSaveID = processServerInfoSave(totalErrorRecordSaveRequestDto);
+		Long occurrenceInfoDateTimeSaveID = processOccurrenceInfoDateTimeSave(totalErrorRecordSaveRequestDto);
+		Long connectedUserSaveID = processUserInfoSave(totalErrorRecordSaveRequestDto, internalServerSaveID,
 			occurrenceInfoDateTimeSaveID);
-		Long connectedUserRequestInfoSaveID = processUserRequestInfoSave(totalErrorLogSaveRequestDto,
+		Long connectedUserRequestInfoSaveID = processUserRequestInfoSave(totalErrorRecordSaveRequestDto,
 			internalServerSaveID, occurrenceInfoDateTimeSaveID, connectedUserSaveID);
-		Long errorLogSaveID = processErrorLogInfoSave(totalErrorLogSaveRequestDto, internalServerSaveID,
+		Long errorLogSaveID = processErrorLogInfoSave(totalErrorRecordSaveRequestDto, internalServerSaveID,
 			occurrenceInfoDateTimeSaveID, connectedUserSaveID, connectedUserRequestInfoSaveID);
 
 		if (errorLogProcessNullCheck(internalServerSaveID, occurrenceInfoDateTimeSaveID, connectedUserSaveID,
@@ -104,7 +104,7 @@ public class LogServiceImpl implements LogService {
 			resultMap.put("Error Log 저장 순서 번호", errorLogSaveID);
 
 		} else {
-			throw new ErrorLogException(ERROR_SAVE_FAILURE,
+			throw new ErrorRecordException(ERROR_SAVE_FAILURE,
 				ERROR_SAVE_FAILURE.getMessage(String.valueOf(NullPointerException.class)));
 		}
 		return DefaultResponse.response(CREATE.getStatusCode(), CREATE.getMessage(), resultMap);
@@ -114,26 +114,26 @@ public class LogServiceImpl implements LogService {
 	 * <b>Discord를 통한 Error Log 목록 조회 비즈니스 로직</b>
 	 *
 	 * @param criteria          페이징 처리를 위한 정보
-	 * @param errorLogSearchDto 검색어(검색 조건) Request 객체
+	 * @param errorRecordSearchDto 검색어(검색 조건) Request 객체
 	 * @return 조회된 Error Log 목록 정보
 	 */
 	@Override
-	public DefaultListResponse<List<ErrorLogListResponseDto>> toDiscordAllErrorInfoFind(Criteria criteria,
-		ErrorLogSearchDto errorLogSearchDto) {
+	public DefaultListResponse<List<ErrorRecordListResponseDto>> toDiscordAllErrorInfoFind(Criteria criteria,
+		ErrorRecordSearchDto errorRecordSearchDto) {
 
-		int searchCount = logManagementDao.totalErrorLogSearchCount(
-			CryptoUtil.errorLogSearchEncrypt(errorLogSearchDto));
+		int searchCount = errorRecordManagementDao.totalErrorLogSearchCount(
+			CryptoUtil.errorLogSearchEncrypt(errorRecordSearchDto));
 
 		if (searchCount <= 0) {
-			throw new ErrorLogException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
+			throw new ErrorRecordException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
 
 		} else if (searchCount == 1) {
-			List<ErrorLogListResponseDto> responseDTOList = new ArrayList<>();
-			Optional<LogTotalInfoVo> byErrorLogTotalInfoSearchOneThing = logManagementDao.findByErrorLogTotalInfoSearchOneThing(
-				errorLogSearchDto);
+			List<ErrorRecordListResponseDto> responseDTOList = new ArrayList<>();
+			Optional<ErrorRecordTotalInfoVo> byErrorLogTotalInfoSearchOneThing = errorRecordManagementDao.findByErrorLogTotalInfoSearchOneThing(
+				errorRecordSearchDto);
 
 			byErrorLogTotalInfoSearchOneThing.ifPresent(
-				errorLogTotalInfoVO -> responseDTOList.add(ErrorLogListResponseDto.toDTO(errorLogTotalInfoVO)));
+				errorLogTotalInfoVO -> responseDTOList.add(ErrorRecordListResponseDto.toDTO(errorLogTotalInfoVO)));
 
 			return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, searchCount), responseDTOList);
@@ -141,10 +141,10 @@ public class LogServiceImpl implements LogService {
 
 		return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 			new Pagination(criteria, searchCount),
-			logManagementDao.findByErrorLogTotalInfoList(criteria, errorLogSearchDto)
+			errorRecordManagementDao.findByErrorLogTotalInfoList(criteria, errorRecordSearchDto)
 				.stream()
 				.filter(Objects::nonNull)
-				.map(logTotalInfoVO -> ErrorLogListResponseDto.builder()
+				.map(logTotalInfoVO -> ErrorRecordListResponseDto.builder()
 					.logId(logTotalInfoVO.getLogId())
 					.createdDateTime(logTotalInfoVO.getDataCreatedDate() + " " + logTotalInfoVO.getDataCreatedTime())
 					.level(logTotalInfoVO.getLevel())
@@ -159,35 +159,35 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Discord를 통한 Error Log 상세 조회를 위한 비즈니스 로직</b>
 	 *
-	 * @param errorLogDetailSearchRequestDto Discord에서 입력 받은 조회할 Log ID와 Crew 등급을 담은 DTO 객체
+	 * @param errorRecordDetailSearchRequestDto Discord에서 입력 받은 조회할 Log ID와 Crew 등급을 담은 DTO 객체
 	 * @return Log 상세 정보를 담은 응답 DTO 객체
 	 */
 	@Override
-	public DefaultResponse<ErrorLogTotalDetailResponseDto> toDiscordDetailErrorInfoFind(
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto) {
-		if (errorLogDetailSearchRequestDto.getCrewGrade().getGradeNum() > 3) {
-			Optional<LogTotalInfoVo> forGeneralCrewLogTotalInfoVO = logManagementDao.forGeneralCrewDetailErrorTotalInfoFind(
-				errorLogDetailSearchRequestDto.getLogId());
+	public DefaultResponse<ErrorRecordTotalDetailResponseDto> toDiscordDetailErrorInfoFind(
+		ErrorRecordDetailSearchRequestDto errorRecordDetailSearchRequestDto) {
+		if (errorRecordDetailSearchRequestDto.getCrewGrade().getGradeNum() > 3) {
+			Optional<ErrorRecordTotalInfoVo> forGeneralCrewLogTotalInfoVO = errorRecordManagementDao.forGeneralCrewDetailErrorTotalInfoFind(
+				errorRecordDetailSearchRequestDto.getLogId());
 
 			if (forGeneralCrewLogTotalInfoVO.isPresent()) {
 				return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-					new ErrorLogTotalDetailResponseDto().toDTO(
+					new ErrorRecordTotalDetailResponseDto().toDTO(
 						CryptoUtil.forGeneralCrewErrorLogDetailRequestInfoDecrypt(forGeneralCrewLogTotalInfoVO.get())));
 			} else {
-				throw new ErrorLogException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
+				throw new ErrorRecordException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
 			}
 
 		} else {
-			Optional<LogTotalInfoVo> forLeaderCrewLogVO = logManagementDao.detailErrorTotalInfoFind(
-				errorLogDetailSearchRequestDto.getLogId());
+			Optional<ErrorRecordTotalInfoVo> forLeaderCrewLogVO = errorRecordManagementDao.detailErrorTotalInfoFind(
+				errorRecordDetailSearchRequestDto.getLogId());
 
 			if (forLeaderCrewLogVO.isPresent()) {
 				return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-					new ErrorLogTotalDetailResponseDto().toDTO(
+					new ErrorRecordTotalDetailResponseDto().toDTO(
 						CryptoUtil.errorLogDetailUserTotalInfoDecrypt(forLeaderCrewLogVO.get())));
 
 			} else {
-				throw new ErrorLogException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
+				throw new ErrorRecordException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
 			}
 		}
 
@@ -196,21 +196,21 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 WAS 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processServerInfoSave(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) {
-		if (totalErrorLogSaveRequestDTO.getServerIP() != null) {
-			Long byServerIP = serverInfoDAO.findByServerID(totalErrorLogSaveRequestDTO.getServerIP());
+	private Long processServerInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
+		if (totalErrorRecordSaveRequestDTO.getServerIP() != null) {
+			Long byServerIP = serverInfoDAO.findByServerID(totalErrorRecordSaveRequestDTO.getServerIP());
 
 			if (byServerIP == null || byServerIP <= 0) {
 				return serverInfoDAO.save(ServerInfoVo.toVo(ServerInfoSaveRequestDto.builder()
-					.serverName(totalErrorLogSaveRequestDTO.getServerName())
-					.serverVmInfo(totalErrorLogSaveRequestDTO.getVmInfo())
-					.serverOsInfo(totalErrorLogSaveRequestDTO.getOsInfo())
-					.serverIP(totalErrorLogSaveRequestDTO.getServerIP())
-					.serverEnvironment(totalErrorLogSaveRequestDTO.getServerEnvironment())
+					.serverName(totalErrorRecordSaveRequestDTO.getServerName())
+					.serverVmInfo(totalErrorRecordSaveRequestDTO.getVmInfo())
+					.serverOsInfo(totalErrorRecordSaveRequestDTO.getOsInfo())
+					.serverIP(totalErrorRecordSaveRequestDTO.getServerIP())
+					.serverEnvironment(totalErrorRecordSaveRequestDTO.getServerEnvironment())
 					.build()));
 			}
 			return byServerIP;
@@ -222,21 +222,21 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 날짜와 시각 정보 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processOccurrenceInfoDateTimeSave(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) {
-		if (totalErrorLogSaveRequestDTO.getCreatedDate() != null
-			&& totalErrorLogSaveRequestDTO.getCreatedTime() != null) {
+	private Long processOccurrenceInfoDateTimeSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
+		if (totalErrorRecordSaveRequestDTO.getCreatedDate() != null
+			&& totalErrorRecordSaveRequestDTO.getCreatedTime() != null) {
 			Long byOccurrenceInfoDateTimeID = occurrenceDataDateTimeManagementDAO.findByOccurrenceInfoDateTime(
-				totalErrorLogSaveRequestDTO.getCreatedDate(), totalErrorLogSaveRequestDTO.getCreatedTime());
+				totalErrorRecordSaveRequestDTO.getCreatedDate(), totalErrorRecordSaveRequestDTO.getCreatedTime());
 
 			if (byOccurrenceInfoDateTimeID == null || byOccurrenceInfoDateTimeID <= 0) {
 				byOccurrenceInfoDateTimeID = occurrenceDataDateTimeManagementDAO.save(DataCreatedDateTimeVo.toVO(
 					DataCreatedDateTimeRequestDto.builder()
-						.createdDate(totalErrorLogSaveRequestDTO.getCreatedDate())
-						.createdTime(totalErrorLogSaveRequestDTO.getCreatedTime())
+						.createdDate(totalErrorRecordSaveRequestDTO.getCreatedDate())
+						.createdTime(totalErrorRecordSaveRequestDTO.getCreatedTime())
 						.build()));
 
 				return byOccurrenceInfoDateTimeID;
@@ -250,13 +250,14 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDto 안에 Error를 발생 시킨 요청 이용자 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDto Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDto Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processUserInfoSave(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto, Long internalServerSaveID,
+	private Long processUserInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto,
+		Long internalServerSaveID,
 		Long dataCreatedDateTimeID) {
-		if (totalErrorLogSaveRequestDto == null) {
+		if (totalErrorRecordSaveRequestDto == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveID == null) {
@@ -268,16 +269,16 @@ public class LogServiceImpl implements LogService {
 		} else {
 
 			Long isIdByUserIp = userInfoDAO.findByUserIP(
-				CryptoUtil.encryptUserIP(totalErrorLogSaveRequestDto.getUserIp()));
+				CryptoUtil.encryptUserIP(totalErrorRecordSaveRequestDto.getUserIp()));
 
 			if (isIdByUserIp == null || isIdByUserIp <= 0) {
 				return userInfoDAO.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
 					ConnectedUserInfoSaveRequestDto.builder()
 						.internalServerID(internalServerSaveID)
 						.dataCreatedDateTimeID(dataCreatedDateTimeID)
-						.userIP(totalErrorLogSaveRequestDto.getUserIp())
-						.userLocation(totalErrorLogSaveRequestDto.getUserLocation())
-						.userEnvironment(totalErrorLogSaveRequestDto.getUserEnvironment())
+						.userIP(totalErrorRecordSaveRequestDto.getUserIp())
+						.userLocation(totalErrorRecordSaveRequestDto.getUserLocation())
+						.userEnvironment(totalErrorRecordSaveRequestDto.getUserEnvironment())
 						.build())));
 
 			} else {
@@ -293,13 +294,13 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 Error를 발생 시킨 요청 이용자가 보낸 요청 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processUserRequestInfoSave(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO,
+	private Long processUserRequestInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO,
 		Long internalServerSaveID, Long dataCreatedDateTimeID, Long connectedUserID) {
-		if (totalErrorLogSaveRequestDTO == null) {
+		if (totalErrorRecordSaveRequestDTO == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveID == null) {
@@ -318,10 +319,10 @@ public class LogServiceImpl implements LogService {
 					.internalServerID(internalServerSaveID)
 					.dataCreatedDateTimeID(dataCreatedDateTimeID)
 					.connectedUserID(connectedUserID)
-					.requestHeader(totalErrorLogSaveRequestDTO.getRequestHeader())
-					.userCookiesArray(totalErrorLogSaveRequestDTO.getUserCookies())
-					.requestParameter(totalErrorLogSaveRequestDTO.getRequestParameter())
-					.requestBody(totalErrorLogSaveRequestDTO.getRequestBody())
+					.requestHeader(totalErrorRecordSaveRequestDTO.getRequestHeader())
+					.userCookiesArray(totalErrorRecordSaveRequestDTO.getUserCookies())
+					.requestParameter(totalErrorRecordSaveRequestDTO.getRequestParameter())
+					.requestBody(totalErrorRecordSaveRequestDTO.getRequestBody())
 					.build())));
 		}
 	}
@@ -329,16 +330,16 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 Error Log를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processErrorLogInfoSave(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO,
+	private Long processErrorLogInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO,
 		Long internalServerSaveId, Long occurrenceInfoDateTimeSaveId, Long connectedUserID,
 		Long connectedUserRequestInfoSaveId) {
 
-		if (totalErrorLogSaveRequestDTO == null) {
-			throw new ErrorLogException(PARAMETER_NULL,
+		if (totalErrorRecordSaveRequestDTO == null) {
+			throw new ErrorRecordException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveId == null) {
 			throw new ServerInfoException(CONNECTED_INTERNAL_SERVER_SAVE_FAILURE,
@@ -354,20 +355,21 @@ public class LogServiceImpl implements LogService {
 				CONNECTED_USER_REQUEST_SAVE_FAILURE.getMessage(String.valueOf(NullPointerException.class)));
 		} else {
 
-			Long isIDbyErrorLogLevelIp = logManagementDao.findByErrorLogLevel(totalErrorLogSaveRequestDTO.getLevel());
+			Long isIDbyErrorLogLevelIp = errorRecordManagementDao.findByErrorLogLevel(
+				totalErrorRecordSaveRequestDTO.getLevel());
 
 			if (isIDbyErrorLogLevelIp == null) {
-				throw new ErrorLogException(NOT_FOUND_ERROR_LOG_LEVEL, NOT_FOUND_ERROR_LOG_LEVEL.getMessage());
+				throw new ErrorRecordException(NOT_FOUND_ERROR_LOG_LEVEL, NOT_FOUND_ERROR_LOG_LEVEL.getMessage());
 			}
 
-			return logManagementDao.save(LogVo.toVO(ErrorLogSaveRequestDto.builder()
+			return errorRecordManagementDao.save(ErrorRecordVo.toVO(ErrorRecordSaveRequestDto.builder()
 				.internalServerID(internalServerSaveId)
 				.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveId)
 				.connectedUserID(connectedUserID)
 				.connectedUserRequestInfoID(connectedUserRequestInfoSaveId)
 				.logLevelID(isIDbyErrorLogLevelIp)
-				.exceptionBrief(totalErrorLogSaveRequestDTO.getExceptionBrief())
-				.exceptionDetail(totalErrorLogSaveRequestDTO.getExceptionDetail())
+				.exceptionBrief(totalErrorRecordSaveRequestDTO.getExceptionBrief())
+				.exceptionDetail(totalErrorRecordSaveRequestDTO.getExceptionDetail())
 				.build()));
 		}
 	}
@@ -375,16 +377,18 @@ public class LogServiceImpl implements LogService {
 	/**
 	 * <b>LogRequestDTO에 필수로 들어가야 하는 내용들이 있는지 확인하기 위한 Method</b>
 	 *
-	 * @param totalErrorLogSaveRequestDTO Log 정보를 담은 요청 객체
+	 * @param totalErrorRecordSaveRequestDTO Log 정보를 담은 요청 객체
 	 * @return Null이 있으면 false, 없으면 True 반환
 	 */
 
-	private boolean checkNotNull(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) {
-		return totalErrorLogSaveRequestDTO.getCreatedAt() != null && totalErrorLogSaveRequestDTO.getLevel() != null
-			&& totalErrorLogSaveRequestDTO.getUserIp() != null && totalErrorLogSaveRequestDTO.getUserLocation() != null
-			&& totalErrorLogSaveRequestDTO.getRequestHeader() != null
-			&& totalErrorLogSaveRequestDTO.getRequestParameter() != null
-			&& totalErrorLogSaveRequestDTO.getExceptionDetail() != null;
+	private boolean checkNotNull(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
+		return totalErrorRecordSaveRequestDTO.getCreatedAt() != null
+			&& totalErrorRecordSaveRequestDTO.getLevel() != null
+			&& totalErrorRecordSaveRequestDTO.getUserIp() != null
+			&& totalErrorRecordSaveRequestDTO.getUserLocation() != null
+			&& totalErrorRecordSaveRequestDTO.getRequestHeader() != null
+			&& totalErrorRecordSaveRequestDTO.getRequestParameter() != null
+			&& totalErrorRecordSaveRequestDTO.getExceptionDetail() != null;
 	}
 
 	/**

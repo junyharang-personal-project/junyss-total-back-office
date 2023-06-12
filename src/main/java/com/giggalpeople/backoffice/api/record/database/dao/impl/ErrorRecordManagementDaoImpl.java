@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.record.database.dao.LogManagementDao;
-import com.giggalpeople.backoffice.api.record.database.mapper.LogManagementMapper;
-import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
-import com.giggalpeople.backoffice.api.record.model.vo.LogVo;
+import com.giggalpeople.backoffice.api.record.database.dao.ErrorRecordManagementDao;
+import com.giggalpeople.backoffice.api.record.database.mapper.ErrorRecordManagementMapper;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +21,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Repository
-public class LogManagementDaoImpl implements LogManagementDao {
+public class ErrorRecordManagementDaoImpl implements ErrorRecordManagementDao {
 
-	private final LogManagementMapper logManagementMapper;
+	private final ErrorRecordManagementMapper errorRecordManagementMapper;
 
 	/**
 	 * <b>Data Base에 등록된 Error Log Level을 찾기 위한 Method</b>
@@ -33,55 +33,57 @@ public class LogManagementDaoImpl implements LogManagementDao {
 
 	@Override
 	public Long findByErrorLogLevel(String level) {
-		return logManagementMapper.findByErrorLogLevel(level);
+		return errorRecordManagementMapper.findByErrorLogLevel(level);
 	}
 
 	/**
 	 * <b>Log 저장</b>
-	 * @param logVO log 정보를 Data Base에 저장하기 위한 Value Object
+	 * @param errorRecordVO log 정보를 Data Base에 저장하기 위한 Value Object
 	 * @return Log 저장 뒤 생성된 Log ID
 	 */
 
 	@Transactional
 	@Override
-	public Long save(LogVo logVO) {
-		return logManagementMapper.save(logVO);
+	public Long save(ErrorRecordVo errorRecordVO) {
+		return errorRecordManagementMapper.save(errorRecordVO);
 	}
 
 	/**
 	 * <b>Error Log 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
-	 * @param errorLogSearchDto Error Log 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
 	 * @return Data Base에서 조회된 Data의 ID 개수
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public int totalErrorLogSearchCount(ErrorLogSearchDto errorLogSearchDto) {
-		return logManagementMapper.totalErrorLogSearchCount(errorLogSearchDto);
+	public int totalErrorLogSearchCount(ErrorRecordSearchDto errorRecordSearchDto) {
+		return errorRecordManagementMapper.totalErrorLogSearchCount(errorRecordSearchDto);
 	}
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
-	 * @param errorLogSearchDto Error Log 검색을 위한 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
 
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<LogTotalInfoVo> findByErrorLogTotalInfoSearchOneThing(ErrorLogSearchDto errorLogSearchDto) {
-		return logManagementMapper.findByErrorLogInfoSearchOneThing(errorLogSearchDto);
+	public Optional<ErrorRecordTotalInfoVo> findByErrorLogTotalInfoSearchOneThing(
+		ErrorRecordSearchDto errorRecordSearchDto) {
+		return errorRecordManagementMapper.findByErrorLogInfoSearchOneThing(errorRecordSearchDto);
 	}
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개 이상 검색 결과가 있을 경우 Limit 절을 태워 Paging 처리를 하기 위한 Method</b>
 	 * @param criteria Paging 처리를 위한 객체
-	 * @param errorLogSearchDto Error Log 검색을 위한 DTO
+	 * @param errorRecordSearchDto Error Log 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Data 목록
 	 */
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<LogTotalInfoVo> findByErrorLogTotalInfoList(Criteria criteria, ErrorLogSearchDto errorLogSearchDto) {
-		return logManagementMapper.findByErrorLogInfoList(criteria, errorLogSearchDto);
+	public List<ErrorRecordTotalInfoVo> findByErrorLogTotalInfoList(Criteria criteria,
+		ErrorRecordSearchDto errorRecordSearchDto) {
+		return errorRecordManagementMapper.findByErrorLogInfoList(criteria, errorRecordSearchDto);
 	}
 
 	/**
@@ -92,8 +94,8 @@ public class LogManagementDaoImpl implements LogManagementDao {
 
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<LogTotalInfoVo> detailErrorTotalInfoFind(String logId) {
-		return logManagementMapper.detailErrorInfoFind(logId);
+	public Optional<ErrorRecordTotalInfoVo> detailErrorTotalInfoFind(String logId) {
+		return errorRecordManagementMapper.detailErrorInfoFind(logId);
 	}
 
 	/**
@@ -104,7 +106,7 @@ public class LogManagementDaoImpl implements LogManagementDao {
 
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<LogTotalInfoVo> forGeneralCrewDetailErrorTotalInfoFind(String logId) {
-		return logManagementMapper.forGeneralCrewDetailErrorInfoFind(logId);
+	public Optional<ErrorRecordTotalInfoVo> forGeneralCrewDetailErrorTotalInfoFind(String logId) {
+		return errorRecordManagementMapper.forGeneralCrewDetailErrorInfoFind(logId);
 	}
 }

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.giggalpeople.backoffice.api.record.database.mapper.ErrorRecordManagementMapper">
+    <!-- Exception Log Level 저장 -->
+    <insert id="errorLogLevelSave" parameterType="com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordLevelVo"
+            useGeneratedKeys="true" keyProperty="logLevelID">
+        INSERT INTO log_level (LOG_LEVEL_ID, LEVEL)
+        VALUES (#{logLevelID}, #{level})
+    </insert>
+
+    <!-- Exception Log 저장 -->
+    <insert id="save" parameterType="com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo" useGeneratedKeys="true"
+            keyProperty="logId">
+        INSERT INTO log (LOG_ID,
+                         INTERNAL_SERVER_ID,
+                         DATA_CREATED_DATE_TIME_ID,
+                         CONNECTED_USER_ID,
+                         CONNECTED_USER_REQUEST_INFO_ID,
+                         LOG_LEVEL_ID,
+                         EXCEPTION_BRIEF,
+                         EXCEPTION_DETAIL)
+        VALUES (#{logId},
+                #{internalServerID},
+                #{dataCreatedDateTimeID},
+                #{connectedUserID},
+                #{connectedUserRequestInfoID},
+                #{logLevelID},
+                #{exceptionBrief},
+                #{exceptionDetail})
+    </insert>
+
+    <!-- Error Log 모든 정보(이용자 정보, 이용자 요청 정보, 서버 정보, Error Log 정보) 목록 및 검색 조회 시 조회 개수 찾기 -->
+    <select id="totalErrorLogSearchCount" resultType="java.lang.Integer">
+        select count(l.log_id)
+        from log as l
+        inner join connected_user as cu
+        on l.connected_user_id = cu.connected_user_id
+        inner join data_created_date_time as dcdt
+        on l.data_created_date_time_id = dcdt.data_created_date_time_id
+        inner join log_level as ll
+        on l.log_level_id = ll.log_level_id
+        inner join server_info as si
+        on l.internal_server_id = si.internal_server_id
+
+        <if test='errorRecordSearchDto != null and errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType != "" '>
+            <choose>
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_ID'">
+                    where l.log_id like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_LEVEL'">
+                    where ll.level like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_NAME'">
+                    where si.server_name like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_IP'">
+                    where si.server_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'USER_IP'">
+                    where cu.user_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'EXCEPTION_BRIEF'">
+                    where l.exception_brief like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+            </choose>
+
+            <if test='errorRecordSearchDto.inDBDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE'">
+                        where dcdt.data_created_date like CONCAT('%', #{errorRecordSearchDto.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='errorRecordSearchDto.inDBStartDate != null and errorRecordSearchDto.inDBEndDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE' ">
+                        where dcdt.data_created_date BETWEEN #{errorRecordSearchDto.inDBStartDate} AND
+                        #{errorRecordSearchDto.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+
+    <!-- Error Log 목록 및 검색 조회 시 조회 개수가 한 개라면 limit 절을 타지 않기 위해 사용 -->
+    <select id="findByErrorLogInfoSearchOneThing"
+            resultType="com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo">
+        select
+        l.log_id,
+        dcdt.data_created_date,
+        dcdt.data_created_time,
+        ll.level,
+        si.server_name,
+        si.server_environment,
+        si.server_ip,
+        l.exception_brief
+
+        from log as l
+        inner join connected_user as cu
+        on l.connected_user_id = cu.connected_user_id
+        inner join data_created_date_time as dcdt
+        on l.data_created_date_time_id = dcdt.data_created_date_time_id
+        inner join log_level as ll
+        on l.log_level_id = ll.log_level_id
+        inner join server_info as si
+        on l.internal_server_id = si.internal_server_id
+
+        <if test='errorRecordSearchDto != null and errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType != "" '>
+            <choose>
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_ID'">
+                    where l.log_id like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_LEVEL'">
+                    where ll.level like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_NAME'">
+                    where si.server_name like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_IP'">
+                    where si.server_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'USER_IP'">
+                    where cu.user_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'EXCEPTION_BRIEF'">
+                    where l.exception_brief like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+            </choose>
+
+            <if test='errorRecordSearchDto.inDBDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE'">
+                        where dcdt.data_created_date like CONCAT('%', #{errorRecordSearchDto.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='errorRecordSearchDto.inDBStartDate != null and errorRecordSearchDto.inDBEndDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE' ">
+                        where dcdt.data_created_date BETWEEN #{errorRecordSearchDto.inDBStartDate} AND
+                        #{errorRecordSearchDto.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+    </select>
+
+    <!-- Error Log 목록 및 검색 조회 시 조회 개수가 여러 개 일 경우 사용 -->
+    <select id="findByErrorLogInfoList" resultType="com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo">
+        select
+        l.log_id,
+        dcdt.data_created_date,
+        dcdt.data_created_time,
+        ll.level,
+        si.server_name,
+        si.server_environment,
+        si.server_ip,
+        l.exception_brief
+
+        from log as l
+        inner join connected_user as cu
+        on l.connected_user_id = cu.connected_user_id
+        inner join data_created_date_time as dcdt
+        on l.data_created_date_time_id = dcdt.data_created_date_time_id
+        inner join log_level as ll
+        on l.log_level_id = ll.log_level_id
+        inner join server_info as si
+        on l.internal_server_id = si.internal_server_id
+
+        <if test='errorRecordSearchDto != null and errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType != "" '>
+            <choose>
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_ID'">
+                    where l.log_id like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_LEVEL'">
+                    where ll.level like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_NAME'">
+                    where si.server_name like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'SERVER_IP'">
+                    where si.server_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'USER_IP'">
+                    where cu.user_ip like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+                <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'EXCEPTION_BRIEF'">
+                    where l.exception_brief like CONCAT('%', #{errorRecordSearchDto.searchWord}, '%')
+                </when>
+
+            </choose>
+
+            <if test='errorRecordSearchDto.inDBDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE'">
+                        where dcdt.data_created_date like CONCAT('%', #{errorRecordSearchDto.inDBDate}, '%')
+                    </when>
+                </choose>
+            </if>
+
+            <if test='errorRecordSearchDto.inDBStartDate != null and errorRecordSearchDto.inDBEndDate != null '>
+                <choose>
+                    <when test="errorRecordSearchDto.searchType != null and errorRecordSearchDto.searchType == 'LOG_CREATE_DATE' ">
+                        where dcdt.data_created_date BETWEEN #{errorRecordSearchDto.inDBStartDate} AND
+                        #{errorRecordSearchDto.inDBEndDate}
+                    </when>
+                </choose>
+            </if>
+        </if>
+
+        order by l.log_id desc
+        <if test='criteria.pageStart != null and criteria.perPageNum != null '>
+            limit #{criteria.pageStart}, #{criteria.perPageNum}
+        </if>
+    </select>
+</mapper>

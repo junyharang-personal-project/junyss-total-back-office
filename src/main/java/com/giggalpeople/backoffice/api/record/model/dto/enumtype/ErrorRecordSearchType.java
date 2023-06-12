@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public enum ErrorLogSearchType {
+public enum ErrorRecordSearchType {
 
 	@Schema(description = "Log ID(생성 순번)", nullable = true, example = "1")
 	LOG_ID("LOG_ID", "순서번호"),
