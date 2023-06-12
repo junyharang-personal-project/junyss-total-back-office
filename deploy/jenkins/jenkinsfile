@@ -9,32 +9,32 @@ pipeline {
     }
 
     stages {
-//        stage('Project Build 작업') {
-//            steps {
-//                sh '''
-//                    echo 'Project Build 작업을 시작 합니다!'
-//                    ./gradlew clean build --refresh-dependencies --stacktrace
-//                '''
-//            }
-//
-//            post {
-//                success {
-//                    discordSend description: "Project Build 작업 성공 하였어요. 😀",
-//                            footer: "Jenkins CI/CD Trigger Alarm",
-//                            link: env.BUILD_URL, result: currentBuild.currentResult,
-//                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-//                            webhookURL: env.WEBHOOK_URL
-//                }
-//
-//                failure {
-//                    discordSend description: "Project Build 작업 실패 하였어요. 😢",
-//                            footer: "Jenkins CI/CD Trigger Alarm",
-//                            link: env.BUILD_URL, result: currentBuild.currentResult,
-//                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-//                            webhookURL: env.WEBHOOK_URL
-//                }
-//            } // Discord Send Post 끝
-//        } // stage('Project Build 작업') 끝
+        stage('Project Build 작업') {
+            steps {
+                sh '''
+                    echo 'Project Build 작업을 시작 합니다!'
+                    ./gradlew clean build --refresh-dependencies --stacktrace
+                '''
+            }
+
+            post {
+                success {
+                    discordSend description: "Project Build 작업 성공 하였어요. 😀",
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
+                }
+
+                failure {
+                    discordSend description: "Project Build 작업 실패 하였어요. 😢",
+                            footer: "Jenkins CI/CD Trigger Alarm",
+                            link: env.BUILD_URL, result: currentBuild.currentResult,
+                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
+                            webhookURL: env.WEBHOOK_URL
+                }
+            } // Discord Send Post 끝
+        } // stage('Project Build 작업') 끝
 
         stage(SET_VARIABLE) {
             steps {
