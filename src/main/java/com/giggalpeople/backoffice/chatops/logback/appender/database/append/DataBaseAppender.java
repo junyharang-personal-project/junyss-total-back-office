@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.common.BackOfficeAPICaller;
 import com.giggalpeople.backoffice.chatops.logback.appender.util.MDCUtil;
 import com.giggalpeople.backoffice.common.entity.ServerInfo;

@@ -1,6 +1,12 @@
 package com.giggalpeople.backoffice.common.exception;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.API_PROCESSING_TAKES_LONG;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.BAD_REQUEST;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.INTERNAL_SERVER_ERROR;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_INVALID;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_LONG;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_NULL;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_SHORT;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
@@ -18,7 +24,7 @@ import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 
 import com.giggalpeople.backoffice.api.crew.exception.CrewException;
 import com.giggalpeople.backoffice.api.crew.exception.SuggestException;
-import com.giggalpeople.backoffice.api.log.exception.ErrorLogException;
+import com.giggalpeople.backoffice.api.record.exception.ErrorLogException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.APICallException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
 import com.giggalpeople.backoffice.chatops.logback.appender.exception.ErrorLogAppenderException;

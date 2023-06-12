@@ -1,8 +1,8 @@
 package com.giggalpeople.backoffice.common.util;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.BAD_REQUEST;
 
-import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorLogSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
 import com.giggalpeople.backoffice.common.env.ServerType;
 

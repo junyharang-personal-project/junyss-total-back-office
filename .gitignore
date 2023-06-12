@@ -343,7 +343,7 @@ gradle-app.setting
 application-local-db.yml
 
 ### Log Back to Log ###
-log/
+/log/
 
 ### Juny ###
 h2-db/

@@ -1,7 +1,7 @@
 package com.giggalpeople.backoffice.api.common.constant;
 
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearchType;
-import com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorLogSearchType;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 
 import lombok.AccessLevel;

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.giggalpeople.backoffice.api.log.database.mapper.LogManagementMapper">
+<mapper namespace="com.giggalpeople.backoffice.api.record.database.mapper.LogManagementMapper">
     <!-- Exception Log Level 저장 -->
-    <insert id="errorLogLevelSave" parameterType="com.giggalpeople.backoffice.api.log.model.vo.LogLevelVo"
+    <insert id="errorLogLevelSave" parameterType="com.giggalpeople.backoffice.api.record.model.vo.LogLevelVo"
             useGeneratedKeys="true" keyProperty="logLevelID">
         INSERT INTO log_level (LOG_LEVEL_ID, LEVEL)
         VALUES (#{logLevelID}, #{level})
     </insert>
 
     <!-- Exception Log 저장 -->
-    <insert id="save" parameterType="com.giggalpeople.backoffice.api.log.model.vo.LogVo" useGeneratedKeys="true"
+    <insert id="save" parameterType="com.giggalpeople.backoffice.api.record.model.vo.LogVo" useGeneratedKeys="true"
             keyProperty="logId">
         INSERT INTO log (LOG_ID,
                          INTERNAL_SERVER_ID,
@@ -91,7 +91,7 @@
 
     <!-- Error Log 목록 및 검색 조회 시 조회 개수가 한 개라면 limit 절을 타지 않기 위해 사용 -->
     <select id="findByErrorLogInfoSearchOneThing"
-            resultType="com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVo">
+            resultType="com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo">
         select
         l.log_id,
         dcdt.data_created_date,
@@ -160,7 +160,7 @@
     </select>
 
     <!-- Error Log 목록 및 검색 조회 시 조회 개수가 여러 개 일 경우 사용 -->
-    <select id="findByErrorLogInfoList" resultType="com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVo">
+    <select id="findByErrorLogInfoList" resultType="com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo">
         select
         l.log_id,
         dcdt.data_created_date,

@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.common.util;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_NULL;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -14,8 +14,8 @@ import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearch
 import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
 import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo;
 import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorLogSearchDto;
+import com.giggalpeople.backoffice.api.record.model.vo.LogTotalInfoVo;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;

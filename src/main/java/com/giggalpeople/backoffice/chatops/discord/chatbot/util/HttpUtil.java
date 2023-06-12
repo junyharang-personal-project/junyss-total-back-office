@@ -10,7 +10,7 @@ import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearch
 import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.JOIN_DATE;
 import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.MEET_DATE;
 import static com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSearchType.SUGGEST_DATE;
-import static com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType.LOG_CREATE_DATE;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorLogSearchType.LOG_CREATE_DATE;
 import static com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType.USER_CONNECTED_DATE;
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CREATE_API_URL_ERROR;
 
@@ -29,7 +29,7 @@ import com.giggalpeople.backoffice.api.common.constant.SearchTypeProcessor;
 import com.giggalpeople.backoffice.api.crew.exception.CrewException;
 import com.giggalpeople.backoffice.api.crew.exception.SuggestException;
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.Participation;
-import com.giggalpeople.backoffice.api.log.exception.ErrorLogException;
+import com.giggalpeople.backoffice.api.record.exception.ErrorLogException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.CommandUtil;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
