@@ -113,22 +113,23 @@ pipeline {
 
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
-                    script {
-                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
-                        def sonarQubeQualityGate = waitForQualityGate()
-                        def qualityGateStatus = sonarQubeQualityGate.status
-                        echo "Quality Gate 상태: ${qualityGateStatus}"
-
-                        if (qualityGateStatus != 'OK') {
-                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
-                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
-
-                        } else {
-                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
-                        }
-
-                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
-                    }
+                    waitForQualityGate abortPipeline: true
+//                    script {
+//                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
+//                        def sonarQubeQualityGate = waitForQualityGate()
+//                        def qualityGateStatus = sonarQubeQualityGate.status
+//                        echo "Quality Gate 상태: ${qualityGateStatus}"
+//
+//                        if (qualityGateStatus != 'OK') {
+//                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
+//                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
+//
+//                        } else {
+//                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+//                        }
+//
+//                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+//                    }
                 }
             }
 
