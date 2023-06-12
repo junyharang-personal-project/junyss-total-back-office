@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.giggalpeople.backoffice.api.common.constant.APIUriInfo;
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDTO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDto;
 import com.giggalpeople.backoffice.api.crew.service.CrewManagementService;
 import com.giggalpeople.backoffice.common.annotaion.ExecutionTimeCheck;
 import com.giggalpeople.backoffice.common.annotaion.UserAccessInfoCheck;
@@ -59,7 +59,7 @@ public class CrewManagementController {
 	@ExecutionTimeCheck
 	@PostMapping(APIUriInfo.API_SUGGEST)
 	public DefaultResponse<List<Long>> allSuggestInfoSave(
-		@Valid @RequestBody List<SuggestRequestDTO> suggestRequestDTO) {
+		@Valid @RequestBody List<SuggestRequestDto> suggestRequestDTO) {
 		return crewManagementService.allSuggestInfoSave(suggestRequestDTO);
 	}
 
@@ -71,7 +71,7 @@ public class CrewManagementController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@PostMapping(APIUriInfo.API_CREW)
-	public DefaultResponse<List<Long>> join(@Valid @RequestBody List<CrewJoinRequestDTO> crewJoinRequestDTO) {
+	public DefaultResponse<List<Long>> join(@Valid @RequestBody List<CrewJoinRequestDto> crewJoinRequestDTO) {
 		return crewManagementService.join(crewJoinRequestDTO);
 	}
 
@@ -84,9 +84,9 @@ public class CrewManagementController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(APIUriInfo.API_SUGGEST)
-	public DefaultListResponse<List<CrewSuggestListResponseDTO>> allSuggestInfoFind(
+	public DefaultListResponse<List<CrewSuggestListResponseDto>> allSuggestInfoFind(
 		@ModelAttribute("criteria") Criteria criteria,
-		@Valid @ModelAttribute("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO) {
+		@Valid @ModelAttribute("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO) {
 		return crewManagementService.allSuggestInfoFind(criteria, crewSuggestSearchDTO);
 	}
 
@@ -99,7 +99,7 @@ public class CrewManagementController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(APIUriInfo.API_SUGGEST + "/{suggestId}")
-	public DefaultResponse<CrewSuggestDetailResponseDTO> detailSuggestInfoFind(
+	public DefaultResponse<CrewSuggestDetailResponseDto> detailSuggestInfoFind(
 		@PathVariable("suggestId") String suggestId) {
 		return crewManagementService.detailSuggestInfoFind(suggestId);
 	}
@@ -113,9 +113,9 @@ public class CrewManagementController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(APIUriInfo.API_CREW)
-	public DefaultListResponse<List<CrewListResponseDTO>> allCrewInfoFind(
+	public DefaultListResponse<List<CrewListResponseDto>> allCrewInfoFind(
 		@ModelAttribute("criteria") Criteria criteria,
-		@ModelAttribute("crewSearchDTO") CrewPeopleManagementSearchDTO crewSearchDTO) {
+		@ModelAttribute("crewSearchDTO") CrewPeopleManagementSearchDto crewSearchDTO) {
 		return crewManagementService.allCrewInfoFind(criteria, crewSearchDTO);
 	}
 
@@ -128,7 +128,7 @@ public class CrewManagementController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(APIUriInfo.API_CREW + "/{crewNumber}")
-	public DefaultResponse<CrewDetailResponseDTO> detailCrewInfoFind(@PathVariable("crewNumber") String crewNumber) {
+	public DefaultResponse<CrewDetailResponseDto> detailCrewInfoFind(@PathVariable("crewNumber") String crewNumber) {
 		return crewManagementService.detailCrewInfoFind(crewNumber);
 	}
 

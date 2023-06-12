@@ -14,13 +14,13 @@ import org.json.JSONObject;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import com.giggalpeople.backoffice.api.common.constant.APIUriInfo;
-import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDTO;
+import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDto;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util.DiscordBotResponseMessageUtil;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.command.constant.CheckDiscordCommand;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.exception.DiscordBotException;
 import com.giggalpeople.backoffice.chatops.discord.chatbot.util.HttpUtil;
 import com.giggalpeople.backoffice.common.enumtype.CrewGrade;
-import com.giggalpeople.backoffice.common.util.APICallUtil;
+import com.giggalpeople.backoffice.common.util.ApiCallUtil;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -43,7 +43,7 @@ public class BackOfficeAPICaller {
 	public static List<String> callPeopleManagementListSearchApi(MessageReceivedEvent event, URL url) {
 		StringBuilder resultMessage = new StringBuilder();
 		try {
-			JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+			JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 			if (jsonObject.getInt("statusCode") != 200) {
 				DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
@@ -66,7 +66,7 @@ public class BackOfficeAPICaller {
 	public static List<String> callErrorLogListSearchApi(MessageReceivedEvent event, URL url) {
 		StringBuilder resultMessage = new StringBuilder();
 		try {
-			JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+			JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 			if (jsonObject.getInt("statusCode") != 200) {
 				DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
@@ -89,7 +89,7 @@ public class BackOfficeAPICaller {
 	public static List<String> callUserInfoListSearchApi(MessageReceivedEvent event, URL url) {
 		StringBuilder resultMessage = new StringBuilder();
 		try {
-			JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+			JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 			if (jsonObject.getInt("statusCode") != 200) {
 				DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
@@ -117,7 +117,7 @@ public class BackOfficeAPICaller {
 			return DiscordBotResponseMessageUtil.unAuthorization();
 		}
 
-		JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+		JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 		if (jsonObject.getInt("statusCode") != 200) {
 			DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
@@ -126,7 +126,7 @@ public class BackOfficeAPICaller {
 
 		return DiscordBotResponseMessageUtil.forLeaderCreateDetailUserInfoSearchResponseMessage(
 			Objects.requireNonNull(
-					APICallUtil.callDiscordBotGetAPI(url))
+					ApiCallUtil.callDiscordBotGetAPI(url))
 				.getJSONObject("data"));
 	}
 
@@ -219,14 +219,14 @@ public class BackOfficeAPICaller {
 	 * @throws IOException URL 처리 중 발생한 Input Output 에 대한 Exception 던지기
 	 */
 	public static String suggestDetailAPICall(MessageReceivedEvent event, URL url) throws IOException {
-		JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+		JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 		if (jsonObject.getInt("statusCode") != 200) {
 			DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
 			return "";
 		}
 		return DiscordBotResponseMessageUtil.createDetailSuggestSearchResponseMessage(
-			Objects.requireNonNull(APICallUtil.callDiscordBotGetAPI(url)).getJSONObject("data"));
+			Objects.requireNonNull(ApiCallUtil.callDiscordBotGetAPI(url)).getJSONObject("data"));
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class BackOfficeAPICaller {
 	 */
 
 	public static String crewDetailAPICall(MessageReceivedEvent event, URL url) throws IOException {
-		JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+		JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 		if (jsonObject.getInt("statusCode") != 200) {
 			DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
@@ -246,20 +246,20 @@ public class BackOfficeAPICaller {
 		}
 
 		return DiscordBotResponseMessageUtil.createDetailCrewSearchResponseMessage(
-			Objects.requireNonNull(APICallUtil.callDiscordBotGetAPI(url)).getJSONObject("data"));
+			Objects.requireNonNull(ApiCallUtil.callDiscordBotGetAPI(url)).getJSONObject("data"));
 	}
 
 	public static String errorLogDetailAPICall(MessageReceivedEvent event, URL url) throws IOException {
 		CrewGrade crewGrade = CheckDiscordCommand.checkCrewGradeString(
 			event.getMessage().getMember().getRoles().get(0).getName());
-		JSONObject jsonObject = APICallUtil.callDiscordBotGetAPI(url);
+		JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
 
 		if (jsonObject.getInt("statusCode") != 200) {
 			DiscordBotResponseMessageUtil.createErrorMessage(event, jsonObject);
 			return "";
 		}
 
-		JSONObject apiResponseData = Objects.requireNonNull(APICallUtil.callDiscordBotGetAPI(url))
+		JSONObject apiResponseData = Objects.requireNonNull(ApiCallUtil.callDiscordBotGetAPI(url))
 			.getJSONObject("data");
 
 		if (crewGrade.getGradeNum() > 3) {
@@ -275,8 +275,8 @@ public class BackOfficeAPICaller {
 	 * @param totalErrorLogSaveRequestDTO Log 정보를 담은 DTO
 	 * @throws IOException JSONObject 처리에 문제 발생 시 발생하는 Exception
 	 */
-	public static void logSaveAPICall(TotalErrorLogSaveRequestDTO totalErrorLogSaveRequestDTO) throws IOException {
+	public static void logSaveAPICall(TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDTO) throws IOException {
 		StringBuilder suffixURL = new StringBuilder(APIUriInfo.LOG);
-		APICallUtil.callDiscordBotPostAPI(suffixURL, totalErrorLogSaveRequestDTO);
+		ApiCallUtil.callDiscordBotPostAPI(suffixURL, totalErrorLogSaveRequestDTO);
 	}
 }

@@ -42,10 +42,10 @@ public class Pagination {
 		this.criteria = criteria;
 		this.totalCount = totalCount;
 
-		this.endPage = (int)(Math.ceil(criteria.getPage() / (double)criteria.getDisplayPageNum())
-			* criteria.getDisplayPageNum());
+		this.endPage = (int)(Math.ceil(criteria.getPage() / (double)criteria.getPageMoveButtonNum())
+			* criteria.getPageMoveButtonNum());
 
-		this.startPage = (endPage - criteria.getDisplayPageNum()) + 1;
+		this.startPage = (endPage - criteria.getPageMoveButtonNum()) + 1;
 
 		if (startPage <= 0) {
 			startPage = 1;
@@ -56,6 +56,6 @@ public class Pagination {
 		int realEndPage = (int)(Math.ceil((totalCount * 1.0) / criteria.getPerPageNum()));
 
 		this.endPage = realEndPage <= endPage ? realEndPage : endPage;
-		this.next = criteria.getPage() < endPage && totalCount >= criteria.getDisplayPageNum();
+		this.next = criteria.getPage() < endPage && totalCount >= criteria.getPageMoveButtonNum();
 	}
 }

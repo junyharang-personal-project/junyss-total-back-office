@@ -3,14 +3,14 @@ package com.giggalpeople.backoffice.api.crew.service;
 import java.util.List;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDTO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDto;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
 import com.giggalpeople.backoffice.common.constant.DefaultResponse;
 
@@ -26,7 +26,7 @@ public interface CrewManagementService {
 	 * @return Long - 등록된 지원자 번호
 	 */
 
-	DefaultResponse<List<Long>> allSuggestInfoSave(List<SuggestRequestDTO> suggestRequestDTO);
+	DefaultResponse<List<Long>> allSuggestInfoSave(List<SuggestRequestDto> suggestRequestDTO);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류가 결정된 크루 정보를 해당 Method를 통해 Data Base에 내용을 저장.</b>
@@ -34,7 +34,7 @@ public interface CrewManagementService {
 	 * @return Long - 크루 합류 순서 번호
 	 */
 
-	DefaultResponse<List<Long>> join(List<CrewJoinRequestDTO> crewJoinRequestDTO);
+	DefaultResponse<List<Long>> join(List<CrewJoinRequestDto> crewJoinRequestDTO);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 지원자 정보 목록 조회</b>
@@ -43,8 +43,8 @@ public interface CrewManagementService {
 	 * @return CrewSuggestListResponseDTO - 지원자 목록 조회 결과
 	 */
 
-	DefaultListResponse<List<CrewSuggestListResponseDTO>> allSuggestInfoFind(Criteria criteria,
-		CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO);
+	DefaultListResponse<List<CrewSuggestListResponseDto>> allSuggestInfoFind(Criteria criteria,
+		CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 지원자 정보 한 건 조회</b>
@@ -52,7 +52,7 @@ public interface CrewManagementService {
 	 * @return CrewSuggestDetailResponseDTO - 지원자 상세 정보
 	 */
 
-	DefaultResponse<CrewSuggestDetailResponseDTO> detailSuggestInfoFind(String suggestId);
+	DefaultResponse<CrewSuggestDetailResponseDto> detailSuggestInfoFind(String suggestId);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 크루 정보 목록 조회</b>
@@ -61,8 +61,8 @@ public interface CrewManagementService {
 	 * @return CrewListResponseDTO - 등록된 지원자 정보
 	 */
 
-	DefaultListResponse<List<CrewListResponseDTO>> allCrewInfoFind(Criteria criteria,
-		CrewPeopleManagementSearchDTO crewSearchDTO);
+	DefaultListResponse<List<CrewListResponseDto>> allCrewInfoFind(Criteria criteria,
+		CrewPeopleManagementSearchDto crewSearchDTO);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 크루 정보 한 건 조회</b>
@@ -70,7 +70,7 @@ public interface CrewManagementService {
 	 * @return CrewDetailResponseDTO - 크루 상세 정보
 	 */
 
-	DefaultResponse<CrewDetailResponseDTO> detailCrewInfoFind(String crewNumber);
+	DefaultResponse<CrewDetailResponseDto> detailCrewInfoFind(String crewNumber);
 
 	/**
 	 * <b>크루 중 중도 포기, 강제 퇴출 등으로 인해 탈회 처리가 되면 크루 정보 삭제</b>

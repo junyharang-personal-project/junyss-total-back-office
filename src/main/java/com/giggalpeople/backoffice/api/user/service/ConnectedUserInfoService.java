@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDTO;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
 import com.giggalpeople.backoffice.common.constant.DefaultResponse;
 
@@ -23,7 +23,7 @@ public interface ConnectedUserInfoService {
 	 * @param userRequestTotalInfoSaveRequestDTO 접속 일시, 이용자 정보, 이용자 요청 정보를 담은 DTO
 	 * @return 접속 일시 저장 PK, 이용자 정보 PK, 이용자 요청 정보 PK를 묶은 Map
 	 */
-	DefaultResponse<Map<String, Long>> save(UserRequestTotalInfoSaveRequestDTO userRequestTotalInfoSaveRequestDTO);
+	DefaultResponse<Map<String, Long>> save(UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestDTO);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 목록 조회를 위한 Method</b>
@@ -31,8 +31,8 @@ public interface ConnectedUserInfoService {
 	 * @param userInfoSearchDTO 검색어(검색 조건) Request 객체
 	 * @return 조회된 이용자 접속 및 요청 목록 정보
 	 */
-	DefaultListResponse<List<UserInfoListResponseDTO>> toDiscordAllUserInfoFind(Criteria criteria,
-		UserInfoSearchDTO userInfoSearchDTO);
+	DefaultListResponse<List<UserInfoListResponseDto>> toDiscordAllUserInfoFind(Criteria criteria,
+		UserInfoSearchDto userInfoSearchDTO);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
@@ -40,6 +40,6 @@ public interface ConnectedUserInfoService {
 	 * @return 이용자 접속 및 요청 정보를 담은 응답 DTO 객체
 	 */
 
-	DefaultResponse<UserInfoDetailResponseDTO> toDiscordDetailConnectedUserInfoFind(
-		UserInfoDetailSearchRequestDTO userInfoDetailSearchRequestDTO);
+	DefaultResponse<UserInfoDetailResponseDto> toDiscordDetailConnectedUserInfoFind(
+		UserInfoDetailSearchRequestDto userInfoDetailSearchRequestDTO);
 }

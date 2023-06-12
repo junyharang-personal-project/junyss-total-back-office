@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.giggalpeople.backoffice.api.user.database.mapper.UserManagementMapper">
     <!-- 서비스 접속 이용자 정보 저장 -->
-    <insert id="connectedUserSave" parameterType="com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVO"
+    <insert id="connectedUserSave" parameterType="com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo"
             useGeneratedKeys="true" keyProperty="connectedUserID">
         INSERT INTO connected_user (CONNECTED_USER_ID,
                                     INTERNAL_SERVER_ID,
@@ -20,7 +20,7 @@
 
     <!-- 서비스 접속 이용자 요청 정보 저장 -->
     <insert id="findByRequestInfoSave"
-            parameterType="com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVO"
+            parameterType="com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo"
             useGeneratedKeys="true" keyProperty="connectedUserRequestInfoID">
         INSERT INTO connected_user_request_info (CONNECTED_USER_REQUEST_INFO_ID,
                                                  INTERNAL_SERVER_ID,
@@ -80,24 +80,28 @@
         inner join connected_user as cu
         on curi.connected_user_id = cu.connected_user_id
 
-        <if test='userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType != "" '>
+        <if test='userInfoSearchDTO != null and userInfoSearchDTO.searchType != "" and userInfoSearchDTO.searchType != null '>
             <choose>
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'CONNECTED_USER_REQUEST_ID'">
+                    where cu.connected_user_id like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
+                </when>
+
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
                     where si.server_name like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
                     where si.server_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'USER_IP'">
                     where cu.user_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
             </choose>
 
             <if test='userInfoSearchDTO.inDBDate != null '>
                 <choose>
-                    <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE'">
+                    <when test="userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE'">
                         where dcdt.data_created_date like CONCAT('%', #{userInfoSearchDTO.inDBDate}, '%')
                     </when>
                 </choose>
@@ -105,7 +109,7 @@
 
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
-                    <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
+                    <when test="userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
                         where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
                         #{userInfoSearchDTO.inDBEndDate}
                     </when>
@@ -116,7 +120,7 @@
 
     <!-- 이용자 접속 및 요청 정보 목록 및 검색 조회 시 조회 개수가 한 개라면 limit 절을 타지 않기 위해 사용 -->
     <select id="findByUserInfoSearchOneThing"
-            resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO">
+            resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo">
         select curi.connected_user_request_info_id,
         dcdt.data_created_date,
         dcdt.data_created_time,
@@ -132,18 +136,21 @@
         inner join connected_user as cu
         on curi.connected_user_id = cu.connected_user_id
 
-        <if test='userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType != "" '>
+        <if test='userInfoSearchDTO != null and userInfoSearchDTO.searchType != "" and userInfoSearchDTO.searchType != null '>
             <choose>
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'CONNECTED_USER_REQUEST_ID'">
+                    where cu.connected_user_id like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
+                </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
                     where si.server_name like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
                     where si.server_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'USER_IP'">
                     where cu.user_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
             </choose>
@@ -158,7 +165,7 @@
 
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
-                    <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
+                    <when test="userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
                         where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
                         #{userInfoSearchDTO.inDBEndDate}
                     </when>
@@ -168,7 +175,7 @@
     </select>
 
     <!-- 이용자 접속 및 요청 정보 목록 및 검색 조회 시 조회 개수가 여러 개 일 경우 사용 -->
-    <select id="findByUserInfoList" resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO">
+    <select id="findByUserInfoList" resultType="com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo">
         select curi.connected_user_request_info_id,
         dcdt.data_created_date,
         dcdt.data_created_time,
@@ -184,18 +191,21 @@
         inner join connected_user as cu
         on curi.connected_user_id = cu.connected_user_id
 
-        <if test='userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType = "" '>
+        <if test='userInfoSearchDTO != null and userInfoSearchDTO.searchType != "" and userInfoSearchDTO.searchType != null '>
             <choose>
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'CONNECTED_USER_REQUEST_ID'">
+                    where cu.connected_user_id like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
+                </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_NAME'">
                     where si.server_name like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'SERVER_IP'">
                     where si.server_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
 
-                <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_IP'">
+                <when test="userInfoSearchDTO.searchWord != null and userInfoSearchDTO.searchType == 'USER_IP'">
                     where cu.user_ip like CONCAT('%', #{userInfoSearchDTO.searchWord}, '%')
                 </when>
             </choose>
@@ -210,7 +220,7 @@
 
             <if test='userInfoSearchDTO.inDBStartDate != null and userInfoSearchDTO.inDBEndDate != null '>
                 <choose>
-                    <when test="userInfoSearchDTO.searchType != null and userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
+                    <when test="userInfoSearchDTO.searchType == 'USER_CONNECTED_DATE' ">
                         where dcdt.data_created_date BETWEEN #{userInfoSearchDTO.inDBStartDate} AND
                         #{userInfoSearchDTO.inDBEndDate}
                     </when>

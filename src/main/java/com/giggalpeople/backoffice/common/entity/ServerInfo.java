@@ -16,7 +16,8 @@ public class ServerInfo {
 	}
 
 	@Builder
-	public ServerInfo(String vmInfo, String osInfo, String serverIP, String serverEnvironment) {
+	public ServerInfo(String serverName, String vmInfo, String osInfo, String serverIP, String serverEnvironment) {
+		this.serverName = serverName;
 		this.vmInfo = vmInfo;
 		this.osInfo = osInfo;
 		this.serverIP = serverIP;

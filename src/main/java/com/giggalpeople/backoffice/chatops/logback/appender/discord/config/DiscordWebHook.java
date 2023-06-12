@@ -16,7 +16,7 @@ import com.giggalpeople.backoffice.chatops.logback.appender.discord.object.Image
 import com.giggalpeople.backoffice.chatops.logback.appender.discord.object.JsonObject;
 import com.giggalpeople.backoffice.chatops.logback.appender.discord.object.Thumbnail;
 import com.giggalpeople.backoffice.chatops.logback.appender.exception.ErrorLogAppenderException;
-import com.giggalpeople.backoffice.common.util.APICallUtil;
+import com.giggalpeople.backoffice.common.util.ApiCallUtil;
 
 import lombok.Setter;
 
@@ -60,7 +60,7 @@ public class DiscordWebHook {
 		}
 
 		try {
-			APICallUtil.callDiscordAppenderPostAPI(
+			ApiCallUtil.callDiscordAppenderPostAPI(
 				this.urlString, createDiscordEmbedObject(
 					this.embeds, initializerDiscordSendForJsonObject(new JsonObject())
 				));

@@ -423,12 +423,6 @@ public class CommandUtil {
 		if (checkSearchCommand(key) && value != null) {
 			return HttpUtil.createUrnUserEtcCommandSearchType(key, value, url);
 
-			//        } else if (HttpUtil.checkAgree(value, url) || HttpUtil.checkParticipation(value, url)) {
-			//            url.append("&inputSearchType=");
-			//            url.append(key);
-			//
-			//            return true;
-
 		} else {
 			url.append("&searchWord=");
 			url.append(URLEncoder.encode(Objects.requireNonNull(value), StandardCharsets.UTF_8));

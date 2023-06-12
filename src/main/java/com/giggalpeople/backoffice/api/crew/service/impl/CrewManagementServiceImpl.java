@@ -13,19 +13,19 @@ import org.springframework.stereotype.Service;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.Pagination;
-import com.giggalpeople.backoffice.api.crew.database.dao.CrewManagementDAO;
+import com.giggalpeople.backoffice.api.crew.database.dao.CrewManagementDao;
 import com.giggalpeople.backoffice.api.crew.exception.CrewException;
 import com.giggalpeople.backoffice.api.crew.exception.SuggestException;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDTO;
-import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO;
-import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewJoinRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewListResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestDetailResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.response.CrewSuggestListResponseDto;
+import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo;
+import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo;
 import com.giggalpeople.backoffice.api.crew.service.CrewManagementService;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
 import com.giggalpeople.backoffice.common.constant.DefaultResponse;
@@ -45,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CrewManagementServiceImpl implements CrewManagementService {
 
-	private final CrewManagementDAO crewManagementDAO;
+	private final CrewManagementDao crewManagementDAO;
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 내용을 저장.</b>
@@ -55,14 +55,14 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultResponse<List<Long>> allSuggestInfoSave(List<SuggestRequestDTO> suggestRequestDTO) {
+	public DefaultResponse<List<Long>> allSuggestInfoSave(List<SuggestRequestDto> suggestRequestDTO) {
 		List<Long> crewSuggestIndexArray = new ArrayList<>();
 
 		if (suggestRequestDTO == null) {
 			throw new SuggestException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
 		}
 
-		for (SuggestRequestDTO crewSuggest : suggestRequestDTO) {
+		for (SuggestRequestDto crewSuggest : suggestRequestDTO) {
 			Optional<String> byCrewNumberInCrewSuggestInfo = crewManagementDAO.findByCrewNumberInCrewSuggestInfo(
 				crewSuggest.getCrewNumber());
 
@@ -82,10 +82,10 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultResponse<List<Long>> join(List<CrewJoinRequestDTO> crewJoinRequestDTO) {
+	public DefaultResponse<List<Long>> join(List<CrewJoinRequestDto> crewJoinRequestDTO) {
 		List<Long> crewIndexArray = new ArrayList<>();
 
-		for (CrewJoinRequestDTO crewInfo : crewJoinRequestDTO) {
+		for (CrewJoinRequestDto crewInfo : crewJoinRequestDTO) {
 			if (crewInfo == null) {
 				throw new CrewException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
 			}
@@ -97,12 +97,12 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 				throw new CrewException(NOT_EXIST_SUGGEST, NOT_EXIST_SUGGEST.getMessage());
 			}
 
-			Optional<JoinInfoVO> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(crewInfo.getCrewNumber());
+			Optional<JoinInfoVo> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(crewInfo.getCrewNumber());
 
 			if (crewJoinInfoVO.isEmpty()) {
-				CrewJoinRequestDTO changeCrewInfo = crewInfoChange(crewInfo);
+				CrewJoinRequestDto changeCrewInfo = crewInfoChange(crewInfo);
 
-				crewIndexArray.add(crewManagementDAO.crewJoin(JoinInfoVO.toVO(changeCrewInfo, crewSuggestId.get())));
+				crewIndexArray.add(crewManagementDAO.crewJoin(JoinInfoVo.toVO(changeCrewInfo, crewSuggestId.get())));
 			}
 		}
 		return DefaultResponse.response(CREATE.getStatusCode(), CREATE.getMessage(), crewIndexArray);
@@ -117,9 +117,9 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultListResponse<List<CrewSuggestListResponseDTO>> allSuggestInfoFind(Criteria criteria,
-		CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO) {
-		List<CrewSuggestListResponseDTO> responseDTOList = new ArrayList<>();
+	public DefaultListResponse<List<CrewSuggestListResponseDto>> allSuggestInfoFind(Criteria criteria,
+		CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO) {
+		List<CrewSuggestListResponseDto> responseDTOList = new ArrayList<>();
 
 		String crewSuggestInfoSearchEncryption = CryptoUtil.crewSuggestInfoSearchEncryption(
 			crewSuggestSearchDTO.getSearchType(), crewSuggestSearchDTO.getSearchWord());
@@ -133,12 +133,12 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 			throw new SuggestException(NOT_EXIST_SUGGEST, NOT_EXIST_SUGGEST.getMessage());
 
 		} else if (searchCount == 1) {
-			Optional<SuggestInfoVO> byCrewSuggestInfoSearchOneThing = crewManagementDAO.findByCrewSuggestInfoSearchOneThing(
+			Optional<SuggestInfoVo> byCrewSuggestInfoSearchOneThing = crewManagementDAO.findByCrewSuggestInfoSearchOneThing(
 				crewSuggestSearchDTO, crewSuggestInfoSearchEncryption);
 
 			byCrewSuggestInfoSearchOneThing.ifPresent(crewSuggestInfoVO ->
 				responseDTOList.add(
-					CrewSuggestListResponseDTO.toDTO(
+					CrewSuggestListResponseDto.toDTO(
 						CryptoUtil.crewSuggestListInfoDecrypt(crewSuggestInfoVO))));
 
 			return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
@@ -154,7 +154,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 					.stream()
 					.filter(Objects::nonNull)
 					.map(CryptoUtil::crewSuggestListInfoDecrypt)
-					.map(crewSuggestInfoVO -> CrewSuggestListResponseDTO.builder()
+					.map(crewSuggestInfoVO -> CrewSuggestListResponseDto.builder()
 						.suggestId(crewSuggestInfoVO.getSuggestId())
 						.crewNumber(crewSuggestInfoVO.getCrewNumber())
 						.suggestDate(crewSuggestInfoVO.getSuggestDate())
@@ -183,15 +183,15 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultResponse<CrewSuggestDetailResponseDTO> detailSuggestInfoFind(String suggestId) {
-		Optional<SuggestInfoVO> crewSuggestInfoVO = crewManagementDAO.detailSuggestInfoFind(suggestId);
+	public DefaultResponse<CrewSuggestDetailResponseDto> detailSuggestInfoFind(String suggestId) {
+		Optional<SuggestInfoVo> crewSuggestInfoVO = crewManagementDAO.detailSuggestInfoFind(suggestId);
 
 		if (crewSuggestInfoVO.isEmpty()) {
 			throw new SuggestException(NOT_EXIST_SUGGEST, NOT_EXIST_SUGGEST.getMessage());
 		}
 
 		return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-			CrewSuggestDetailResponseDTO.toDTO(CryptoUtil.crewSuggestDetailInfoDecrypt(crewSuggestInfoVO.get())));
+			CrewSuggestDetailResponseDto.toDTO(CryptoUtil.crewSuggestDetailInfoDecrypt(crewSuggestInfoVO.get())));
 	}
 
 	/**
@@ -203,8 +203,8 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultListResponse<List<CrewListResponseDTO>> allCrewInfoFind(Criteria criteria,
-		CrewPeopleManagementSearchDTO crewSearchDTO) {
+	public DefaultListResponse<List<CrewListResponseDto>> allCrewInfoFind(Criteria criteria,
+		CrewPeopleManagementSearchDto crewSearchDTO) {
 		String crewSearchEncryptionValue = CryptoUtil.crewSuggestInfoSearchEncryption(crewSearchDTO.getSearchType(),
 			crewSearchDTO.getSearchWord());
 
@@ -214,13 +214,13 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 			throw new CrewException(NOT_EXIST_CREW, NOT_EXIST_CREW.getMessage());
 
 		} else if (searchCount == 1) {
-			List<CrewListResponseDTO> responseDTOList = new ArrayList<>();
+			List<CrewListResponseDto> responseDTOList = new ArrayList<>();
 
-			Optional<JoinInfoVO> byCrewInfoSearchOneThing = crewManagementDAO.findByCrewInfoSearchOneThing(
+			Optional<JoinInfoVo> byCrewInfoSearchOneThing = crewManagementDAO.findByCrewInfoSearchOneThing(
 				crewSearchDTO, crewSearchEncryptionValue);
 
 			byCrewInfoSearchOneThing.ifPresent(crewJoinInfoVO -> responseDTOList.add(
-				CrewListResponseDTO.toDTO(CryptoUtil.crewListInfoDecrypt(crewJoinInfoVO))));
+				CrewListResponseDto.toDTO(CryptoUtil.crewListInfoDecrypt(crewJoinInfoVO))));
 
 			return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				createPaging(criteria, searchCount), responseDTOList);
@@ -234,7 +234,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 					.stream()
 					.filter(Objects::nonNull)
 					.map(CryptoUtil::crewListInfoDecrypt)
-					.map(crewJoinInfoVO -> CrewListResponseDTO.builder()
+					.map(crewJoinInfoVO -> CrewListResponseDto.builder()
 						.suggestId(crewJoinInfoVO.getSuggestId())
 						.crewJoinId(crewJoinInfoVO.getCrewJoinId())
 						.crewNumber(crewJoinInfoVO.getCrewNumber())
@@ -263,14 +263,14 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 */
 
 	@Override
-	public DefaultResponse<CrewDetailResponseDTO> detailCrewInfoFind(String crewNumber) {
-		Optional<JoinInfoVO> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(crewNumber);
+	public DefaultResponse<CrewDetailResponseDto> detailCrewInfoFind(String crewNumber) {
+		Optional<JoinInfoVo> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(crewNumber);
 
 		if (crewJoinInfoVO.isEmpty()) {
 			throw new CrewException(NOT_EXIST_CREW, NOT_EXIST_CREW.getMessage());
 		}
 		return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-			CrewDetailResponseDTO.toDTO(CryptoUtil.crewDetailInfoDecrypt(crewJoinInfoVO.get())));
+			CrewDetailResponseDto.toDTO(CryptoUtil.crewDetailInfoDecrypt(crewJoinInfoVO.get())));
 	}
 
 	/**
@@ -283,7 +283,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	@Override
 	public DefaultResponse<Long> deleteCrewInfo(String crewNumber) {
 		String checkCrewNumber = DataTypeChangerUtil.changeCrewNumber(crewNumber);
-		Optional<JoinInfoVO> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(checkCrewNumber);
+		Optional<JoinInfoVo> crewJoinInfoVO = crewManagementDAO.detailCrewInfoFind(checkCrewNumber);
 
 		if (crewJoinInfoVO.isEmpty()) {
 			throw new CrewException(NOT_EXIST_CREW, NOT_EXIST_CREW.getMessage());
@@ -316,7 +316,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 * @return CrewSuggestRequestDTO - 변경 된 크루 지원 정보
 	 */
 
-	private CrewJoinRequestDTO crewInfoChange(CrewJoinRequestDTO crewJoinRequestDTO) {
+	private CrewJoinRequestDto crewInfoChange(CrewJoinRequestDto crewJoinRequestDTO) {
 		Optional<Long> byCrewNumberInCrew = crewManagementDAO.findByCrewNumberInCrew(
 			crewJoinRequestDTO.getCrewNumber().replace("-", ""));
 
@@ -334,7 +334,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 	 *
 	 * @param crewJoinRequestDTO 합류할 크루의 정보를 담은 DTO
 	 */
-	private void createInsideCrewInfo(CrewJoinRequestDTO crewJoinRequestDTO) {
+	private void createInsideCrewInfo(CrewJoinRequestDto crewJoinRequestDTO) {
 		if (Objects.equals(crewJoinRequestDTO.getUserId(), "") || crewJoinRequestDTO.getUserId() == null) {
 			crewJoinRequestDTO.setUserId("u" + crewJoinRequestDTO.getCrewNumber().replace("-", ""));
 		}
@@ -349,14 +349,14 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 				createCrewNumberInDash(crewJoinRequestDTO);
 			}
 
-			Optional<SuggestInfoVO> detailCrewBySuggestInfo = crewManagementDAO.joinCrewBySuggestInfo(
+			Optional<SuggestInfoVo> detailCrewBySuggestInfo = crewManagementDAO.joinCrewBySuggestInfo(
 				crewJoinRequestDTO.getCrewNumber());
 
 			if (detailCrewBySuggestInfo.isEmpty()) {
 				throw new SuggestException(NOT_EXIST_SUGGEST, NOT_EXIST_SUGGEST.getMessage());
 			}
 
-			CrewSuggestDetailResponseDTO decryptCrewBySuggestInfo = CrewSuggestDetailResponseDTO.toDTO(
+			CrewSuggestDetailResponseDto decryptCrewBySuggestInfo = CrewSuggestDetailResponseDto.toDTO(
 				CryptoUtil.crewSuggestDetailInfoDecrypt(detailCrewBySuggestInfo.get()));
 
 			String crewPart = changePartForCrewAlias(decryptCrewBySuggestInfo.getSuggestPart());
@@ -371,7 +371,7 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 		}
 	}
 
-	private void createCrewNumberInDash(CrewJoinRequestDTO crewJoinRequestDTO) {
+	private void createCrewNumberInDash(CrewJoinRequestDto crewJoinRequestDTO) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(crewJoinRequestDTO.getCrewNumber());
 		sb.insert(4, "-");
@@ -436,8 +436,8 @@ public class CrewManagementServiceImpl implements CrewManagementService {
 		return crewAliasPartName;
 	}
 
-	public List<SuggestInfoVO> findByCrewSuggestInfoList(Criteria criteria,
-		CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO, String crewSuggestInfoSearchEncryption) {
+	public List<SuggestInfoVo> findByCrewSuggestInfoList(Criteria criteria,
+		CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO, String crewSuggestInfoSearchEncryption) {
 		return crewManagementDAO.findByCrewSuggestInfoList(criteria, crewSuggestSearchDTO,
 			crewSuggestInfoSearchEncryption);
 	}

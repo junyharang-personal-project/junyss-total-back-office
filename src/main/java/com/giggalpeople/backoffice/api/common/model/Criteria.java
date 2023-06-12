@@ -26,7 +26,7 @@ public class Criteria {
 	private int perPageNum;
 
 	@Schema(description = "Paging 처리 시 화면에 보여질 Page Button 개수", nullable = true, example = "10", defaultValue = "10")
-	private int displayPageNum;
+	private int pageMoveButtonNum;
 
 	/**
 	 * <b>기본 생성자</b>
@@ -41,8 +41,8 @@ public class Criteria {
 			this.perPageNum = 10;
 		}
 
-		if (displayPageNum <= 0) {
-			this.displayPageNum = 10;
+		if (pageMoveButtonNum <= 0) {
+			this.pageMoveButtonNum = 10;
 		}
 	}
 
@@ -81,14 +81,14 @@ public class Criteria {
 
 	/**
 	 * <b>Paging 처리 시 화면에 보여질 Page Button 개수를 계산하기 위한 Setter</b>
-	 * @param displayPageNum Client에서 요청 받은 화면에 보여질 Page Button 개수
+	 * @param pageMoveButtonNum Client에서 요청 받은 화면에 보여질 Page Button 개수
 	 */
 
-	public void setDisplayPageNum(int displayPageNum) {
-		if (displayPageNum <= 0) {
-			this.displayPageNum = 10;
+	public void setPageMoveButtonNum(int pageMoveButtonNum) {
+		if (pageMoveButtonNum <= 0) {
+			this.pageMoveButtonNum = 10;
 		} else {
-			this.displayPageNum = displayPageNum;
+			this.pageMoveButtonNum = pageMoveButtonNum;
 		}
 	}
 }

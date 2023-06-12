@@ -3,23 +3,19 @@ package com.giggalpeople.backoffice.api.user.controller;
 import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDTO;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
 import com.giggalpeople.backoffice.api.user.service.ConnectedUserInfoService;
 import com.giggalpeople.backoffice.common.annotaion.ExecutionTimeCheck;
 import com.giggalpeople.backoffice.common.annotaion.UserAccessInfoCheck;
@@ -46,18 +42,18 @@ public class ConnectedUserInfoController {
 
 	private final ConnectedUserInfoService connectedUserInfoService;
 
-	@Operation(summary = "접속 이용자 정보 저장", description = "접속 이용자 정보 저장하기 위한 API로써 해당 API는 자동으로 동작하는 API로 Client 개발 시 이용하지 않습니다.")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "201", description = "등록 성공"),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
-		@ApiResponse(responseCode = "500", description = "서버 에러")
-	})
-	@ExecutionTimeCheck
-	@PostMapping(CONNECTED_USER)
-	public DefaultResponse<Map<String, Long>> save(
-		@Valid @RequestBody UserRequestTotalInfoSaveRequestDTO userRequestTotalInfoSaveRequestDTO) {
-		return connectedUserInfoService.save(userRequestTotalInfoSaveRequestDTO);
-	}
+	// @Operation(summary = "접속 이용자 정보 저장", description = "접속 이용자 정보 저장하기 위한 API로써 해당 API는 자동으로 동작하는 API로 Client 개발 시 이용하지 않습니다.")
+	// @ApiResponses(value = {
+	// 	@ApiResponse(responseCode = "201", description = "등록 성공"),
+	// 	@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+	// 	@ApiResponse(responseCode = "500", description = "서버 에러")
+	// })
+	// @ExecutionTimeCheck
+	// @PostMapping(CONNECTED_USER)
+	// public DefaultResponse<Map<String, Long>> save(
+	// 	@Valid @RequestBody UserRequestTotalInfoSaveRequestDTO userRequestTotalInfoSaveRequestDto) {
+	// 	return connectedUserInfoService.save(userRequestTotalInfoSaveRequestDto);
+	// }
 
 	@Operation(summary = "Discord Bot을 이용한 이용자 접속 및 요청 정보 목록 조회", description = "이용자 접속 및 요청 정보 목록 조회 API")
 	@ApiResponses(value = {
@@ -68,9 +64,9 @@ public class ConnectedUserInfoController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(API_CALLER_DISCORD_BOT + CONNECTED_USER + "/lists")
-	public DefaultListResponse<List<UserInfoListResponseDTO>> toDiscordAllConnectedUserInfoFind(
+	public DefaultListResponse<List<UserInfoListResponseDto>> toDiscordAllConnectedUserInfoFind(
 		@ModelAttribute("criteria") Criteria criteria,
-		@Valid @ModelAttribute("errorLogSearchDTO") UserInfoSearchDTO userInfoSearchDTO) {
+		@Valid @ModelAttribute("userInfoSearchDTO") UserInfoSearchDto userInfoSearchDTO) {
 		return connectedUserInfoService.toDiscordAllUserInfoFind(criteria, userInfoSearchDTO);
 	}
 
@@ -83,8 +79,8 @@ public class ConnectedUserInfoController {
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
 	@GetMapping(API_CALLER_DISCORD_BOT + CONNECTED_USER + "/details")
-	public DefaultResponse<UserInfoDetailResponseDTO> toDiscordDetailConnectedUserInfoFind(
-		@Valid @ModelAttribute("userInfoDetailSearchRequestDTO") UserInfoDetailSearchRequestDTO userInfoDetailSearchRequestDTO) {
+	public DefaultResponse<UserInfoDetailResponseDto> toDiscordDetailConnectedUserInfoFind(
+		@Valid @ModelAttribute("userInfoDetailSearchRequestDTO") UserInfoDetailSearchRequestDto userInfoDetailSearchRequestDTO) {
 		return connectedUserInfoService.toDiscordDetailConnectedUserInfoFind(userInfoDetailSearchRequestDTO);
 	}
 }

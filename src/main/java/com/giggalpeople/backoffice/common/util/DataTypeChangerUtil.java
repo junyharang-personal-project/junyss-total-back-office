@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDTO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDto;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -240,7 +240,7 @@ public class DataTypeChangerUtil {
 	 * @param crewSuggestSearchDTO Client에서 입력한 검색을 위한 내용을 담은 객체
 	 */
 
-	public static void checkAgreeType(CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO) {
+	public static void checkAgreeType(CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO) {
 		if (crewSuggestSearchDTO.getSearchType().equals("PRIVACY_INFO_AGREE") && crewSuggestSearchDTO.getSearchWord()
 			.equals("동의")) {
 			crewSuggestSearchDTO.setInDBPrivacyInfoAgree(true);

@@ -430,32 +430,6 @@ public class HttpUtil {
 	}
 
 	/**
-	 * <b>Discrod Bot을 통해 개인 정보 수집 동의 여부와 추가 사항 동의 여부 확인 시 Client가 입력한 동의 혹은 미동의 문자열을 Boolean Type으로 변경하여 URL을 만들기 위한 Method</b>
-	 *
-	 * @param value Client가 입력한 동의 혹은 미동의 문자열
-	 * @param url   API 호출을 위한 URL
-	 * @return 개인 정보 수집 동의 여부와 추가 사항 동의 여부 검색으로 인하여 URL이 만들어지면 True 아니면 Flase 반환
-	 */
-
-	//    public static boolean checkAgree(String value, StringBuilder url) {
-	//        if (AgreeType.AGREE.getDescription().equals(value)) {
-	//            url.append("&searchWord=");
-	//            url.append(HttpUtil.createCommonEncodeURL(String.valueOf(AgreeType.AGREE.getDescription())));
-	//
-	//            return true;
-	//
-	//        } else if (AgreeType.DISAGREE.getDescription().equals(value)) {
-	//            url.append("&searchWord=");
-	//            url.append(HttpUtil.createCommonEncodeURL(String.valueOf(AgreeType.DISAGREE.getDescription())));
-	//
-	//            return true;
-	//
-	//        } else {
-	//            return false;
-	//        }
-	//    }
-
-	/**
 	 * <b>지원자 참여 여부에 따른 URN을 만들기 위한 Method</b>
 	 * @param value 사용자가 Discord Bot을 통해 요청한 검색어
 	 * @param url 상위 URL

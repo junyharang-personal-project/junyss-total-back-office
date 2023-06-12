@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.giggalpeople.backoffice.api.crew.database.mapper.CrewManagementMapper">
     <!-- 지원자 정보 저장 -->
-    <insert id="newSuggestInfoSave" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO"
+    <insert id="newSuggestInfoSave" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo"
             useGeneratedKeys="true" keyProperty="suggestId">
         INSERT INTO suggest (SUGGEST_ID,
                              HOW_KNOW_INFO,
@@ -79,7 +79,7 @@
     </insert>
 
     <!-- 크루 정보 저장 -->
-    <insert id="crewJoin" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO"
+    <insert id="crewJoin" parameterType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo"
             useGeneratedKeys="true" keyProperty="crewJoinId">
         INSERT INTO crew (SUGGEST_ID,
                           JOIN_DATE,
@@ -200,7 +200,7 @@
     </select>
 
     <!-- 지원자 목록 조회 및 검색 -->
-    <select id="findByCrewSuggestInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
+    <select id="findByCrewSuggestInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo">
         select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info,
         last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree,
         participation, meet_date
@@ -312,7 +312,7 @@
 
     <!-- 지원자 목록 조회 및 검색 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
     <select id="findByCrewSuggestInfoSearchOneThing"
-            resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO">
+            resultType="com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo">
         select suggest_id, crew_number, suggest_date, how_know_info, name, sex, email, age_info, mbti, job_info,
         last_educational, school_name, station_name, suggest_part, privacy_info_agree, addendum_info_agree,
         participation, meet_date
@@ -517,7 +517,7 @@
     </select>
 
     <!-- 크루 목록 조회 및 검색 -->
-    <select id="findByCrewInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO">
+    <select id="findByCrewInfoList" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo">
         select c.*, s.*
         from crew as c
         inner join suggest as s
@@ -621,7 +621,7 @@
     </select>
 
     <!-- 크루 목록 검색으로 조회 (검색 결과가 하나일 때 limit 절을 타지 않기 위해 사용) -->
-    <select id="findByCrewInfoSearchOneThing" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO">
+    <select id="findByCrewInfoSearchOneThing" resultType="com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo">
         select c.*, s.*
         from crew as c
         inner join suggest as s

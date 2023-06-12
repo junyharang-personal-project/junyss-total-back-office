@@ -11,16 +11,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.giggalpeople.backoffice.api.crew.model.dto.enumtype.CrewSuggestSearchType;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDTO;
-import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO;
-import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogSearchDTO;
-import com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.SuggestRequestDto;
+import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo;
+import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo;
+import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogSearchDto;
+import com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVo;
 import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType;
-import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO;
-import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO;
-import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDTO;
+import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
+import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.common.exception.CryptoException;
 import com.junyharang.datasecret.DataAesSecret;
 
@@ -64,7 +65,7 @@ public class CryptoUtil {
 	 * @param suggestRequestDTO 크루 합류 지원자 신청 정보
 	 * @return CrewSuggestRequestDTO - 일부 암호화 된 크루 합류 지원자 신청 정보
 	 */
-	public static SuggestRequestDTO crewSuggestInfoEncrypt(SuggestRequestDTO suggestRequestDTO) {
+	public static SuggestRequestDto crewSuggestInfoEncrypt(SuggestRequestDto suggestRequestDTO) {
 		suggestRequestDTO.setEmail(
 			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), suggestRequestDTO.getEmail(), 1));
 		suggestRequestDTO.setName(
@@ -108,7 +109,7 @@ public class CryptoUtil {
 	 * @return CrewSuggestInfoVO - 일부 복호화 된 크루 합류 지원자 신청 정보
 	 */
 
-	public static SuggestInfoVO crewSuggestListInfoDecrypt(SuggestInfoVO suggestInfoVO) {
+	public static SuggestInfoVo crewSuggestListInfoDecrypt(SuggestInfoVo suggestInfoVO) {
 		suggestInfoVO.setEmail(
 			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), suggestInfoVO.getEmail(), 2));
 		suggestInfoVO.setName(
@@ -128,7 +129,7 @@ public class CryptoUtil {
 	 * @return crewSuggestInfoVO - 일부 복호화 된 크루 합류 지원자 신청 정보
 	 */
 
-	public static SuggestInfoVO crewSuggestDetailInfoDecrypt(SuggestInfoVO suggestInfoVO) {
+	public static SuggestInfoVo crewSuggestDetailInfoDecrypt(SuggestInfoVo suggestInfoVO) {
 		suggestInfoVO.setEmail(
 			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), suggestInfoVO.getEmail(), 2));
 		suggestInfoVO.setName(
@@ -166,139 +167,146 @@ public class CryptoUtil {
 
 	/**
 	 * <b>Crew 정보 목록 조회 시 복호화하여 반환하기 위한 Method</b>
-	 * @param crewJoinInfoVO 크루 Data Base 내 일부 암호화 된 신청 정보 중 일부
+	 * @param crewJoinInfoVo 크루 Data Base 내 일부 암호화 된 신청 정보 중 일부
 	 * @return CrewJoinInfoVO - 일부 복호화 된 크루 정보
 	 */
 
-	public static JoinInfoVO crewListInfoDecrypt(JoinInfoVO crewJoinInfoVO) {
+	public static JoinInfoVo crewListInfoDecrypt(JoinInfoVo crewJoinInfoVo) {
 
-		crewJoinInfoVO.setEmail(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getEmail(), 2));
-		crewJoinInfoVO.setName(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getName(), 2));
-		crewJoinInfoVO.setPhoneNumber(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getPhoneNumber(), 2));
+		crewJoinInfoVo.setEmail(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getEmail(), 2));
+		crewJoinInfoVo.setName(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getName(), 2));
+		crewJoinInfoVo.setPhoneNumber(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getPhoneNumber(), 2));
 
-		return crewJoinInfoVO;
+		return crewJoinInfoVo;
 	}
 
 	/**
 	 * <b>Crew 정보 상세 조회 시 복호화하여 반환하기 위한 Method</b>
-	 * @param crewJoinInfoVO 크루 Data Base 내 일부 암호화 된 신청 정보 중 일부
+	 * @param crewJoinInfoVo 크루 Data Base 내 일부 암호화 된 신청 정보 중 일부
 	 * @return CrewJoinInfoVO - 일부 복호화 된 크루 합류 지원자 신청 정보
 	 */
 
-	public static JoinInfoVO crewDetailInfoDecrypt(JoinInfoVO crewJoinInfoVO) {
-		crewJoinInfoVO.setEmail(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getEmail(), 2));
-		crewJoinInfoVO.setName(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getName(), 2));
-		crewJoinInfoVO.setJobInfo(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getJobInfo(), 2));
-		crewJoinInfoVO.setLastEducational(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getLastEducational(),
+	public static JoinInfoVo crewDetailInfoDecrypt(JoinInfoVo crewJoinInfoVo) {
+		crewJoinInfoVo.setEmail(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getEmail(), 2));
+		crewJoinInfoVo.setName(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getName(), 2));
+		crewJoinInfoVo.setJobInfo(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getJobInfo(), 2));
+		crewJoinInfoVo.setLastEducational(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getLastEducational(),
 				2));
-		crewJoinInfoVO.setSchoolName(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getSchoolName(), 2));
-		crewJoinInfoVO.setPhoneNumber(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getPhoneNumber(), 2));
-		crewJoinInfoVO.setTistory(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getTistory(), 2));
-		crewJoinInfoVO.setFigma(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getFigma(), 2));
-		crewJoinInfoVO.setNotion(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getNotion(), 2));
-		crewJoinInfoVO.setBlogUrl(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getBlogUrl(), 2));
-		crewJoinInfoVO.setPortfolio(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getPortfolio(), 2));
-		crewJoinInfoVO.setTechStack(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getTechStack(), 2));
-		crewJoinInfoVO.setEtc(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVO.getEtc(), 2));
+		crewJoinInfoVo.setSchoolName(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getSchoolName(), 2));
+		crewJoinInfoVo.setPhoneNumber(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getPhoneNumber(), 2));
+		crewJoinInfoVo.setTistory(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getTistory(), 2));
+		crewJoinInfoVo.setFigma(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getFigma(), 2));
+		crewJoinInfoVo.setNotion(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getNotion(), 2));
+		crewJoinInfoVo.setBlogUrl(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getBlogUrl(), 2));
+		crewJoinInfoVo.setPortfolio(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getPortfolio(), 2));
+		crewJoinInfoVo.setTechStack(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getTechStack(), 2));
+		crewJoinInfoVo.setEtc(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), crewJoinInfoVo.getEtc(), 2));
 
-		return crewJoinInfoVO;
+		return crewJoinInfoVo;
 	}
 
 	/**
 	 * <b>기깔나는 사람들 서비스에 접속한 이용자 정보를 암호화 하여 Data Base에 저장하기 위한 Method</b>
-	 * @param connectedUserInfoSaveRequestDTO 이용자 IP, 접속 위치, 접속 환경 정보를 담은 DTO 객체
+	 * @param connectedUserInfoSaveRequestDto 이용자 IP, 접속 위치, 접속 환경 정보를 담은 DTO 객체
 	 * @return 암호화된 이용자 정보 DTO 객체
 	 */
-	public static ConnectedUserInfoSaveRequestDTO userInfoEncrypt(
-		ConnectedUserInfoSaveRequestDTO connectedUserInfoSaveRequestDTO) {
-		connectedUserInfoSaveRequestDTO.setUserIP(DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-			connectedUserInfoSaveRequestDTO.getUserIP(), 1));
-		connectedUserInfoSaveRequestDTO.setUserLocation(
+	public static ConnectedUserInfoSaveRequestDto userInfoEncrypt(
+		ConnectedUserInfoSaveRequestDto connectedUserInfoSaveRequestDto) {
+		connectedUserInfoSaveRequestDto.setUserIP(DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+			connectedUserInfoSaveRequestDto.getUserIP(), 1));
+		connectedUserInfoSaveRequestDto.setUserLocation(
 			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				connectedUserInfoSaveRequestDTO.getUserLocation(), 1));
-		connectedUserInfoSaveRequestDTO.setUserEnvironment(
+				connectedUserInfoSaveRequestDto.getUserLocation(), 1));
+		connectedUserInfoSaveRequestDto.setUserEnvironment(
 			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				connectedUserInfoSaveRequestDTO.getUserEnvironment(), 1));
+				connectedUserInfoSaveRequestDto.getUserEnvironment(), 1));
 
-		return connectedUserInfoSaveRequestDTO;
+		return connectedUserInfoSaveRequestDto;
 	}
 
 	/**
 	 * <b>기깔나는 사람들 서비스에 접속한 이용자 정보를 암호화 하여 Data Base에 저장되어 있기 때문에 검색 시 암호화 하여 Data Base에 검색하기 위한 Method</b>
-	 * @param errorLogSearchDTO Client가 검색을 위해 입력한 내용을 담은 객체
+	 * @param errorLogSearchDto Client가 검색을 위해 입력한 내용을 담은 객체
 	 * @return 암호화된 이용자 검색 요청 DTO 객체
 	 */
 
-	public static ErrorLogSearchDTO errorLogSearchEncrypt(ErrorLogSearchDTO errorLogSearchDTO) {
-		if (errorLogSearchDTO == null) {
-			throw new CryptoException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
+	public static ErrorLogSearchDto errorLogSearchEncrypt(ErrorLogSearchDto errorLogSearchDto) {
+		if (errorLogSearchDto == null) {
+			return errorLogSearchDto;
 		}
 
-		if (errorLogSearchDTO.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
-			errorLogSearchDTO.setSearchWord(
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), errorLogSearchDTO.getSearchWord(),
+		if (errorLogSearchDto.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
+			errorLogSearchDto.setSearchWord(
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), errorLogSearchDto.getSearchWord(),
 					1));
 		}
-		return errorLogSearchDTO;
+		return errorLogSearchDto;
 	}
 
 	/**
 	 * <b>기깔나는 사람들 서비스에 접속한 이용자 정보를 암호화 하여 Data Base에 저장되어 있기 때문에 검색 시 암호화 하여 Data Base에 검색하기 위한 Method</b>
-	 * @param userInfoSearchDTO Client가 검색을 위해 입력한 내용을 담은 객체
+	 * @param userInfoSearchDto Client가 검색을 위해 입력한 내용을 담은 객체
 	 * @return 암호화된 이용자 검색 요청 DTO 객체
 	 */
 
-	public static UserInfoSearchDTO UserInfoSearchEncrypt(UserInfoSearchDTO userInfoSearchDTO) {
-		if (userInfoSearchDTO == null) {
-			throw new CryptoException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
+	public static UserInfoSearchDto userInfoSearchEncrypt(UserInfoSearchDto userInfoSearchDto) {
+		if (userInfoSearchDto == null) {
+			return userInfoSearchDto;
 		}
 
-		if (userInfoSearchDTO.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
-			userInfoSearchDTO.setSearchWord(
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), userInfoSearchDTO.getSearchWord(),
+		if (userInfoSearchDto.getSearchType().equals(UserInfoSearchType.USER_IP.getDescription())) {
+			userInfoSearchDto.setSearchWord(
+				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), userInfoSearchDto.getSearchWord(),
 					1));
 		}
-		return userInfoSearchDTO;
+		return userInfoSearchDto;
 	}
 
 	/**
 	 * <b>Log 발생 시 이용자 요청 정보 암호화 하여 Data Base에 저장하기 위한 Method</b>
-	 * @param connectedUserRequestInfoSaveRequestDTO 이용자 서비스 이용을 위한 요청 정보를 담은 DTO 객체
+	 * @param connectedUserRequestInfoSaveRequestDto 이용자 서비스 이용을 위한 요청 정보를 담은 DTO 객체
 	 * @return 암호화된 이용자 서비스 이용을 위한 요청 정보를 담은 DTO 객체
 	 */
 
-	public static ConnectedUserRequestInfoSaveRequestDTO userRequestInfoEncrypt(
-		ConnectedUserRequestInfoSaveRequestDTO connectedUserRequestInfoSaveRequestDTO) {
-		connectedUserRequestInfoSaveRequestDTO.setRequestHeader(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				connectedUserRequestInfoSaveRequestDTO.getRequestHeader(), 1));
-		connectedUserRequestInfoSaveRequestDTO.setUserCookies(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				Arrays.toString(connectedUserRequestInfoSaveRequestDTO.getUserCookiesArray()), 1));
-		connectedUserRequestInfoSaveRequestDTO.setRequestParameter(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				connectedUserRequestInfoSaveRequestDTO.getRequestParameter(), 1));
-		connectedUserRequestInfoSaveRequestDTO.setRequestBody(
-			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-				connectedUserRequestInfoSaveRequestDTO.getRequestBody(), 1));
+	public static ConnectedUserRequestInfoSaveRequestDto userRequestInfoEncrypt(
+		ConnectedUserRequestInfoSaveRequestDto connectedUserRequestInfoSaveRequestDto) {
 
-		return connectedUserRequestInfoSaveRequestDTO;
+		if (connectedUserRequestInfoSaveRequestDto == null) {
+			throw new CryptoException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
+		}
+
+		connectedUserRequestInfoSaveRequestDto.setRequestHeader(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+				connectedUserRequestInfoSaveRequestDto.getRequestHeader(), 1));
+
+		connectedUserRequestInfoSaveRequestDto.setUserCookies(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+				Arrays.toString(connectedUserRequestInfoSaveRequestDto.getUserCookiesArray()), 1));
+
+		connectedUserRequestInfoSaveRequestDto.setRequestParameter(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+				connectedUserRequestInfoSaveRequestDto.getRequestParameter(), 1));
+		connectedUserRequestInfoSaveRequestDto.setRequestBody(
+			DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+				connectedUserRequestInfoSaveRequestDto.getRequestBody(), 1));
+
+		return connectedUserRequestInfoSaveRequestDto;
 	}
 
 	/**
@@ -306,11 +314,11 @@ public class CryptoUtil {
 	 *
 	 * @param logTotalInfoVO Error Log의 모든 정보를 Data Base에서 가져온 VO 객체
 	 */
-	public static LogTotalInfoVO forGeneralCrewErrorLogDetailRequestInfoDecrypt(LogTotalInfoVO logTotalInfoVO) {
-		return new LogTotalInfoVO(
+	public static LogTotalInfoVo forGeneralCrewErrorLogDetailRequestInfoDecrypt(LogTotalInfoVo logTotalInfoVO) {
+		return new LogTotalInfoVo(
 			logTotalInfoVO.getLogId(), logTotalInfoVO.getDataCreatedDate(), logTotalInfoVO.getDataCreatedTime(),
 			logTotalInfoVO.getLevel(), logTotalInfoVO.getServerName(), logTotalInfoVO.getServerVmInfo(),
-			logTotalInfoVO.getServerOSInfo(), logTotalInfoVO.getServerIP(), logTotalInfoVO.getServerEnvironment(),
+			logTotalInfoVO.getServerOsInfo(), logTotalInfoVO.getServerip(), logTotalInfoVO.getServerEnvironment(),
 			"", "", "", "", "", "", "",
 			logTotalInfoVO.getExceptionBrief(), logTotalInfoVO.getExceptionDetail());
 	}
@@ -320,18 +328,18 @@ public class CryptoUtil {
 	 * @param logTotalInfoVO Error Log 관련 모든 정보 담고 있는 VO
 	 * @return 복호화 된 Error Log 관련 모든 정보 담고 있는 VO
 	 */
-	public static LogTotalInfoVO errorLogDetailUserTotalInfoDecrypt(LogTotalInfoVO logTotalInfoVO) {
+	public static LogTotalInfoVo errorLogDetailUserTotalInfoDecrypt(LogTotalInfoVo logTotalInfoVO) {
 
 		if (logTotalInfoVO.getRequestBody() != null) {
-			return new LogTotalInfoVO(
+			return new LogTotalInfoVo(
 				logTotalInfoVO.getLogId(),
 				logTotalInfoVO.getDataCreatedDate(),
 				logTotalInfoVO.getDataCreatedTime(),
 				logTotalInfoVO.getLevel(),
 				logTotalInfoVO.getServerName(),
 				logTotalInfoVO.getServerVmInfo(),
-				logTotalInfoVO.getServerOSInfo(),
-				logTotalInfoVO.getServerIP(),
+				logTotalInfoVO.getServerOsInfo(),
+				logTotalInfoVO.getServerip(),
 				logTotalInfoVO.getServerEnvironment(),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserIP(), 2),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
@@ -350,15 +358,15 @@ public class CryptoUtil {
 				logTotalInfoVO.getExceptionDetail());
 
 		} else {
-			return new LogTotalInfoVO(
+			return new LogTotalInfoVo(
 				logTotalInfoVO.getLogId(),
 				logTotalInfoVO.getDataCreatedDate(),
 				logTotalInfoVO.getDataCreatedTime(),
 				logTotalInfoVO.getLevel(),
 				logTotalInfoVO.getServerName(),
 				logTotalInfoVO.getServerVmInfo(),
-				logTotalInfoVO.getServerOSInfo(),
-				logTotalInfoVO.getServerIP(),
+				logTotalInfoVO.getServerOsInfo(),
+				logTotalInfoVO.getServerip(),
 				logTotalInfoVO.getServerEnvironment(),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), logTotalInfoVO.getUserIP(), 2),
 				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
@@ -382,54 +390,59 @@ public class CryptoUtil {
 	 * @param connectedUserInfoVO 이용자 접속 및 요청 정보 담고 있는 VO
 	 * @return 복호화 된 이용자 접속 및 요청 정보 담고 있는 VO
 	 */
-	public static ConnectedUserInfoVO userInfoDecrypt(ConnectedUserInfoVO connectedUserInfoVO) {
+	public static UserInfoDetailResponseDto userInfoDecrypt(ConnectedUserInfoVo connectedUserInfoVO) {
+		UserInfoDetailResponseDto userInfoDetailResponseDto = new UserInfoDetailResponseDto();
 		if (connectedUserInfoVO.getRequestBody() != null) {
-			return new ConnectedUserInfoVO(
-				connectedUserInfoVO.getConnectedUserRequestInfoID(),
-				connectedUserInfoVO.getDataCreatedDate(),
-				connectedUserInfoVO.getDataCreatedTime(),
-				connectedUserInfoVO.getServerName(),
-				connectedUserInfoVO.getServerVmInfo(),
-				connectedUserInfoVO.getServerOSInfo(),
-				connectedUserInfoVO.getServerIP(),
-				connectedUserInfoVO.getServerEnvironment(),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), connectedUserInfoVO.getUserIP(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserEnvironment(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserLocation(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getRequestHeader(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserCookies(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getRequestParameter(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getRequestBody(), 2));
+			return userInfoDetailResponseDto.toDto(
+				new ConnectedUserInfoVo(
+					connectedUserInfoVO.getConnectedUserRequestInfoID(),
+					connectedUserInfoVO.getDataCreatedDate(),
+					connectedUserInfoVO.getDataCreatedTime(),
+					connectedUserInfoVO.getServerName(),
+					connectedUserInfoVO.getServerVmInfo(),
+					connectedUserInfoVO.getServerOsInfo(),
+					connectedUserInfoVO.getServerIp(),
+					connectedUserInfoVO.getServerEnvironment(),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserIp(),
+						2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserEnvironment(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserLocation(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getRequestHeader(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserCookies(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getRequestParameter(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getRequestBody(), 2)));
 		} else {
-			return new ConnectedUserInfoVO(
-				connectedUserInfoVO.getConnectedUserRequestInfoID(),
-				connectedUserInfoVO.getDataCreatedDate(),
-				connectedUserInfoVO.getDataCreatedTime(),
-				connectedUserInfoVO.getServerName(),
-				connectedUserInfoVO.getServerVmInfo(),
-				connectedUserInfoVO.getServerOSInfo(),
-				connectedUserInfoVO.getServerIP(),
-				connectedUserInfoVO.getServerEnvironment(),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey), connectedUserInfoVO.getUserIP(),
-					2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserEnvironment(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserLocation(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getRequestHeader(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getUserCookies(), 2),
-				DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-					connectedUserInfoVO.getRequestParameter(), 2),
-				connectedUserInfoVO.getRequestBody());
+			return userInfoDetailResponseDto.toDto(
+				new ConnectedUserInfoVo(
+					connectedUserInfoVO.getConnectedUserRequestInfoID(),
+					connectedUserInfoVO.getDataCreatedDate(),
+					connectedUserInfoVO.getDataCreatedTime(),
+					connectedUserInfoVO.getServerName(),
+					connectedUserInfoVO.getServerVmInfo(),
+					connectedUserInfoVO.getServerOsInfo(),
+					connectedUserInfoVO.getServerIp(),
+					connectedUserInfoVO.getServerEnvironment(),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserIp(),
+						2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserEnvironment(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserLocation(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getRequestHeader(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getUserCookies(), 2),
+					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
+						connectedUserInfoVO.getRequestParameter(), 2),
+					connectedUserInfoVO.getRequestBody()));
 		}
 	}
 

@@ -10,10 +10,10 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import com.giggalpeople.backoffice.api.common.model.Criteria;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDTO;
-import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVO;
-import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVO;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.dto.request.CrewSuggestPeopleManagementSearchDto;
+import com.giggalpeople.backoffice.api.crew.model.vo.JoinInfoVo;
+import com.giggalpeople.backoffice.api.crew.model.vo.SuggestInfoVo;
 
 /**
  * <h2><b>크루 합류 지원서 관리 Mybatis를 이용한 Data Base Handler</b></h2>
@@ -29,7 +29,7 @@ public interface CrewManagementMapper {
 	 * @return Long - 등록된 지원자 번호
 	 */
 
-	Long newSuggestInfoSave(SuggestInfoVO suggestInfoVO);
+	Long newSuggestInfoSave(SuggestInfoVo suggestInfoVO);
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 suggest Method를 통해 Data Base에 내용을 저장하기 전에 해당 저장 값이 Data Base suggest Table에 있는지 확인하는 Method.</b>
@@ -55,18 +55,18 @@ public interface CrewManagementMapper {
 
 	/**
 	 * <b>Google Form을 통해 기깔나는 사람들 크루 합류가 결정된 크루 정보를 해당 Method를 통해 Data Base에 내용을 저장.</b>
-	 * @param crewJoinInfoVO 크루 정보
+	 * @param crewJoinInfoVo 크루 정보
 	 * @return Long - 크루 합류 순서 번호
 	 */
 
-	Long crewJoin(JoinInfoVO crewJoinInfoVO);
+	Long crewJoin(JoinInfoVo crewJoinInfoVo);
 
 	/** <b>크루와 지원자 모두 검색 결과에 따른 개수 조회</b>
 	 * @return int - 등록된 지원자 명수
 	 */
 
 	int totalSuggestCrewSearchCount(
-		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO,
+		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO,
 		@Param("crewSuggestInfoSearchEncryption") String crewSuggestInfoSearchEncryption);
 
 	/**
@@ -76,8 +76,8 @@ public interface CrewManagementMapper {
 	 * @return CrewSuggestInfoVO - 등록된 지원자 목록 조회를 위한 정보
 	 */
 
-	List<SuggestInfoVO> findByCrewSuggestInfoList(@Param("criteria") Criteria criteria,
-		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO,
+	List<SuggestInfoVo> findByCrewSuggestInfoList(@Param("criteria") Criteria criteria,
+		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO,
 		@Param("crewSuggestInfoSearchEncryption") String crewSuggestInfoSearchEncryption);
 
 	/** <b>Google Form을 통해 기깔나는 사람들 크루 합류 지원서가 등록되면 해당 Method를 통해 Data Base에 지원자 정보 한 건 조회</b>
@@ -86,7 +86,7 @@ public interface CrewManagementMapper {
 	 */
 
 	@Select("select * from suggest where suggest_id = #{suggestId}")
-	Optional<SuggestInfoVO> detailSuggestInfoFind(@Param("suggestId") String suggestId);
+	Optional<SuggestInfoVo> detailSuggestInfoFind(@Param("suggestId") String suggestId);
 
 	/** <b>크루 합류 지원 전체 개수 조회</b>
 	 * @return int - 등록된 지원자 명수
@@ -101,8 +101,8 @@ public interface CrewManagementMapper {
 	 * @return List<CrewJoinInfoVO> - 합류 크루 정보
 	 */
 
-	List<JoinInfoVO> findByCrewInfoList(@Param("criteria") Criteria criteria,
-		@Param("crewSearchDTO") CrewPeopleManagementSearchDTO crewSearchDTO,
+	List<JoinInfoVo> findByCrewInfoList(@Param("criteria") Criteria criteria,
+		@Param("crewSearchDTO") CrewPeopleManagementSearchDto crewSearchDTO,
 		@Param("crewSearchEncryptionValue") String crewSearchEncryptionValue);
 
 	/**
@@ -112,8 +112,8 @@ public interface CrewManagementMapper {
 	 * @return Optional<CrewJoinInfoVO> - 조회된 크루 상세 정보
 	 */
 
-	Optional<JoinInfoVO> findByCrewInfoSearchOneThing(
-		@Param("crewSearchDTO") CrewPeopleManagementSearchDTO crewSearchDTO,
+	Optional<JoinInfoVo> findByCrewInfoSearchOneThing(
+		@Param("crewSearchDTO") CrewPeopleManagementSearchDto crewSearchDTO,
 		@Param("crewSearchEncryptionValue") String crewSearchEncryptionValue);
 
 	/** <b>크루 합류 인원 전체 명수 조회</b>
@@ -127,7 +127,7 @@ public interface CrewManagementMapper {
 	 * @return int - 등록된 지원자 명수
 	 */
 
-	int totalCrewSearchCount(@Param("crewSearchDTO") CrewPeopleManagementSearchDTO crewSearchDTO,
+	int totalCrewSearchCount(@Param("crewSearchDTO") CrewPeopleManagementSearchDto crewSearchDTO,
 		@Param("crewSearchEncryptionValue") String crewSearchEncryptionValue);
 
 	/**
@@ -141,7 +141,7 @@ public interface CrewManagementMapper {
 		"inner join suggest as s " +
 		"on c.suggest_id = s.suggest_id " +
 		"where s.crew_number = #{crewNumber} ")
-	Optional<JoinInfoVO> detailCrewInfoFind(String crewNumber);
+	Optional<JoinInfoVo> detailCrewInfoFind(String crewNumber);
 
 	/**
 	 * <b>크루 합류 시 해당 크루의 지원 정보를 조회하기 위한 Method</b>
@@ -150,7 +150,7 @@ public interface CrewManagementMapper {
 	 */
 
 	@Select("select * from suggest where crew_number = #{crewNumber} ")
-	Optional<SuggestInfoVO> joinCrewBySuggestInfo(String crewNumber);
+	Optional<SuggestInfoVo> joinCrewBySuggestInfo(String crewNumber);
 
 	/**
 	 * <b>크루 목록 검색을 통해 조회 시 결과가 하나일 경우 해당 값을 찾기 위한 Method</b>
@@ -159,8 +159,8 @@ public interface CrewManagementMapper {
 	 * @return Optional<CrewJoinSuggestListVO> - 조회된 지원자 정보
 	 */
 
-	Optional<SuggestInfoVO> findByCrewSuggestInfoSearchOneThing(
-		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDTO crewSuggestSearchDTO,
+	Optional<SuggestInfoVo> findByCrewSuggestInfoSearchOneThing(
+		@Param("crewSuggestSearchDTO") CrewSuggestPeopleManagementSearchDto crewSuggestSearchDTO,
 		@Param("crewSuggestInfoSearchEncryption") String crewSuggestInfoSearchEncryption);
 
 	/**

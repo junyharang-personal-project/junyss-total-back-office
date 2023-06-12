@@ -13,27 +13,27 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.giggalpeople.backoffice.api.common.database.dao.OccurrenceDataDateTimeManagementDAO;
+import com.giggalpeople.backoffice.api.common.database.dao.OccurrenceDataDateTimeManagementDao;
 import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.Pagination;
-import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDTO;
-import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeRequestVO;
-import com.giggalpeople.backoffice.api.server.database.dao.ServerInfoDAO;
-import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVO;
-import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDAO;
+import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
+import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
+import com.giggalpeople.backoffice.api.server.database.dao.ServerInfoDao;
+import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
+import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
 import com.giggalpeople.backoffice.api.user.model.UpdateUserInfo;
-import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDTO;
-import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDTO;
-import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVO;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVO;
-import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDTO;
-import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVO;
+import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
+import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
+import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
+import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.service.ConnectedUserInfoService;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
 import com.giggalpeople.backoffice.common.constant.DefaultResponse;
@@ -51,40 +51,40 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 
-	private final ServerInfoDAO serverInfoDAO;
-	private final OccurrenceDataDateTimeManagementDAO occurrenceDataDateTimeManagementDAO;
-	private final UserInfoDAO userInfoDAO;
+	private final ServerInfoDao serverInfoDAO;
+	private final OccurrenceDataDateTimeManagementDao occurrenceDataDateTimeManagementDAO;
+	private final UserInfoDao userInfoDAO;
+
+	/**
+	 * <b>접속 이용자 정보 Data Base 저장을 위한 Method</b>
+	 * @param userRequestTotalInfoSaveRequestDto 접속 일시, 이용자 정보, 이용자 요청 정보를 담은 DTO
+	 * @return 접속 일시 저장 PK, 이용자 정보 PK, 이용자 요청 정보 PK를 묶은 Map
+	 */
 
 	@Override
 	public DefaultResponse<Map<String, Long>> save(
-		UserRequestTotalInfoSaveRequestDTO userRequestTotalInfoSaveRequestDTO) {
-		if (userRequestTotalInfoSaveRequestDTO == null) {
+		UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestDto) {
+		if (userRequestTotalInfoSaveRequestDto == null) {
 			throw new ConnectedUserException(PARAMETER_NULL, PARAMETER_NULL.getMessage());
 		}
 
 		Map<String, Long> resultMap = new HashMap<>();
 
-		Long internalServerSaveID = processServerInfoSave(userRequestTotalInfoSaveRequestDTO.getServerInfo());
+		Long internalServerSaveID = processServerInfoSave(userRequestTotalInfoSaveRequestDto.getServerInfo());
 		Long occurrenceInfoDateTimeSaveID = processOccurrenceInfoDateTimeSave(
-			userRequestTotalInfoSaveRequestDTO.getDataCreatedDateTimeRequestDTO());
+			userRequestTotalInfoSaveRequestDto.getDataCreatedDateTimeRequestDTO());
 		Long connectedUserSaveID = processUserInfoSave(
-			userRequestTotalInfoSaveRequestDTO.getConnectedUserInfoSaveRequestDTO(), internalServerSaveID,
+			userRequestTotalInfoSaveRequestDto.getConnectedUserInfoSaveRequestDTO(), internalServerSaveID,
 			occurrenceInfoDateTimeSaveID);
 		Long connectedUserRequestInfoSaveID = processUserRequestInfoSave(
-			userRequestTotalInfoSaveRequestDTO.getConnectedUserRequestInfoSaveRequestDTO(), internalServerSaveID,
+			userRequestTotalInfoSaveRequestDto.getConnectedUserRequestInfoSaveRequestDTO(), internalServerSaveID,
 			occurrenceInfoDateTimeSaveID, connectedUserSaveID);
 
-		if (errorLogProcessNullCheck(internalServerSaveID, occurrenceInfoDateTimeSaveID, connectedUserSaveID,
-			connectedUserRequestInfoSaveID)) {
-			resultMap.put("내부 서버 정보 저장 순서 번호", internalServerSaveID);
-			resultMap.put("Data 공통 저장 날짜, 시각 순서 번호", occurrenceInfoDateTimeSaveID);
-			resultMap.put("이용자 정보 저장 순서 번호", connectedUserSaveID);
-			resultMap.put("이용자 요청 정보 저장 순서 번호", connectedUserRequestInfoSaveID);
+		resultMap.put("내부 서버 정보 저장 순서 번호", internalServerSaveID);
+		resultMap.put("Data 공통 저장 날짜, 시각 순서 번호", occurrenceInfoDateTimeSaveID);
+		resultMap.put("이용자 정보 저장 순서 번호", connectedUserSaveID);
+		resultMap.put("이용자 요청 정보 저장 순서 번호", connectedUserRequestInfoSaveID);
 
-		} else {
-			throw new ConnectedUserException(CONNECTED_USER_SAVE_FAILURE,
-				CONNECTED_USER_SAVE_FAILURE.getMessage(String.valueOf(NullPointerException.class)));
-		}
 		return DefaultResponse.response(CREATE.getStatusCode(), CREATE.getMessage(), resultMap);
 	}
 
@@ -92,44 +92,44 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	 * <b>Application 이용자 접속 및 요청 정보 목록 조회를 위한 Method</b>
 	 *
 	 * @param criteria          페이징 처리를 위한 정보
-	 * @param userInfoSearchDTO 검색어(검색 조건) Request 객체
+	 * @param userInfoSearchDto 검색어(검색 조건) Request 객체
 	 * @return 조회된 이용자 접속 및 요청 목록 정보
 	 */
 	@Override
-	public DefaultListResponse<List<UserInfoListResponseDTO>> toDiscordAllUserInfoFind(Criteria criteria,
-		UserInfoSearchDTO userInfoSearchDTO) {
-		int searchListCount = userInfoDAO.totalUserInfoSearchCount(CryptoUtil.UserInfoSearchEncrypt(userInfoSearchDTO));
+	public DefaultListResponse<List<UserInfoListResponseDto>> toDiscordAllUserInfoFind(Criteria criteria,
+		UserInfoSearchDto userInfoSearchDto) {
+		int searchListCount = userInfoDAO.totalUserInfoSearchCount(CryptoUtil.userInfoSearchEncrypt(userInfoSearchDto));
 
 		if (searchListCount <= 0) {
 			throw new ConnectedUserException(NOT_EXIST_CONNECTED_USER, NOT_EXIST_CONNECTED_USER.getMessage());
 
 		} else if (searchListCount == 1) {
-			List<UserInfoListResponseDTO> responseDTOList = new ArrayList<>();
+			List<UserInfoListResponseDto> responseDtoList = new ArrayList<>();
 
-			Optional<ConnectedUserInfoVO> byUserInfoSearchOneThing = userInfoDAO.findByUserInfoSearchOneThing(
-				userInfoSearchDTO);
+			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDAO.findByUserInfoSearchOneThing(
+				userInfoSearchDto);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO ->
-				responseDTOList.add(UserInfoListResponseDTO.toDTO(connectedUserInfoVO)));
+				responseDtoList.add(UserInfoListResponseDto.toDTO(connectedUserInfoVO)));
 
 			return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-				new Pagination(criteria, searchListCount), responseDTOList);
+				new Pagination(criteria, searchListCount), responseDtoList);
 		}
 
 		return DefaultListResponse.response(
 			SUCCESS.getStatusCode(),
 			SUCCESS.getMessage(),
 			new Pagination(criteria, searchListCount),
-			userInfoDAO.findByUserInfoList(criteria, userInfoSearchDTO)
+			userInfoDAO.findByUserInfoList(criteria, userInfoSearchDto)
 				.stream()
 				.filter(Objects::nonNull)
 				.map(connectedUserInfoVO ->
-					UserInfoListResponseDTO.builder()
+					UserInfoListResponseDto.builder()
 						.connectedUserRequestInfoID(connectedUserInfoVO.getConnectedUserRequestInfoID())
 						.connectedDateTime(
 							connectedUserInfoVO.getDataCreatedDate() + " " + connectedUserInfoVO.getDataCreatedTime())
 						.serverName(connectedUserInfoVO.getServerName())
-						.userIP(CryptoUtil.userInfoIPDecrypt(connectedUserInfoVO.getUserIP()))
+						.userIP(CryptoUtil.userInfoIPDecrypt(connectedUserInfoVO.getUserIp()))
 						.build())
 				.collect(Collectors.toList()));
 	}
@@ -137,30 +137,29 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	/**
 	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
 	 *
-	 * @param userInfoDetailSearchRequestDTO Discord에서 입력 받은 조회할 이용자 요청 정보 ID와 Crew 등급을 담은 DTO 객체
+	 * @param userInfoDetailSearchRequestDto Discord에서 입력 받은 조회할 이용자 요청 정보 ID와 Crew 등급을 담은 DTO 객체
 	 * @return 이용자 접속 및 요청 정보를 담은 응답 DTO 객체
 	 */
 
 	@Override
-	public DefaultResponse<UserInfoDetailResponseDTO> toDiscordDetailConnectedUserInfoFind(
-		UserInfoDetailSearchRequestDTO userInfoDetailSearchRequestDTO) {
-		ConnectedUserInfoVO connectedUserInfoVO;
+	public DefaultResponse<UserInfoDetailResponseDto> toDiscordDetailConnectedUserInfoFind(
+		UserInfoDetailSearchRequestDto userInfoDetailSearchRequestDto) {
 
-		if (userInfoDetailSearchRequestDTO.getCrewGrade().getGradeNum() > 3) {
+		if (userInfoDetailSearchRequestDto.getCrewGrade().getGradeNum() > 3) {
 			throw new ConnectedUserException(NO_AUTHORIZATION, NO_AUTHORIZATION.getMessage());
 		}
 
-		Optional<ConnectedUserInfoVO> byUserInfoVO = userInfoDAO.detailUserInfoFind(
-			userInfoDetailSearchRequestDTO.getConnectedUserRequestInfoID());
+		Optional<ConnectedUserInfoVo> byUserInfoVO = userInfoDAO.detailUserInfoFind(
+			userInfoDetailSearchRequestDto.getConnectedUserRequestInfoID());
 
 		if (byUserInfoVO.isPresent()) {
-			connectedUserInfoVO = CryptoUtil.userInfoDecrypt(byUserInfoVO.get());
+			return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
+				CryptoUtil.userInfoDecrypt(byUserInfoVO.get()));
+
 		} else {
 			throw new ConnectedUserException(NOT_EXIST_CONNECTED_USER, NOT_EXIST_CONNECTED_USER.getMessage());
 		}
 
-		return DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-			new UserInfoDetailResponseDTO().toDTO(connectedUserInfoVO));
 	}
 
 	/**
@@ -176,12 +175,12 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		}
 
-		Long byServerIP = serverInfoDAO.findByServerIP(serverInfo.getServerIP());
+		Long findByServerID = serverInfoDAO.findByServerID(serverInfo.getServerIP());
 
-		if (byServerIP == null) {
+		if (findByServerID == null || findByServerID <= 0) {
 			return serverInfoDAO.save(
-				ServerInfoVO.toVO(
-					ServerInfoSaveRequestDTO.builder()
+				ServerInfoVo.toVo(
+					ServerInfoSaveRequestDto.builder()
 						.serverName(serverInfo.getServerName())
 						.serverVmInfo(serverInfo.getVmInfo())
 						.serverOsInfo(serverInfo.getOsInfo())
@@ -189,7 +188,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 						.serverEnvironment(serverInfo.getServerEnvironment())
 						.build()));
 		}
-		return byServerIP;
+		return findByServerID;
 	}
 
 	/**
@@ -199,7 +198,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processOccurrenceInfoDateTimeSave(DataCreatedDateTimeRequestDTO dataCreatedDateTimeRequestDTO) {
+	private Long processOccurrenceInfoDateTimeSave(DataCreatedDateTimeRequestDto dataCreatedDateTimeRequestDTO) {
 		if (dataCreatedDateTimeRequestDTO == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
@@ -209,11 +208,11 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 			dataCreatedDateTimeRequestDTO.getDataCreatedDate(),
 			dataCreatedDateTimeRequestDTO.getDataCreatedTime());
 
-		if (byOccurrenceInfoDateTimeID == null) {
+		if (byOccurrenceInfoDateTimeID == null || byOccurrenceInfoDateTimeID <= 0) {
 
 			byOccurrenceInfoDateTimeID = occurrenceDataDateTimeManagementDAO.save(
-				DataCreatedDateTimeRequestVO.toVO(
-					DataCreatedDateTimeRequestDTO.builder()
+				DataCreatedDateTimeVo.toVO(
+					DataCreatedDateTimeRequestDto.builder()
 						.createdDate(dataCreatedDateTimeRequestDTO.getDataCreatedDate())
 						.createdTime(dataCreatedDateTimeRequestDTO.getDataCreatedTime())
 						.build()));
@@ -227,15 +226,15 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	/**
 	 * <b>MDCFilter 통해 접속 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 접속 및 요청을 보낸 이용자 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param connectedUserInfoSaveRequestDTO 이용자 정보가 담긴 요청 DTO 객체
+	 * @param connectedUserInfoSaveRequestDto 이용자 정보가 담긴 요청 DTO 객체
 	 * @param internalServerSaveID            Server 정보 PK
 	 * @param occurrenceInfoDateTimeSaveID    MDCUtil 호출 일시 정보 PK
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processUserInfoSave(ConnectedUserInfoSaveRequestDTO connectedUserInfoSaveRequestDTO,
+	private Long processUserInfoSave(ConnectedUserInfoSaveRequestDto connectedUserInfoSaveRequestDto,
 		Long internalServerSaveID, Long occurrenceInfoDateTimeSaveID) {
-		if (connectedUserInfoSaveRequestDTO == null) {
+		if (connectedUserInfoSaveRequestDto == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveID == null) {
@@ -247,29 +246,28 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 		} else {
 			Long isIDbyUserIP =
 				userInfoDAO.findByUserIP(
-					connectedUserInfoSaveRequestDTO.getUserIP().replace("\"", ""));
+					connectedUserInfoSaveRequestDto.getUserIP().replace("\"", ""));
 
-			if (isIDbyUserIP == null) {
+			if (isIDbyUserIP == null || isIDbyUserIP <= 0) {
 				return userInfoDAO.connectedUserSave(
-					ErrorLogUserInfoVO.toVO(
-						ConnectedUserInfoSaveRequestDTO.builder()
-							.internalServerID(internalServerSaveID)
-							.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveID)
-							.userIP(connectedUserInfoSaveRequestDTO.getUserIP())
-							.userLocation(connectedUserInfoSaveRequestDTO.getUserLocation())
-							.userEnvironment(connectedUserInfoSaveRequestDTO.getUserEnvironment())
-							.build()));
+					ErrorLogUserInfoVo.toVO(
+						CryptoUtil.userInfoEncrypt(
+							ConnectedUserInfoSaveRequestDto.builder()
+								.internalServerID(internalServerSaveID)
+								.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveID)
+								.userIP(connectedUserInfoSaveRequestDto.getUserIP())
+								.userLocation(connectedUserInfoSaveRequestDto.getUserLocation())
+								.userEnvironment(connectedUserInfoSaveRequestDto.getUserEnvironment())
+								.build())));
 
 			} else {
 				UpdateUserInfo updateUserInfo = new UpdateUserInfo(isIDbyUserIP, occurrenceInfoDateTimeSaveID);
 
-				userInfoDAO.updateCount(
+				return userInfoDAO.updateCount(
 					UpdateUserInfo.builder()
 						.connectedUserID(updateUserInfo.getConnectedUserID())
 						.dataCreatedDateTimeID(updateUserInfo.getDataCreatedDateTimeID())
 						.build());
-
-				return userInfoDAO.getLastPrimaryKey();
 			}
 		}
 	}
@@ -282,7 +280,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	 */
 
 	private Long processUserRequestInfoSave(
-		ConnectedUserRequestInfoSaveRequestDTO connectedUserRequestInfoSaveRequestDTO, Long internalServerSaveID,
+		ConnectedUserRequestInfoSaveRequestDto connectedUserRequestInfoSaveRequestDTO, Long internalServerSaveID,
 		Long occurrenceInfoDateTimeSaveID, Long connectedUserSaveID) {
 		if (connectedUserRequestInfoSaveRequestDTO == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
@@ -299,8 +297,8 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 		} else {
 
 			return userInfoDAO.findByRequestInfoSave(
-				UserRequestInfoVO.toVO(
-					ConnectedUserRequestInfoSaveRequestDTO.builder()
+				UserRequestInfoVo.toVo(
+					ConnectedUserRequestInfoSaveRequestDto.builder()
 						.internalServerID(internalServerSaveID)
 						.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveID)
 						.connectedUserID(connectedUserSaveID)
@@ -310,20 +308,5 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 						.requestBody(connectedUserRequestInfoSaveRequestDTO.getRequestBody())
 						.build()));
 		}
-	}
-
-	/**
-	 * <b>서버 정보, 생성일시, 이용자 정보, 이용자 요청 정보가 Data Base에 정상적으로 저장 되었는지 확인하기 위한 Method</b>
-	 *
-	 * @param internalServerSaveID           서버 정보 PK
-	 * @param occurrenceInfoDateTimeSaveID   생성 일시 정보 PK
-	 * @param connectedUserSaveID            이용자 정보 PK
-	 * @param connectedUserRequestInfoSaveID 이용자 요청 정보 PK
-	 * @return 모두 Null이 아니면 True 하나라도 Null이면 False
-	 */
-	private boolean errorLogProcessNullCheck(Long internalServerSaveID, Long occurrenceInfoDateTimeSaveID,
-		Long connectedUserSaveID, Long connectedUserRequestInfoSaveID) {
-		return internalServerSaveID != null && occurrenceInfoDateTimeSaveID != null && connectedUserSaveID != null
-			&& connectedUserRequestInfoSaveID != null;
 	}
 }

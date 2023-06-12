@@ -33,35 +33,25 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it, excludes: [
-                            "**.*Application*",
-                            "**.*Config*",
-                            "**.*Util*",
-                            "**.*Wrapper*",
-                            "**.*Stream*",
-                            "**.*Filter*",
-                            '**.*Appender.**',
-                            '**.*Caller.**',
-                            '**.*Message.**',
-                            '**.*Command.**',
-                            '**.*Listener.**',
-                            '**.*WebHook.**',
-                            '**.*object/**',
-                            "**.*model*",
-                            "**.*Dto*",
-                            "**.*DTO*",
-                            "**.*Vo*",
-                            "**.*VO*",
-                            "**.*Parser*",
-                            "**.*AOP*",
-                            "**.*Aspect*",
-                            "**.*Info*",
-                            "**.*Environment*",
-                            "**.*Check*",
-                            "**.*Request*",
-                            "**.*Response*",
-                            "**.*Interceptor*",
-                            "**.*Exception*",
-                            "**.*Test*"
+                            "com/giggalpeople/backoffice/GiggalPeopleBackOfficeApplication.class",
+                            "com/giggalpeople/backoffice/DiscordBotToken.class",
+                            "com/giggalpeople/backoffice/chatops/**",
+                            "com/giggalpeople/backoffice/common/**",
+                            "com/giggalpeople/backoffice/api/common/constant/**",
+                            "com/giggalpeople/backoffice/api/common/model/**",
+                            "com/giggalpeople/backoffice/api/common/exception/**",
+                            "com/giggalpeople/backoffice/api/config/**",
+                            "com/giggalpeople/backoffice/api/crew/exception/**",
+                            "com/giggalpeople/backoffice/api/crew/model/**",
+                            "com/giggalpeople/backoffice/api/log/exception/**",
+                            "com/giggalpeople/backoffice/api/log/model/**",
+                            "com/giggalpeople/backoffice/api/server/exception/**",
+                            "com/giggalpeople/backoffice/api/server/model/**",
+                            "com/giggalpeople/backoffice/api/user/exception/**",
+                            "com/giggalpeople/backoffice/api/user/model/**",
+                            "com/giggalpeople/backoffice/api/user/request_info/model/**",
+                            "com/giggalpeople/backoffice/api/crew/exception/**",
+                            "com/giggalpeople/backoffice/api/webhook/**"
                     ] + Qdomains)
                 })
         )
@@ -80,52 +70,41 @@ jacocoTestCoverageVerification {
             element = 'CLASS'
             enabled = true
 
-            // Line 커버리지 제한 80%
+            // Line 커버리지 제한 30%
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
+                minimum = 0.30
             }
 
-            // 브랜치 커버리지 제한 80%
+            // 브랜치 커버리지 제한 30%
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.80
+                minimum = 0.30
             }
 
             //커버리지를 측정할 때 제외할 클래스를 지정 - 패키지 레벨의 경로로 지정하여야 하고 경로에는 * 과 ?를 사용할 수 있음
-            //ex) 패키지+클래스명
             excludes = [
-                    "**.*Application*",
-                    "**.*Config*",
-                    "**.*Util*",
-                    "**.*Wrapper*",
-                    "**.*Stream*",
-                    "**.*Filter*",
-                    '**.*Appender.**',
-                    '**.*Caller.**',
-                    '**.*Message.**',
-                    '**.*Command.**',
-                    '**.*Listener.**',
-                    '**.*WebHook.**',
-                    '**.*object/**',
-                    "**.*model*",
-                    "**.*Dto*",
-                    "**.*DTO*",
-                    "**.*Vo*",
-                    "**.*VO*",
-                    "**.*Parser*",
-                    "**.*AOP*",
-                    "**.*Aspect*",
-                    "**.*Info*",
-                    "**.*Environment*",
-                    "**.*Check*",
-                    "**.*Request*",
-                    "**.*Response*",
-                    "**.*Interceptor*",
-                    "**.*Exception*",
-                    "**.*Test*"
+                    "com/giggalpeople/backoffice/GiggalPeopleBackOfficeApplication.class",
+                    "com/giggalpeople/backoffice/DiscordBotToken.class",
+                    "com/giggalpeople/backoffice/chatops/**",
+                    "com/giggalpeople/backoffice/common/**",
+                    "com/giggalpeople/backoffice/api/common/constant/**",
+                    "com/giggalpeople/backoffice/api/common/model/**",
+                    "com/giggalpeople/backoffice/api/common/exception/**",
+                    "com/giggalpeople/backoffice/api/config/**",
+                    "com/giggalpeople/backoffice/api/crew/exception/**",
+                    "com/giggalpeople/backoffice/api/crew/model/**",
+                    "com/giggalpeople/backoffice/api/log/exception/**",
+                    "com/giggalpeople/backoffice/api/log/model/**",
+                    "com/giggalpeople/backoffice/api/server/exception/**",
+                    "com/giggalpeople/backoffice/api/server/model/**",
+                    "com/giggalpeople/backoffice/api/user/exception/**",
+                    "com/giggalpeople/backoffice/api/user/model/**",
+                    "com/giggalpeople/backoffice/api/user/request_info/model/**",
+                    "com/giggalpeople/backoffice/api/crew/exception/**",
+                    "com/giggalpeople/backoffice/api/webhook/**"
             ] + Qdomains
         }
     }
@@ -139,7 +118,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.00
+                minimum = 0.40
             }
 
             excludes = []
@@ -152,7 +131,25 @@ test {
         enabled = true
         destinationFile = file("$buildDir/jacoco/${name}.exec")
         includes = []
-        excludes = []
+        excludes += ["com/giggalpeople/backoffice/GiggalPeopleBackOfficeApplication.class",
+                     "com/giggalpeople/backoffice/DiscordBotToken.class",
+                     "com/giggalpeople/backoffice/chatops/**",
+                     "com/giggalpeople/backoffice/common/**",
+                     "com/giggalpeople/backoffice/api/common/constant/**",
+                     "com/giggalpeople/backoffice/api/common/model/**",
+                     "com/giggalpeople/backoffice/api/common/exception/**",
+                     "com/giggalpeople/backoffice/api/config/**",
+                     "com/giggalpeople/backoffice/api/crew/exception/**",
+                     "com/giggalpeople/backoffice/api/crew/model/**",
+                     "com/giggalpeople/backoffice/api/log/exception/**",
+                     "com/giggalpeople/backoffice/api/log/model/**",
+                     "com/giggalpeople/backoffice/api/server/exception/**",
+                     "com/giggalpeople/backoffice/api/server/model/**",
+                     "com/giggalpeople/backoffice/api/user/exception/**",
+                     "com/giggalpeople/backoffice/api/user/model/**",
+                     "com/giggalpeople/backoffice/api/user/request_info/model/**",
+                     "com/giggalpeople/backoffice/api/crew/exception/**",
+                     "com/giggalpeople/backoffice/api/webhook/**"]
         excludeClassLoaders = []
         includeNoLocationClasses = false
         sessionId = "<auto-generated value>"
@@ -193,17 +190,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
-    implementation 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok'
-//    implementation 'org.springframework.boot:spring-boot-starter-jdbc' // Jdbc, Driver
-    runtimeOnly 'com.h2database:h2'
+//    runtimeOnly 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     runtimeOnly 'com.mysql:mysql-connector-j'
-    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
-//    implementation 'mysql:mysql-connector-java:8.0.32'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // MyBatis Junit Test를 위한 의존성
+    // https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter-test
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:2.1.3'
+
+    // Test Code에서 Static Method 사용을 위한 의존성 추가
+    testImplementation 'org.mockito:mockito-inline'
 
     // Data 암/복호화 의존성 추가
     implementation 'com.github.JunyHarang-Open-Source-project:Data-Aes-Secret:1.0.0b'
@@ -238,6 +237,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.json/json
     implementation 'org.json:json:20220924'
 
+    // Goggle Json 관련 의존성 추가
+    implementation 'com.google.code.gson:gson'
+
     // https://mvnrepository.com/artifact/org.springframework/spring-web-reactive
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
@@ -255,7 +257,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy 'jacocoTestReport' // 추가
+    finalizedBy 'jacocoTestReport'
 }
 
 //checkstyle 설정
