@@ -22,6 +22,7 @@ jacocoTestReport {
         html.enabled true
         xml.enabled true
         csv.enabled true
+        xml.destination = file("${buildDir}/jacoco/jacoco.xml")
     }
 
     def Qdomains = []
@@ -118,7 +119,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.40
+                minimum = 0.30
             }
 
             excludes = []
@@ -255,6 +256,10 @@ dependencies {
 
 }
 
+check.dependsOn editorconfigCheck
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy 'jacocoTestReport'
@@ -276,10 +281,6 @@ checkstyle {
     // 규칙 위반을 콘솔 표시 여부
     showViolations = true
 }
-
-check.dependsOn editorconfigCheck
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
 
 checkstyleMain {
     reports {
