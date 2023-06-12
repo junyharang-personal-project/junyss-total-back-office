@@ -31,9 +31,7 @@ pipeline {
             steps {
                 sh '''
                     echo 'Project Build 작업을 시작 합니다!'
-                    echo 'Application 환경 설정 할게요!'
-                    SPRING_PROFILES_ACTIVE=dev
-                    ./gradlew clean build -Pprofile=dev --stacktrace --warning-mode all --info
+                    ./gradlew clean build --stacktrace --warning-mode all --info
                 '''
             }
 
