@@ -13,8 +13,7 @@ pipeline {
             steps {
                 sh '''
                     echo 'Project Build 작업을 시작 합니다!'
-                    echo 'Gradle Version : '
-                    ./gradle -v
+                    ./gradlew cleanBuildCache
                     ./gradlew clean build --stacktrace
                 '''
             }
