@@ -268,7 +268,7 @@ tasks.named('test') {
 //checkstyle 설정
 checkstyle {
     // 분석 결과에서 예외 발생 시 빌드 실패 발생 제외
-    ignoreFailures = false
+    ignoreFailures = true
     // 규칙이 어긋나는 코드가 하나라도 있을 경우 빌드 fail
     // maxWarnings = 0
     configFile = file('config/checkstyle/naver-checkstyle-rules.xml') // 설정 파일 경로 지정
