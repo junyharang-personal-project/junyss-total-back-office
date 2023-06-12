@@ -288,3 +288,19 @@ checkstyleMain {
         xml.destination = file("${checkstyle.reportsDir}/checkstyle-report.xml")
     }
 }
+
+sourceSets {
+    main {
+        java {
+            // Project Directory 설정
+            srcDirs = ['src/main/java']
+        }
+    }
+
+    test {
+        java {
+            // 테스트 코드 디렉토리 설정
+            srcDirs = ['src/test/java']
+        }
+    }
+}
