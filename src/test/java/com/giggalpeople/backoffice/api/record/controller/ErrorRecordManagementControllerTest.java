@@ -1,7 +1,7 @@
-package com.giggalpeople.backoffice.api.log.controller;
+package com.giggalpeople.backoffice.api.record.controller;
 
 import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
-import static com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType.*;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.*;
 import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.*;
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
 import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.*;
@@ -40,14 +40,14 @@ import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.Pagination;
 import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
 import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
-import com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogDetailSearchRequestDto;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDto;
-import com.giggalpeople.backoffice.api.log.model.dto.response.ErrorLogListResponseDto;
-import com.giggalpeople.backoffice.api.log.model.dto.response.ErrorLogTotalDetailResponseDto;
-import com.giggalpeople.backoffice.api.log.model.vo.LogTotalInfoVo;
-import com.giggalpeople.backoffice.api.log.service.LogService;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordListResponseDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordTotalDetailResponseDto;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
+import com.giggalpeople.backoffice.api.record.service.ErrorRecordService;
 import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
@@ -63,14 +63,14 @@ import com.giggalpeople.backoffice.common.util.CryptoUtil;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(LogManagementController.class)
-class LogManagementControllerTest {
+@WebMvcTest(ErrorRecordManagementController.class)
+class ErrorRecordManagementControllerTest {
 
 	@Autowired
 	MockMvc mockMvc;
 
 	@MockBean
-	LogService logService;
+	ErrorRecordService errorRecordService;
 
 	DataCreatedDateTimeVo dataCreatedDateTimeVo;
 
@@ -79,21 +79,21 @@ class LogManagementControllerTest {
 
 	ErrorLogUserInfoVo userInfoVo;
 
-	ErrorLogSearchDto searchForErrorLogId;
+	ErrorRecordSearchDto searchForErrorLogId;
 
-	ErrorLogSearchDto searchForCreatedErrorLogDateRange;
+	ErrorRecordSearchDto searchForCreatedErrorLogDateRange;
 
-	ErrorLogSearchDto errorLogSearchCreatedErrorLogDateDto;
+	ErrorRecordSearchDto errorLogSearchCreatedErrorLogDateDto;
 
-	ErrorLogSearchDto searchForErrorExceptionBrief;
+	ErrorRecordSearchDto searchForErrorExceptionBrief;
 
-	ErrorLogSearchDto searchForServerName;
+	ErrorRecordSearchDto searchForServerName;
 
-	ErrorLogSearchDto searchForServerIp;
+	ErrorRecordSearchDto searchForServerIp;
 
-	ErrorLogSearchDto searchForUserIp;
+	ErrorRecordSearchDto searchForUserIp;
 
-	ErrorLogSearchDto searchForErrorLogLevel;
+	ErrorRecordSearchDto searchForErrorLogLevel;
 
 	DataCreatedDateTimeRequestDto dataCreatedDateTimeRequestDto;
 
@@ -107,15 +107,15 @@ class LogManagementControllerTest {
 
 	UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestDto;
 
-	TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto;
+	TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto;
 
 	Criteria criteria;
 
-	List<ErrorLogListResponseDto> errorLogList;
+	List<ErrorRecordListResponseDto> errorLogList;
 
 	@BeforeEach
 	void beforeTestSetup() {
-		this.totalErrorLogSaveRequestDto = initializedMockModels();
+		this.totalErrorRecordSaveRequestDto = initializedMockModels();
 
 		initializedMockSearchRequestDto();
 	}
@@ -152,7 +152,7 @@ class LogManagementControllerTest {
 		resultMap.put("이용자 요청 정보 저장 순서 번호", 1L);
 		resultMap.put("Error Log 저장 순서 번호", 1L);
 
-		given(logService.save(any())).willReturn(
+		given(errorRecordService.save(any())).willReturn(
 			DefaultResponse.response(CREATE.getStatusCode(), CREATE.getMessage(), resultMap));
 
 		//when
@@ -169,11 +169,11 @@ class LogManagementControllerTest {
 	@DisplayName("Discord Bot을 이용한 Log 목록 조회 테스트")
 	void toDiscordAllErrorInfoFind() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON))
 			.andDo(print())
 			.andExpect(status().isOk())
@@ -190,12 +190,12 @@ class LogManagementControllerTest {
 		mockCriteria.setPage(3);
 		mockCriteria.setPerPageNum(5);
 
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(mockCriteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(3))
 				.param("perPageNum", String.valueOf(5)))
@@ -217,12 +217,12 @@ class LogManagementControllerTest {
 	@DisplayName("Error Log 정보 생성 순서 번호를 통한 검색 테스트")
 	void toDiscordAllErrorInfoSearchId() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -243,12 +243,12 @@ class LogManagementControllerTest {
 	@DisplayName("Error Log 정보 생성일 검색 테스트")
 	void toDiscordAllErrorInfoSearchCreatedLogDate() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -268,12 +268,12 @@ class LogManagementControllerTest {
 	@DisplayName("Error Log 정보 생성일 범위 검색 테스트")
 	void toDiscordAllErrorInfoSearchCreatedLogDateRange() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -294,12 +294,12 @@ class LogManagementControllerTest {
 	@DisplayName("Error Log Level 검색 테스트")
 	void toDiscordAllErrorInfoSearchLogLevel() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -320,12 +320,12 @@ class LogManagementControllerTest {
 	@DisplayName("내부 서버 이름 검색 테스트")
 	void toDiscordAllErrorInfoSearchServerName() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -346,12 +346,12 @@ class LogManagementControllerTest {
 	@DisplayName("내부 서버 IP 주소 검색 테스트")
 	void toDiscordAllErrorInfoSearchServerIp() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -372,12 +372,12 @@ class LogManagementControllerTest {
 	@DisplayName("이용자 IP 주소 검색 테스트")
 	void toDiscordAllErrorInfoSearchUserIp() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -397,12 +397,12 @@ class LogManagementControllerTest {
 	@DisplayName("Exception 간략 내용 검색 테스트")
 	void toDiscordAllErrorInfoSearchExceptionBrief() throws Exception {
 		//given
-		given(logService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
+		given(errorRecordService.toDiscordAllErrorInfoFind(any(), any())).willReturn(
 			DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
 				new Pagination(criteria, errorLogList.size()), errorLogList));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/lists")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/list")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("page", String.valueOf(criteria.getPage()))
 				.param("perPageNum", String.valueOf(criteria.getPerPageNum()))
@@ -425,14 +425,14 @@ class LogManagementControllerTest {
 		//given
 		String[] initializedCreateDateTime = initializedCreateDateTime();
 
-		given(logService.toDiscordDetailErrorInfoFind(initializedMockDetailRequestDto())).willReturn(
+		given(errorRecordService.toDiscordDetailErrorInfoFind(initializedMockDetailRequestDto())).willReturn(
 			DefaultResponse.response(
 				SUCCESS.getStatusCode(),
 				SUCCESS.getMessage(),
-				new ErrorLogTotalDetailResponseDto().toDTO(
+				new ErrorRecordTotalDetailResponseDto().toDTO(
 					CryptoUtil.forGeneralCrewErrorLogDetailRequestInfoDecrypt(initializedLogTotalInfoVo()))));
 
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/details")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/detail")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("logId", "1")
 				.param("crewGrade", String.valueOf(TEAM_LEADER)))
@@ -454,11 +454,11 @@ class LogManagementControllerTest {
 	@DisplayName("Error Log 상세 조회 시 권한 없음 테스트")
 	void toDiscordDetailErrorInfoFindUnAuthorized() throws Exception {
 		//given
-		given(logService.toDiscordDetailErrorInfoFind(any())).willReturn(
+		given(errorRecordService.toDiscordDetailErrorInfoFind(any())).willReturn(
 			DefaultResponse.response(NO_AUTHORIZATION.getStatusCode(), NO_AUTHORIZATION.getMessage(), null));
 
 		//when
-		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/details")
+		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + LOG + "/detail")
 				.contentType(MediaType.APPLICATION_JSON)
 				.param("logId", "1")
 				.param("crewGrade", String.valueOf(GENERAL_CREW)))
@@ -473,12 +473,12 @@ class LogManagementControllerTest {
 	/**
 	 * <b>상세 조회 요청 DTO 만들기 위한 Method</b>
 	 */
-	private ErrorLogDetailSearchRequestDto initializedMockDetailRequestDto() {
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorLogDetailSearchRequestDto();
-		errorLogDetailSearchRequestDto.setLogId("1");
-		errorLogDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
+	private ErrorRecordDetailSearchRequestDto initializedMockDetailRequestDto() {
+		ErrorRecordDetailSearchRequestDto errorRecordDetailSearchRequestDto = new ErrorRecordDetailSearchRequestDto();
+		errorRecordDetailSearchRequestDto.setLogId("1");
+		errorRecordDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
 
-		return errorLogDetailSearchRequestDto;
+		return errorRecordDetailSearchRequestDto;
 	}
 
 	/**
@@ -488,13 +488,13 @@ class LogManagementControllerTest {
 		this.errorLogList = new ArrayList<>();
 
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			errorLogList.add(ErrorLogListResponseDto.builder()
+			errorLogList.add(ErrorRecordListResponseDto.builder()
 				.logId((long)count)
-				.createdDateTime(this.totalErrorLogSaveRequestDto.getCreatedAt())
-				.level(this.totalErrorLogSaveRequestDto.getLevel())
-				.serverName(this.totalErrorLogSaveRequestDto.getServerName())
+				.createdDateTime(this.totalErrorRecordSaveRequestDto.getCreatedAt())
+				.level(this.totalErrorRecordSaveRequestDto.getLevel())
+				.serverName(this.totalErrorRecordSaveRequestDto.getServerName())
 				.serverIP("192.168.20." + count)
-				.exceptionBrief(this.totalErrorLogSaveRequestDto.getExceptionBrief())
+				.exceptionBrief(this.totalErrorRecordSaveRequestDto.getExceptionBrief())
 				.build());
 		});
 	}
@@ -513,8 +513,8 @@ class LogManagementControllerTest {
 	 * <b>이용자 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchUserIpRequestDto() {
-		this.searchForUserIp = new ErrorLogSearchDto();
-		this.searchForUserIp.setInputSearchType(ErrorLogSearchType.USER_IP);
+		this.searchForUserIp = new ErrorRecordSearchDto();
+		this.searchForUserIp.setInputSearchType(USER_IP);
 		this.searchForUserIp.setSearchWord("127.0.0.1");
 	}
 
@@ -522,8 +522,8 @@ class LogManagementControllerTest {
 	 * <b>내부 서버 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerIpRequestDto() {
-		this.searchForServerIp = new ErrorLogSearchDto();
-		this.searchForServerIp.setInputSearchType(ErrorLogSearchType.SERVER_IP);
+		this.searchForServerIp = new ErrorRecordSearchDto();
+		this.searchForServerIp.setInputSearchType(ErrorRecordSearchType.SERVER_IP);
 		this.searchForServerIp.setSearchWord("192.168.20.2");
 	}
 
@@ -531,8 +531,8 @@ class LogManagementControllerTest {
 	 * <b>내부 서버 이름을 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerNameRequestDto() {
-		this.searchForServerName = new ErrorLogSearchDto();
-		this.searchForServerName.setInputSearchType(ErrorLogSearchType.SERVER_NAME);
+		this.searchForServerName = new ErrorRecordSearchDto();
+		this.searchForServerName.setInputSearchType(ErrorRecordSearchType.SERVER_NAME);
 		this.searchForServerName.setSearchWord("통합관리서버");
 	}
 
@@ -540,7 +540,7 @@ class LogManagementControllerTest {
 	 * <b>Error Log 생성일 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchCreatedErrorLogDateRequestDto(String searchDate) {
-		this.errorLogSearchCreatedErrorLogDateDto = new ErrorLogSearchDto();
+		this.errorLogSearchCreatedErrorLogDateDto = new ErrorRecordSearchDto();
 		this.errorLogSearchCreatedErrorLogDateDto.setInputSearchType(LOG_CREATE_DATE);
 		this.errorLogSearchCreatedErrorLogDateDto.setDate(searchDate);
 	}
@@ -550,7 +550,7 @@ class LogManagementControllerTest {
 	 */
 
 	private void initializedMockSearchUserConnectedDateRangeRequestDto(String nowDate) {
-		this.searchForCreatedErrorLogDateRange = new ErrorLogSearchDto();
+		this.searchForCreatedErrorLogDateRange = new ErrorRecordSearchDto();
 		this.searchForCreatedErrorLogDateRange.setInputSearchType(LOG_CREATE_DATE);
 		this.searchForCreatedErrorLogDateRange.setStartDate("2023-01-01");
 		this.searchForCreatedErrorLogDateRange.setEndDate(nowDate);
@@ -560,7 +560,7 @@ class LogManagementControllerTest {
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogIdRequestDto() {
-		this.searchForErrorLogId = new ErrorLogSearchDto();
+		this.searchForErrorLogId = new ErrorRecordSearchDto();
 		this.searchForErrorLogId.setInputSearchType(LOG_ID);
 		this.searchForErrorLogId.setSearchWord("1");
 	}
@@ -569,7 +569,7 @@ class LogManagementControllerTest {
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogLevelRequestDto() {
-		this.searchForErrorLogLevel = new ErrorLogSearchDto();
+		this.searchForErrorLogLevel = new ErrorRecordSearchDto();
 		this.searchForErrorLogLevel.setInputSearchType(LOG_LEVEL);
 		this.searchForErrorLogLevel.setSearchWord("ERROR");
 	}
@@ -578,7 +578,7 @@ class LogManagementControllerTest {
 	 * <b>Error Log Exception 간략 내용으로 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogExceptionBriefRequestDto() {
-		this.searchForErrorExceptionBrief = new ErrorLogSearchDto();
+		this.searchForErrorExceptionBrief = new ErrorRecordSearchDto();
 		this.searchForErrorExceptionBrief.setInputSearchType(EXCEPTION_BRIEF);
 		this.searchForErrorExceptionBrief.setSearchWord(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
@@ -588,7 +588,7 @@ class LogManagementControllerTest {
 	 * <b>가짜 Error Log 발생 DTO를 만든기 위한 Method</b>
 	 * @return Error Log 발생 정보를 담은 요청 DTO
 	 */
-	private TotalErrorLogSaveRequestDto initializedMockModels() {
+	private TotalErrorRecordSaveRequestDto initializedMockModels() {
 		this.dataCreatedDateTimeVo = initializedCreateDateTimeVo();
 		this.serverInfoVo = initializedServerInfo();
 		this.userInfoVo = initializedConnectedUserInfo();
@@ -597,23 +597,23 @@ class LogManagementControllerTest {
 
 		String[] createDateTimeArray = initializedCreateDateTime();
 
-		TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto = new TotalErrorLogSaveRequestDto();
-		totalErrorLogSaveRequestDto.setCreatedAt(createDateTimeArray[0] + " " + createDateTimeArray[1]);
-		totalErrorLogSaveRequestDto.setLevel("ERROR");
-		totalErrorLogSaveRequestDto.setServerName(this.serverInfo.getServerName());
-		totalErrorLogSaveRequestDto.setVmInfo(this.serverInfo.getVmInfo());
-		totalErrorLogSaveRequestDto.setOsInfo(this.serverInfo.getOsInfo());
-		totalErrorLogSaveRequestDto.setServerIP(this.serverInfo.getServerIP());
-		totalErrorLogSaveRequestDto.setServerEnvironment(this.serverInfo.getServerEnvironment());
-		totalErrorLogSaveRequestDto.setUserIp(this.userInfoVo.getUserIP());
-		totalErrorLogSaveRequestDto.setUserLocation(this.userInfoVo.getUserLocation());
-		totalErrorLogSaveRequestDto.setRequestHeader(this.userInfoVo.getUserEnvironment());
-		totalErrorLogSaveRequestDto.setUserCookies(null);
-		totalErrorLogSaveRequestDto.setRequestParameter(this.userRequestInfoVo.getRequestParameter());
-		totalErrorLogSaveRequestDto.setRequestBody(this.userRequestInfoVo.getRequestBody());
-		totalErrorLogSaveRequestDto.setExceptionBrief(
+		TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto = new TotalErrorRecordSaveRequestDto();
+		totalErrorRecordSaveRequestDto.setCreatedAt(createDateTimeArray[0] + " " + createDateTimeArray[1]);
+		totalErrorRecordSaveRequestDto.setLevel("ERROR");
+		totalErrorRecordSaveRequestDto.setServerName(this.serverInfo.getServerName());
+		totalErrorRecordSaveRequestDto.setVmInfo(this.serverInfo.getVmInfo());
+		totalErrorRecordSaveRequestDto.setOsInfo(this.serverInfo.getOsInfo());
+		totalErrorRecordSaveRequestDto.setServerIP(this.serverInfo.getServerIP());
+		totalErrorRecordSaveRequestDto.setServerEnvironment(this.serverInfo.getServerEnvironment());
+		totalErrorRecordSaveRequestDto.setUserIp(this.userInfoVo.getUserIP());
+		totalErrorRecordSaveRequestDto.setUserLocation(this.userInfoVo.getUserLocation());
+		totalErrorRecordSaveRequestDto.setRequestHeader(this.userInfoVo.getUserEnvironment());
+		totalErrorRecordSaveRequestDto.setUserCookies(null);
+		totalErrorRecordSaveRequestDto.setRequestParameter(this.userRequestInfoVo.getRequestParameter());
+		totalErrorRecordSaveRequestDto.setRequestBody(this.userRequestInfoVo.getRequestBody());
+		totalErrorRecordSaveRequestDto.setExceptionBrief(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-		totalErrorLogSaveRequestDto.setExceptionDetail(
+		totalErrorRecordSaveRequestDto.setExceptionDetail(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 				+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 				+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -627,7 +627,7 @@ class LogManagementControllerTest {
 				+ "at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)\n"
 				+ "at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:89)");
 
-		return totalErrorLogSaveRequestDto;
+		return totalErrorRecordSaveRequestDto;
 	}
 
 	private UserRequestTotalInfoSaveRequestDto initializedConnectedUserRequestTotalInfo() {
@@ -702,28 +702,28 @@ class LogManagementControllerTest {
 		return ServerInfoVo.toVo(serverInfoSaveRequestDto);
 	}
 
-	private LogTotalInfoVo initializedLogTotalInfoVo() {
+	private ErrorRecordTotalInfoVo initializedLogTotalInfoVo() {
 		String[] initializedCreateDateTime = initializedCreateDateTime();
 
-		return new LogTotalInfoVo(
+		return new ErrorRecordTotalInfoVo(
 			1L,
 			initializedCreateDateTime[0],
 			initializedCreateDateTime[1],
-			totalErrorLogSaveRequestDto.getLevel(),
-			totalErrorLogSaveRequestDto.getServerName(),
-			totalErrorLogSaveRequestDto.getVmInfo(),
-			totalErrorLogSaveRequestDto.getOsInfo(),
-			totalErrorLogSaveRequestDto.getServerIP(),
-			totalErrorLogSaveRequestDto.getServerEnvironment(),
-			totalErrorLogSaveRequestDto.getUserIp(),
-			totalErrorLogSaveRequestDto.getUserEnvironment(),
-			totalErrorLogSaveRequestDto.getUserLocation(),
-			totalErrorLogSaveRequestDto.getRequestHeader(),
+			totalErrorRecordSaveRequestDto.getLevel(),
+			totalErrorRecordSaveRequestDto.getServerName(),
+			totalErrorRecordSaveRequestDto.getVmInfo(),
+			totalErrorRecordSaveRequestDto.getOsInfo(),
+			totalErrorRecordSaveRequestDto.getServerIP(),
+			totalErrorRecordSaveRequestDto.getServerEnvironment(),
+			totalErrorRecordSaveRequestDto.getUserIp(),
+			totalErrorRecordSaveRequestDto.getUserEnvironment(),
+			totalErrorRecordSaveRequestDto.getUserLocation(),
+			totalErrorRecordSaveRequestDto.getRequestHeader(),
 			null,
-			totalErrorLogSaveRequestDto.getRequestParameter(),
-			totalErrorLogSaveRequestDto.getRequestBody(),
-			totalErrorLogSaveRequestDto.getExceptionBrief(),
-			totalErrorLogSaveRequestDto.getExceptionDetail());
+			totalErrorRecordSaveRequestDto.getRequestParameter(),
+			totalErrorRecordSaveRequestDto.getRequestBody(),
+			totalErrorRecordSaveRequestDto.getExceptionBrief(),
+			totalErrorRecordSaveRequestDto.getExceptionDetail());
 	}
 
 	/**

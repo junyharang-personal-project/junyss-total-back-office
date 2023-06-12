@@ -58,8 +58,8 @@ public class ErrorRecordManagementController {
 	@ExecutionTimeCheck
 	@PostMapping(LOG)
 	public DefaultResponse<Map<String, Long>> logSave(
-		@Valid @RequestBody TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
-		return errorRecordService.save(totalErrorRecordSaveRequestDTO);
+		@Valid @RequestBody TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
+		return errorRecordService.save(totalErrorRecordSaveRequestDto);
 	}
 
 	@Operation(summary = "Discord Bot을 이용한 Log 목록 조회", description = "Log 목록 조회 API")
@@ -70,11 +70,11 @@ public class ErrorRecordManagementController {
 	})
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
-	@GetMapping(API_CALLER_DISCORD_BOT + LOG + "/lists")
+	@GetMapping(API_CALLER_DISCORD_BOT + LOG + "/list")
 	public DefaultListResponse<List<ErrorRecordListResponseDto>> toDiscordAllErrorInfoFind(
 		@ModelAttribute("criteria") Criteria criteria,
-		@Valid @ModelAttribute("errorLogSearchDTO") ErrorRecordSearchDto errorRecordSearchDTO) {
-		return errorRecordService.toDiscordAllErrorInfoFind(criteria, errorRecordSearchDTO);
+		@Valid @ModelAttribute("errorRecordSearchDto") ErrorRecordSearchDto errorRecordSearchDto) {
+		return errorRecordService.toDiscordAllErrorInfoFind(criteria, errorRecordSearchDto);
 	}
 
 	@Operation(summary = "Discord Bot을 이용한 Log 상세 조회", description = "Log 상세 조회 API")
@@ -85,9 +85,9 @@ public class ErrorRecordManagementController {
 	})
 	@UserAccessInfoCheck
 	@ExecutionTimeCheck
-	@GetMapping(API_CALLER_DISCORD_BOT + LOG + "/details")
+	@GetMapping(API_CALLER_DISCORD_BOT + LOG + "/detail")
 	public DefaultResponse<ErrorRecordTotalDetailResponseDto> toDiscordDetailErrorInfoFind(
-		@Valid @ModelAttribute("errorLogDetailSearchRequestDTO") ErrorRecordDetailSearchRequestDto errorRecordDetailSearchRequestDTO) {
-		return errorRecordService.toDiscordDetailErrorInfoFind(errorRecordDetailSearchRequestDTO);
+		@Valid @ModelAttribute("errorRecordDetailSearchRequestDto") ErrorRecordDetailSearchRequestDto errorRecordDetailSearchRequestDto) {
+		return errorRecordService.toDiscordDetailErrorInfoFind(errorRecordDetailSearchRequestDto);
 	}
 }

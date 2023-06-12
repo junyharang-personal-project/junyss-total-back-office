@@ -1,6 +1,6 @@
-package com.giggalpeople.backoffice.api.log.service.impl;
+package com.giggalpeople.backoffice.api.record.service.impl;
 
-import static com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType.*;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.*;
 import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.*;
 import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
@@ -30,14 +30,13 @@ import com.giggalpeople.backoffice.api.common.database.dao.OccurrenceDataDateTim
 import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
 import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
-import com.giggalpeople.backoffice.api.log.exception.ErrorLogException;
-import com.giggalpeople.backoffice.api.log.model.dto.enumtype.ErrorLogSearchType;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogDetailSearchRequestDto;
-import com.giggalpeople.backoffice.api.log.model.dto.request.ErrorLogSearchDto;
-import com.giggalpeople.backoffice.api.log.model.dto.request.TotalErrorLogSaveRequestDto;
-import com.giggalpeople.backoffice.api.log.model.dto.response.ErrorLogListResponseDto;
-import com.giggalpeople.backoffice.api.log.model.dto.response.ErrorLogTotalDetailResponseDto;
-import com.giggalpeople.backoffice.api.log.service.LogService;
+import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordDetailSearchRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
+import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordListResponseDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordTotalDetailResponseDto;
+import com.giggalpeople.backoffice.api.record.service.ErrorRecordService;
 import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
 import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
@@ -52,14 +51,15 @@ import com.giggalpeople.backoffice.common.database.DataBaseManagerMapper;
 import com.giggalpeople.backoffice.common.entity.ServerInfo;
 import com.giggalpeople.backoffice.common.enumtype.GiggalPeopleServerNames;
 import com.giggalpeople.backoffice.common.env.exception.ServerInfoException;
+import com.giggalpeople.backoffice.api.record.exception.ErrorRecordException;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class LogServiceImplTest {
+class ErrorRecordServiceImplTest {
 
 	@Autowired
-	LogService logService;
+	ErrorRecordService errorRecordService;
 
 	@Autowired
 	OccurrenceDataDateTimeManagementDao occurrenceDataDateTimeManagementDao;
@@ -77,21 +77,21 @@ class LogServiceImplTest {
 
 	ErrorLogUserInfoVo userInfoVo;
 
-	ErrorLogSearchDto searchForErrorLogId;
+	ErrorRecordSearchDto searchForErrorLogId;
 
-	ErrorLogSearchDto searchForCreatedErrorLogDateRange;
+	ErrorRecordSearchDto searchForCreatedErrorLogDateRange;
 
-	ErrorLogSearchDto errorLogSearchCreatedErrorLogDateDto;
+	ErrorRecordSearchDto errorLogSearchCreatedErrorLogDateDto;
 
-	ErrorLogSearchDto searchForErrorExceptionBrief;
+	ErrorRecordSearchDto searchForErrorExceptionBrief;
 
-	ErrorLogSearchDto searchForServerName;
+	ErrorRecordSearchDto searchForServerName;
 
-	ErrorLogSearchDto searchForServerIp;
+	ErrorRecordSearchDto searchForServerIp;
 
-	ErrorLogSearchDto searchForUserIp;
+	ErrorRecordSearchDto searchForUserIp;
 
-	ErrorLogSearchDto searchForErrorLogLevel;
+	ErrorRecordSearchDto searchForErrorLogLevel;
 
 	DataCreatedDateTimeRequestDto dataCreatedDateTimeRequestDto;
 
@@ -105,15 +105,15 @@ class LogServiceImplTest {
 
 	UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestDto;
 
-	TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto;
+	TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto;
 
 	Criteria criteria;
 
-	List<ErrorLogListResponseDto> errorLogList;
+	List<ErrorRecordListResponseDto> errorLogList;
 
 	@BeforeEach
 	void beforeTestSetup() {
-		this.totalErrorLogSaveRequestDto = initializedMockModels();
+		this.totalErrorRecordSaveRequestDto = initializedMockModels();
 
 		initializedMockSearchRequestDto();
 	}
@@ -133,7 +133,7 @@ class LogServiceImplTest {
 		initializedMockCriteria();
 		initializedMocErrorLogInfoList();
 		initializedMockSearchErrorLogLevelRequestDto();
-		initializedMockSearchErrorLogExceptionBriefRequestDto();
+		initializedMockSearchErrorRecordExceptionBriefRequestDto();
 	}
 
 	@Test
@@ -142,13 +142,13 @@ class LogServiceImplTest {
 	@Transactional
 	void toDiscordAllErrorInfoFindNotFound() {
 		//given
-		ErrorLogSearchDto errorLogSearchDto = new ErrorLogSearchDto();
-		errorLogSearchDto.setInputSearchType(null);
-		errorLogSearchDto.setSearchWord(null);
+		ErrorRecordSearchDto errorRecordSearchDto = new ErrorRecordSearchDto();
+		errorRecordSearchDto.setInputSearchType(null);
+		errorRecordSearchDto.setSearchWord(null);
 
 		//when
-		ErrorLogException errorLogException = Assertions.assertThrows(ErrorLogException.class,
-			() -> logService.toDiscordAllErrorInfoFind(criteria, errorLogSearchDto));
+		ErrorRecordException errorLogException = Assertions.assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.toDiscordAllErrorInfoFind(criteria, errorRecordSearchDto));
 
 		//then
 		assertEquals(NOT_EXIST_ERROR_LOG.getMessage(), errorLogException.getMessage());
@@ -160,7 +160,7 @@ class LogServiceImplTest {
 	void save() {
 		//given
 		//when
-		DefaultResponse<Map<String, Long>> responseInfo = logService.save(totalErrorLogSaveRequestDto);
+		DefaultResponse<Map<String, Long>> responseInfo = errorRecordService.save(totalErrorRecordSaveRequestDto);
 
 		//then
 		System.out.println("응답 값 : " + responseInfo);
@@ -174,11 +174,11 @@ class LogServiceImplTest {
 	@DisplayName("ErrorLog 저장 시 내부 서버 정보 Null 값 입력으로 인한 문제 테스트")
 	void causedByServerInfoSaveFailure() {
 		//given
-		TotalErrorLogSaveRequestDto isInputNulluserRequestTotalErrorLogSaveRequestDto = createErrorStatusDto(
+		TotalErrorRecordSaveRequestDto isInputNulluserRequestTotalErrorRecordSaveRequestDto = createErrorStatusDto(
 			"serverInfo");
 		//when
 		ServerInfoException errorLogException = assertThrows(ServerInfoException.class,
-			() -> logService.save(isInputNulluserRequestTotalErrorLogSaveRequestDto));
+			() -> errorRecordService.save(isInputNulluserRequestTotalErrorRecordSaveRequestDto));
 
 		// then
 		assertEquals(PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)),
@@ -190,11 +190,11 @@ class LogServiceImplTest {
 	@DisplayName("ErrorLog 저장 시 Error Log 생성 일시 Null 값 입력으로 인한 문제 테스트")
 	void causedByOccurrenceDateTimeSaveFailure() {
 		//given
-		TotalErrorLogSaveRequestDto isInputNulluserRequestTotalErrorLogSaveRequestDto = createErrorStatusDto(
+		TotalErrorRecordSaveRequestDto isInputNulluserRequestTotalErrorRecordSaveRequestDto = createErrorStatusDto(
 			"occurrenceDateTime");
 		//when
-		ErrorLogException errorLogException = assertThrows(ErrorLogException.class,
-			() -> logService.save(isInputNulluserRequestTotalErrorLogSaveRequestDto));
+		ErrorRecordException errorLogException = assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.save(isInputNulluserRequestTotalErrorRecordSaveRequestDto));
 
 		// then
 		assertEquals(PARAMETER_NULL.getMessage(), errorLogException.getMessage());
@@ -205,11 +205,11 @@ class LogServiceImplTest {
 	@DisplayName("ErrorLog 저장 시 이용자 정보 Null 값 입력으로 인한 문제 테스트")
 	void causedByUserInfoSaveFailure() {
 		//given
-		TotalErrorLogSaveRequestDto isInputNulluserRequestTotalErrorLogSaveRequestDto = createErrorStatusDto(
+		TotalErrorRecordSaveRequestDto isInputNulluserRequestTotalErrorRecordSaveRequestDto = createErrorStatusDto(
 			"userInfo");
 		//when
-		ErrorLogException errorLogException = assertThrows(ErrorLogException.class,
-			() -> logService.save(isInputNulluserRequestTotalErrorLogSaveRequestDto));
+		ErrorRecordException errorLogException = assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.save(isInputNulluserRequestTotalErrorRecordSaveRequestDto));
 
 		// then
 		assertEquals(PARAMETER_NULL.getMessage(), errorLogException.getMessage());
@@ -220,11 +220,11 @@ class LogServiceImplTest {
 	@DisplayName("ErrorLog 저장 시 이용자 요청 정보 Null 값 입력으로 인한 문제 테스트")
 	void causedByUserRequestInfoSaveFailure() {
 		//given
-		TotalErrorLogSaveRequestDto isInputNulluserRequestTotalErrorLogSaveRequestDto = createErrorStatusDto(
+		TotalErrorRecordSaveRequestDto isInputNulluserRequestTotalErrorRecordSaveRequestDto = createErrorStatusDto(
 			"userRequest");
 		//when
-		ErrorLogException errorLogException = assertThrows(ErrorLogException.class,
-			() -> logService.save(isInputNulluserRequestTotalErrorLogSaveRequestDto));
+		ErrorRecordException errorLogException = assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.save(isInputNulluserRequestTotalErrorRecordSaveRequestDto));
 
 		// then
 		assertEquals(PARAMETER_NULL.getMessage(), errorLogException.getMessage());
@@ -235,10 +235,10 @@ class LogServiceImplTest {
 	@DisplayName("ErrorLog 저장 시 Error Log 정보 Null 값 입력으로 인한 문제 테스트")
 	void causedByErrorLogInfoSaveFailure() {
 		//given
-		TotalErrorLogSaveRequestDto isInputNulluserRequestTotalErrorLogSaveRequestDto = createErrorStatusDto("");
+		TotalErrorRecordSaveRequestDto isInputNulluserRequestTotalErrorRecordSaveRequestDto = createErrorStatusDto("");
 		//when
-		ErrorLogException errorLogException = assertThrows(ErrorLogException.class,
-			() -> logService.save(isInputNulluserRequestTotalErrorLogSaveRequestDto));
+		ErrorRecordException errorLogException = assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.save(isInputNulluserRequestTotalErrorRecordSaveRequestDto));
 
 		// then
 		assertEquals(PARAMETER_NULL.getMessage(), errorLogException.getMessage());
@@ -251,16 +251,16 @@ class LogServiceImplTest {
 	void toDiscordAllErrorInfoFind() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
-		ErrorLogSearchDto errorLogSearchDto = new ErrorLogSearchDto();
-		errorLogSearchDto.setInputSearchType(null);
-		errorLogSearchDto.setSearchWord(null);
+		ErrorRecordSearchDto errorRecordSearchDto = new ErrorRecordSearchDto();
+		errorRecordSearchDto.setInputSearchType(null);
+		errorRecordSearchDto.setSearchWord(null);
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
-			criteria, errorLogSearchDto);
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
+			criteria, errorRecordSearchDto);
 
 		//then
 		System.out.println("Paging 처리 결과 : " + responseInfo.getPagination());
@@ -281,14 +281,14 @@ class LogServiceImplTest {
 		dataBaseManagerMapper.initializeAutoIncrement("server_info");
 		dataBaseManagerMapper.initializeAutoIncrement("data_created_date_time");
 
-		System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+		System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 
-		ErrorLogSearchDto errorLogSearchDto = new ErrorLogSearchDto();
+		ErrorRecordSearchDto errorLogSearchDto = new ErrorRecordSearchDto();
 		errorLogSearchDto.setInputSearchType(null);
 		errorLogSearchDto.setSearchWord(null);
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, errorLogSearchDto);
 
 		//then
@@ -311,19 +311,19 @@ class LogServiceImplTest {
 		dataBaseManagerMapper.initializeAutoIncrement("data_created_date_time");
 
 		IntStream.rangeClosed(1, 10).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		Criteria requestPaging = new Criteria();
 		requestPaging.setPage(3);
 		requestPaging.setPerPageNum(5);
 
-		ErrorLogSearchDto errorLogSearchDto = new ErrorLogSearchDto();
+		ErrorRecordSearchDto errorLogSearchDto = new ErrorRecordSearchDto();
 		errorLogSearchDto.setInputSearchType(null);
 		errorLogSearchDto.setSearchWord(null);
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			requestPaging, errorLogSearchDto);
 
 		//then
@@ -343,11 +343,11 @@ class LogServiceImplTest {
 	void toErrorLogIdSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForErrorLogId);
 
 		//then
@@ -364,11 +364,11 @@ class LogServiceImplTest {
 	void toErrorLogCreatedDateSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, errorLogSearchCreatedErrorLogDateDto);
 
 		//then
@@ -385,11 +385,11 @@ class LogServiceImplTest {
 	void toErrorLogCreatedDateRangeSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForCreatedErrorLogDateRange);
 
 		//then
@@ -406,11 +406,11 @@ class LogServiceImplTest {
 	void toErrorLogLevelSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForErrorLogLevel);
 
 		//then
@@ -427,11 +427,11 @@ class LogServiceImplTest {
 	void toErrorLogServerNameSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForServerName);
 
 		//then
@@ -448,11 +448,11 @@ class LogServiceImplTest {
 	void toErrorLogServerIpSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForServerIp);
 
 		//then
@@ -469,11 +469,11 @@ class LogServiceImplTest {
 	void toErrorLogUserIpSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForUserIp);
 
 		//then
@@ -487,14 +487,14 @@ class LogServiceImplTest {
 	@Order(16)
 	@DisplayName("ErrorLog Exception 간략 내용 검색 조회 테스트")
 	@Transactional
-	void toErrorLogExceptionBriefSearch() {
+	void toErrorRecordExceptionBriefSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
-		DefaultListResponse<List<ErrorLogListResponseDto>> responseInfo = logService.toDiscordAllErrorInfoFind(
+		DefaultListResponse<List<ErrorRecordListResponseDto>> responseInfo = errorRecordService.toDiscordAllErrorInfoFind(
 			criteria, searchForErrorExceptionBrief);
 
 		//then
@@ -511,15 +511,14 @@ class LogServiceImplTest {
 	void toDiscordDetailErrorInfoFind() {
 		//given
 		System.out.println(
-			"Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorLogDetailSearchRequestDto();
-		errorLogDetailSearchRequestDto.setLogId("1");
-		errorLogDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
+		ErrorRecordDetailSearchRequestDto errorRecordDetailSearchRequestDto = new ErrorRecordDetailSearchRequestDto();
+		errorRecordDetailSearchRequestDto.setLogId("1");
+		errorRecordDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
 
 		//when
-		DefaultResponse<ErrorLogTotalDetailResponseDto> responseInfo = logService.toDiscordDetailErrorInfoFind(
-			errorLogDetailSearchRequestDto);
+		DefaultResponse<ErrorRecordTotalDetailResponseDto> responseInfo = errorRecordService.toDiscordDetailErrorInfoFind(errorRecordDetailSearchRequestDto);
 
 		//then
 		assertThat(responseInfo.getStatusCode()).isEqualTo(200);
@@ -533,14 +532,14 @@ class LogServiceImplTest {
 	void toDiscordDetailErrorInfoUnAuthorizedFind() {
 		//given
 		System.out.println(
-			"Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorLogDetailSearchRequestDto();
+		ErrorRecordDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorRecordDetailSearchRequestDto();
 		errorLogDetailSearchRequestDto.setLogId("1");
 		errorLogDetailSearchRequestDto.setCrewGrade(GENERAL_CREW);
 
 		//when
-		DefaultResponse<ErrorLogTotalDetailResponseDto> responseInfo = logService.toDiscordDetailErrorInfoFind(
+		DefaultResponse<ErrorRecordTotalDetailResponseDto> responseInfo = errorRecordService.toDiscordDetailErrorInfoFind(
 			errorLogDetailSearchRequestDto);
 
 		//then
@@ -555,14 +554,14 @@ class LogServiceImplTest {
 	void toDiscordDetailErrorInfoNotFind() {
 		//given
 		System.out.println(
-			"Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorLogDetailSearchRequestDto();
+		ErrorRecordDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorRecordDetailSearchRequestDto();
 		errorLogDetailSearchRequestDto.setLogId("1");
 		errorLogDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
 
 		//when
-		DefaultResponse<ErrorLogTotalDetailResponseDto> responseInfo = logService.toDiscordDetailErrorInfoFind(
+		DefaultResponse<ErrorRecordTotalDetailResponseDto> responseInfo = errorRecordService.toDiscordDetailErrorInfoFind(
 			errorLogDetailSearchRequestDto);
 
 		//then
@@ -577,15 +576,15 @@ class LogServiceImplTest {
 	void toDiscordDetailErrorInfoUnAuthorizedNotFind() {
 		//given
 		System.out.println(
-			"Service Logic 저장 상태 여부 확인 : " + logService.save(totalErrorLogSaveRequestDto));
+			"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 
-		ErrorLogDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorLogDetailSearchRequestDto();
+		ErrorRecordDetailSearchRequestDto errorLogDetailSearchRequestDto = new ErrorRecordDetailSearchRequestDto();
 		errorLogDetailSearchRequestDto.setLogId("99999999");
 		errorLogDetailSearchRequestDto.setCrewGrade(GENERAL_CREW);
 
 		//when
-		ErrorLogException errorLogException = assertThrows(ErrorLogException.class,
-			() -> logService.toDiscordDetailErrorInfoFind(errorLogDetailSearchRequestDto));
+		ErrorRecordException errorLogException = assertThrows(ErrorRecordException.class,
+			() -> errorRecordService.toDiscordDetailErrorInfoFind(errorLogDetailSearchRequestDto));
 
 		//then
 		assertEquals(NOT_EXIST_ERROR_LOG.getMessage(), errorLogException.getMessage());
@@ -596,29 +595,29 @@ class LogServiceImplTest {
 	 * @param errorCause 각 Test Case에서 상황별로 동작할 수 있게 이용할 Keyword
 	 * @return 이용자 정보 저장을 위한 문제 있는 요청 DTO
 	 */
-	private TotalErrorLogSaveRequestDto createErrorStatusDto(String errorCause) {
+	private TotalErrorRecordSaveRequestDto createErrorStatusDto(String errorCause) {
 		String[] initializedCreateDateTime = initializedCreateDateTime();
-		TotalErrorLogSaveRequestDto inputNullTotalErrorLogSaveRequestDto = new TotalErrorLogSaveRequestDto();
+		TotalErrorRecordSaveRequestDto inputNullTotalErrorRecordSaveRequestDto = new TotalErrorRecordSaveRequestDto();
 		switch (errorCause) {
 			case "serverInfo":
-				inputNullTotalErrorLogSaveRequestDto.setCreatedAt(
+				inputNullTotalErrorRecordSaveRequestDto.setCreatedAt(
 					initializedCreateDateTime[0] + " " + initializedCreateDateTime[1]);
-				inputNullTotalErrorLogSaveRequestDto.setLevel("ERROR");
-				inputNullTotalErrorLogSaveRequestDto.setServerName(null);
-				inputNullTotalErrorLogSaveRequestDto.setVmInfo(null);
-				inputNullTotalErrorLogSaveRequestDto.setOsInfo(null);
-				inputNullTotalErrorLogSaveRequestDto.setServerIP(null);
-				inputNullTotalErrorLogSaveRequestDto.setServerEnvironment(null);
-				inputNullTotalErrorLogSaveRequestDto.setUserIp(userInfoVo.getUserIP());
-				inputNullTotalErrorLogSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
-				inputNullTotalErrorLogSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
-				inputNullTotalErrorLogSaveRequestDto.setUserCookies(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
-				inputNullTotalErrorLogSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
-				inputNullTotalErrorLogSaveRequestDto.setExceptionBrief(
+				inputNullTotalErrorRecordSaveRequestDto.setLevel("ERROR");
+				inputNullTotalErrorRecordSaveRequestDto.setServerName(null);
+				inputNullTotalErrorRecordSaveRequestDto.setVmInfo(null);
+				inputNullTotalErrorRecordSaveRequestDto.setOsInfo(null);
+				inputNullTotalErrorRecordSaveRequestDto.setServerIP(null);
+				inputNullTotalErrorRecordSaveRequestDto.setServerEnvironment(null);
+				inputNullTotalErrorRecordSaveRequestDto.setUserIp(userInfoVo.getUserIP());
+				inputNullTotalErrorRecordSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
+				inputNullTotalErrorRecordSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
+				inputNullTotalErrorRecordSaveRequestDto.setUserCookies(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionBrief(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-				inputNullTotalErrorLogSaveRequestDto.setExceptionDetail(
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionDetail(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 						+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 						+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -635,24 +634,24 @@ class LogServiceImplTest {
 				break;
 
 			case "userInfo":
-				inputNullTotalErrorLogSaveRequestDto.setCreatedAt(
+				inputNullTotalErrorRecordSaveRequestDto.setCreatedAt(
 					initializedCreateDateTime[0] + " " + initializedCreateDateTime[1]);
-				inputNullTotalErrorLogSaveRequestDto.setLevel("ERROR");
-				inputNullTotalErrorLogSaveRequestDto.setServerName(serverInfo.getServerName());
-				inputNullTotalErrorLogSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
-				inputNullTotalErrorLogSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
-				inputNullTotalErrorLogSaveRequestDto.setServerIP(serverInfo.getServerIP());
-				inputNullTotalErrorLogSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setUserIp(null);
-				inputNullTotalErrorLogSaveRequestDto.setUserLocation(null);
-				inputNullTotalErrorLogSaveRequestDto.setUserEnvironment(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
-				inputNullTotalErrorLogSaveRequestDto.setUserCookies(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
-				inputNullTotalErrorLogSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
-				inputNullTotalErrorLogSaveRequestDto.setExceptionBrief(
+				inputNullTotalErrorRecordSaveRequestDto.setLevel("ERROR");
+				inputNullTotalErrorRecordSaveRequestDto.setServerName(serverInfo.getServerName());
+				inputNullTotalErrorRecordSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setServerIP(serverInfo.getServerIP());
+				inputNullTotalErrorRecordSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setUserIp(null);
+				inputNullTotalErrorRecordSaveRequestDto.setUserLocation(null);
+				inputNullTotalErrorRecordSaveRequestDto.setUserEnvironment(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
+				inputNullTotalErrorRecordSaveRequestDto.setUserCookies(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionBrief(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-				inputNullTotalErrorLogSaveRequestDto.setExceptionDetail(
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionDetail(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 						+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 						+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -669,24 +668,24 @@ class LogServiceImplTest {
 				break;
 
 			case "userRequest":
-				inputNullTotalErrorLogSaveRequestDto.setCreatedAt(
+				inputNullTotalErrorRecordSaveRequestDto.setCreatedAt(
 					initializedCreateDateTime[0] + " " + initializedCreateDateTime[1]);
-				inputNullTotalErrorLogSaveRequestDto.setLevel("ERROR");
-				inputNullTotalErrorLogSaveRequestDto.setServerName(serverInfo.getServerName());
-				inputNullTotalErrorLogSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
-				inputNullTotalErrorLogSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
-				inputNullTotalErrorLogSaveRequestDto.setServerIP(serverInfo.getServerIP());
-				inputNullTotalErrorLogSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setUserIp(userInfoVo.getUserIP());
-				inputNullTotalErrorLogSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
-				inputNullTotalErrorLogSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setRequestHeader(null);
-				inputNullTotalErrorLogSaveRequestDto.setUserCookies(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestParameter(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestBody(null);
-				inputNullTotalErrorLogSaveRequestDto.setExceptionBrief(
+				inputNullTotalErrorRecordSaveRequestDto.setLevel("ERROR");
+				inputNullTotalErrorRecordSaveRequestDto.setServerName(serverInfo.getServerName());
+				inputNullTotalErrorRecordSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setServerIP(serverInfo.getServerIP());
+				inputNullTotalErrorRecordSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setUserIp(userInfoVo.getUserIP());
+				inputNullTotalErrorRecordSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
+				inputNullTotalErrorRecordSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestHeader(null);
+				inputNullTotalErrorRecordSaveRequestDto.setUserCookies(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestParameter(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestBody(null);
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionBrief(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-				inputNullTotalErrorLogSaveRequestDto.setExceptionDetail(
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionDetail(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 						+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 						+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -702,23 +701,23 @@ class LogServiceImplTest {
 				break;
 
 			case "occurrenceDateTime":
-				inputNullTotalErrorLogSaveRequestDto.setCreatedAt(null);
-				inputNullTotalErrorLogSaveRequestDto.setLevel("ERROR");
-				inputNullTotalErrorLogSaveRequestDto.setServerName(serverInfo.getServerName());
-				inputNullTotalErrorLogSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
-				inputNullTotalErrorLogSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
-				inputNullTotalErrorLogSaveRequestDto.setServerIP(serverInfo.getServerIP());
-				inputNullTotalErrorLogSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setUserIp(userInfoVo.getUserIP());
-				inputNullTotalErrorLogSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
-				inputNullTotalErrorLogSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
-				inputNullTotalErrorLogSaveRequestDto.setUserCookies(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
-				inputNullTotalErrorLogSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
-				inputNullTotalErrorLogSaveRequestDto.setExceptionBrief(
+				inputNullTotalErrorRecordSaveRequestDto.setCreatedAt(null);
+				inputNullTotalErrorRecordSaveRequestDto.setLevel("ERROR");
+				inputNullTotalErrorRecordSaveRequestDto.setServerName(serverInfo.getServerName());
+				inputNullTotalErrorRecordSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setServerIP(serverInfo.getServerIP());
+				inputNullTotalErrorRecordSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setUserIp(userInfoVo.getUserIP());
+				inputNullTotalErrorRecordSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
+				inputNullTotalErrorRecordSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
+				inputNullTotalErrorRecordSaveRequestDto.setUserCookies(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionBrief(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-				inputNullTotalErrorLogSaveRequestDto.setExceptionDetail(
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionDetail(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 						+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 						+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -734,25 +733,25 @@ class LogServiceImplTest {
 				break;
 
 			default:
-				inputNullTotalErrorLogSaveRequestDto.setCreatedAt(
+				inputNullTotalErrorRecordSaveRequestDto.setCreatedAt(
 					initializedCreateDateTime[0] + " " + initializedCreateDateTime[1]);
-				inputNullTotalErrorLogSaveRequestDto.setLevel("ERROR");
-				inputNullTotalErrorLogSaveRequestDto.setServerName(serverInfo.getServerName());
-				inputNullTotalErrorLogSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
-				inputNullTotalErrorLogSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
-				inputNullTotalErrorLogSaveRequestDto.setServerIP(serverInfo.getServerIP());
-				inputNullTotalErrorLogSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setUserIp(userInfoVo.getUserIP());
-				inputNullTotalErrorLogSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
-				inputNullTotalErrorLogSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
-				inputNullTotalErrorLogSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
-				inputNullTotalErrorLogSaveRequestDto.setUserCookies(null);
-				inputNullTotalErrorLogSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
-				inputNullTotalErrorLogSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
-				inputNullTotalErrorLogSaveRequestDto.setExceptionBrief(null);
-				inputNullTotalErrorLogSaveRequestDto.setExceptionDetail(null);
+				inputNullTotalErrorRecordSaveRequestDto.setLevel("ERROR");
+				inputNullTotalErrorRecordSaveRequestDto.setServerName(serverInfo.getServerName());
+				inputNullTotalErrorRecordSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
+				inputNullTotalErrorRecordSaveRequestDto.setServerIP(serverInfo.getServerIP());
+				inputNullTotalErrorRecordSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setUserIp(userInfoVo.getUserIP());
+				inputNullTotalErrorRecordSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
+				inputNullTotalErrorRecordSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
+				inputNullTotalErrorRecordSaveRequestDto.setUserCookies(null);
+				inputNullTotalErrorRecordSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
+				inputNullTotalErrorRecordSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionBrief(null);
+				inputNullTotalErrorRecordSaveRequestDto.setExceptionDetail(null);
 		}
-		return inputNullTotalErrorLogSaveRequestDto;
+		return inputNullTotalErrorRecordSaveRequestDto;
 	}
 
 	/**
@@ -762,13 +761,13 @@ class LogServiceImplTest {
 		this.errorLogList = new ArrayList<>();
 
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			errorLogList.add(ErrorLogListResponseDto.builder()
+			errorLogList.add(ErrorRecordListResponseDto.builder()
 				.logId((long)count)
-				.createdDateTime(this.totalErrorLogSaveRequestDto.getCreatedAt())
-				.level(this.totalErrorLogSaveRequestDto.getLevel())
-				.serverName(this.totalErrorLogSaveRequestDto.getServerName())
+				.createdDateTime(this.totalErrorRecordSaveRequestDto.getCreatedAt())
+				.level(this.totalErrorRecordSaveRequestDto.getLevel())
+				.serverName(this.totalErrorRecordSaveRequestDto.getServerName())
 				.serverIP("192.168.20." + count)
-				.exceptionBrief(this.totalErrorLogSaveRequestDto.getExceptionBrief())
+				.exceptionBrief(this.totalErrorRecordSaveRequestDto.getExceptionBrief())
 				.build());
 		});
 	}
@@ -787,8 +786,8 @@ class LogServiceImplTest {
 	 * <b>이용자 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchUserIpRequestDto() {
-		this.searchForUserIp = new ErrorLogSearchDto();
-		this.searchForUserIp.setInputSearchType(ErrorLogSearchType.USER_IP);
+		this.searchForUserIp = new ErrorRecordSearchDto();
+		this.searchForUserIp.setInputSearchType(ErrorRecordSearchType.USER_IP);
 		this.searchForUserIp.setSearchWord("127.0.0.1");
 	}
 
@@ -796,8 +795,8 @@ class LogServiceImplTest {
 	 * <b>내부 서버 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerIpRequestDto() {
-		this.searchForServerIp = new ErrorLogSearchDto();
-		this.searchForServerIp.setInputSearchType(ErrorLogSearchType.SERVER_IP);
+		this.searchForServerIp = new ErrorRecordSearchDto();
+		this.searchForServerIp.setInputSearchType(SERVER_IP);
 		this.searchForServerIp.setSearchWord("192.168.20.2");
 	}
 
@@ -805,8 +804,8 @@ class LogServiceImplTest {
 	 * <b>내부 서버 이름을 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerNameRequestDto() {
-		this.searchForServerName = new ErrorLogSearchDto();
-		this.searchForServerName.setInputSearchType(ErrorLogSearchType.SERVER_NAME);
+		this.searchForServerName = new ErrorRecordSearchDto();
+		this.searchForServerName.setInputSearchType(ErrorRecordSearchType.SERVER_NAME);
 		this.searchForServerName.setSearchWord("통합관리서버");
 	}
 
@@ -814,7 +813,7 @@ class LogServiceImplTest {
 	 * <b>Error Log 생성일 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchCreatedErrorLogDateRequestDto(String initializedCreatedDate) {
-		this.errorLogSearchCreatedErrorLogDateDto = new ErrorLogSearchDto();
+		this.errorLogSearchCreatedErrorLogDateDto = new ErrorRecordSearchDto();
 		this.errorLogSearchCreatedErrorLogDateDto.setInputSearchType(LOG_CREATE_DATE);
 		this.errorLogSearchCreatedErrorLogDateDto.setDate(initializedCreatedDate);
 	}
@@ -824,7 +823,7 @@ class LogServiceImplTest {
 	 */
 
 	private void initializedMockSearchUserConnectedDateRangeRequestDto(String nowDate) {
-		this.searchForCreatedErrorLogDateRange = new ErrorLogSearchDto();
+		this.searchForCreatedErrorLogDateRange = new ErrorRecordSearchDto();
 		this.searchForCreatedErrorLogDateRange.setInputSearchType(LOG_CREATE_DATE);
 		this.searchForCreatedErrorLogDateRange.setStartDate("2023-01-01");
 		this.searchForCreatedErrorLogDateRange.setEndDate(nowDate);
@@ -834,7 +833,7 @@ class LogServiceImplTest {
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogIdRequestDto() {
-		this.searchForErrorLogId = new ErrorLogSearchDto();
+		this.searchForErrorLogId = new ErrorRecordSearchDto();
 		this.searchForErrorLogId.setInputSearchType(LOG_ID);
 		this.searchForErrorLogId.setSearchWord("1");
 	}
@@ -843,7 +842,7 @@ class LogServiceImplTest {
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogLevelRequestDto() {
-		this.searchForErrorLogLevel = new ErrorLogSearchDto();
+		this.searchForErrorLogLevel = new ErrorRecordSearchDto();
 		this.searchForErrorLogLevel.setInputSearchType(LOG_LEVEL);
 		this.searchForErrorLogLevel.setSearchWord("ERROR");
 	}
@@ -851,8 +850,8 @@ class LogServiceImplTest {
 	/**
 	 * <b>Error Log Exception 간략 내용으로 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
-	private void initializedMockSearchErrorLogExceptionBriefRequestDto() {
-		this.searchForErrorExceptionBrief = new ErrorLogSearchDto();
+	private void initializedMockSearchErrorRecordExceptionBriefRequestDto() {
+		this.searchForErrorExceptionBrief = new ErrorRecordSearchDto();
 		this.searchForErrorExceptionBrief.setInputSearchType(EXCEPTION_BRIEF);
 		this.searchForErrorExceptionBrief.setSearchWord(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
@@ -862,32 +861,32 @@ class LogServiceImplTest {
 	 * <b>가짜 Error Log 발생 DTO를 만든기 위한 Method</b>
 	 * @return Error Log 발생 정보를 담은 요청 DTO
 	 */
-	private TotalErrorLogSaveRequestDto initializedMockModels() {
+	private TotalErrorRecordSaveRequestDto initializedMockModels() {
 		this.dataCreatedDateTimeVo = initializedCreateDateTimeVo();
 		this.serverInfoVo = initializedServerInfo();
 		this.userInfoVo = initializedConnectedUserInfo();
 		this.userRequestInfoVo = initializedConnectedUserRequestInfo();
 		this.userRequestTotalInfoSaveRequestDto = initializedConnectedUserRequestTotalInfo();
 
-		TotalErrorLogSaveRequestDto totalErrorLogSaveRequestDto = new TotalErrorLogSaveRequestDto();
-		totalErrorLogSaveRequestDto.setCreatedAt(
+		TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto = new TotalErrorRecordSaveRequestDto();
+		totalErrorRecordSaveRequestDto.setCreatedAt(
 			dataCreatedDateTimeVo.getDataCreatedDate() + " " + dataCreatedDateTimeVo.getDataCreatedTime());
-		totalErrorLogSaveRequestDto.setLevel("ERROR");
-		totalErrorLogSaveRequestDto.setServerName(serverInfo.getServerName());
-		totalErrorLogSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
-		totalErrorLogSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
-		totalErrorLogSaveRequestDto.setServerIP(serverInfo.getServerIP());
-		totalErrorLogSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
-		totalErrorLogSaveRequestDto.setUserIp(userInfoVo.getUserIP());
-		totalErrorLogSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
-		totalErrorLogSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
-		totalErrorLogSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
-		totalErrorLogSaveRequestDto.setUserCookies(null);
-		totalErrorLogSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
-		totalErrorLogSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
-		totalErrorLogSaveRequestDto.setExceptionBrief(
+		totalErrorRecordSaveRequestDto.setLevel("ERROR");
+		totalErrorRecordSaveRequestDto.setServerName(serverInfo.getServerName());
+		totalErrorRecordSaveRequestDto.setVmInfo(serverInfo.getVmInfo());
+		totalErrorRecordSaveRequestDto.setOsInfo(serverInfo.getOsInfo());
+		totalErrorRecordSaveRequestDto.setServerIP(serverInfo.getServerIP());
+		totalErrorRecordSaveRequestDto.setServerEnvironment(serverInfo.getServerEnvironment());
+		totalErrorRecordSaveRequestDto.setUserIp(userInfoVo.getUserIP());
+		totalErrorRecordSaveRequestDto.setUserLocation(userInfoVo.getUserLocation());
+		totalErrorRecordSaveRequestDto.setUserEnvironment(userInfoVo.getUserEnvironment());
+		totalErrorRecordSaveRequestDto.setRequestHeader(userRequestInfoVo.getRequestHeader());
+		totalErrorRecordSaveRequestDto.setUserCookies(null);
+		totalErrorRecordSaveRequestDto.setRequestParameter(userRequestInfoVo.getRequestParameter());
+		totalErrorRecordSaveRequestDto.setRequestBody(userRequestInfoVo.getRequestBody());
+		totalErrorRecordSaveRequestDto.setExceptionBrief(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-		totalErrorLogSaveRequestDto.setExceptionDetail(
+		totalErrorRecordSaveRequestDto.setExceptionDetail(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request\n"
 				+ "at com.giggalpeople.backoffice.common.util.StringUtil.checkSearchCommandForInternalServerName(StringUtil.java:116)\n"
 				+ "at com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDTO.getSearchType(UserInfoSearchDTO.java:105)\n"
@@ -901,7 +900,7 @@ class LogServiceImplTest {
 				+ "at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)\n"
 				+ "at org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint.proceed(MethodInvocationProceedingJoinPoint.java:89)");
 
-		return totalErrorLogSaveRequestDto;
+		return totalErrorRecordSaveRequestDto;
 	}
 
 	private UserRequestTotalInfoSaveRequestDto initializedConnectedUserRequestTotalInfo() {

@@ -163,7 +163,7 @@ public class HttpUtil {
 		try {
 			return checkSearchSubject(event,
 				Environment.initPrefixAPIURL()
-					.append(API_CALLER_DISCORD_BOT + LOG + "/lists?page=" + 0 + "&perPageNum=" + 0 + "&displayPageNum="
+					.append(API_CALLER_DISCORD_BOT + LOG + "/list?page=" + 0 + "&perPageNum=" + 0 + "&displayPageNum="
 						+ 0),
 				userCommandMap.get("로그목록조회"),
 				0);
@@ -384,7 +384,7 @@ public class HttpUtil {
 
 		for (String userCommandOption : userCommandOptionList) {
 			if (DataTypeChangerUtil.checkRegularPK(userCommandOption)) {
-				url.append(API_CALLER_DISCORD_BOT + LOG + "/details")
+				url.append(API_CALLER_DISCORD_BOT + LOG + "/detail")
 					.append("?logId=")
 					.append(userCommandOption)
 					.append("&crewGrade=")

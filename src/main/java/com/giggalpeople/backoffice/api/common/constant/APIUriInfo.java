@@ -28,5 +28,5 @@ public interface APIUriInfo {
 
 	String CONNECTED_USER = "/connected/user";
 
-	String LOG = "/logs";
+	String LOG = "/log";
 }
