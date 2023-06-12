@@ -252,6 +252,7 @@ public class HttpUtil {
 	 * @return URL이 정상적으로 만들어지면 True 아니면 False
 	 */
 
+	@SuppressWarnings("checkstyle:OperatorWrap")
 	private static boolean createCrewSearchURL(MessageReceivedEvent event, StringBuilder url,
 		List<String> suggestSearchCommandOption) {
 		List<String> userCommandOptionKeyValue;
@@ -267,10 +268,10 @@ public class HttpUtil {
 
 			CommandUtil.checkUserCommandForSearchCrewPagination(url, key, value);
 
-			if (key.equalsIgnoreCase(SUGGEST_DATE.getDescription()) ||
-				key.equalsIgnoreCase(BIRTH_DATE.getDescription()) ||
-				key.equalsIgnoreCase(MEET_DATE.getDescription()) ||
-				key.equalsIgnoreCase(JOIN_DATE.getDescription())) {
+			if (key.equalsIgnoreCase(SUGGEST_DATE.getDescription())
+				|| key.equalsIgnoreCase(BIRTH_DATE.getDescription())
+				|| key.equalsIgnoreCase(MEET_DATE.getDescription())
+				|| key.equalsIgnoreCase(JOIN_DATE.getDescription())) {
 
 				processCheck = CommandUtil.processorUrnUserCommandForDate(event, url, key, value);
 

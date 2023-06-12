@@ -1,8 +1,11 @@
 package com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.API_RESPONSE_NOT_FOUND;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.BAD_REQUEST;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.INTERNAL_SERVER_ERROR;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_FOUND;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;

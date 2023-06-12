@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.chatops.logback.appender.discord.object;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 

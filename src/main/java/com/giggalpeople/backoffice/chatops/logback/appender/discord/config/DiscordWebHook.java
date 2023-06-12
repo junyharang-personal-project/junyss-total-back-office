@@ -1,8 +1,8 @@
 package com.giggalpeople.backoffice.chatops.logback.appender.discord.config;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CREATE_DISCORD_APPEND_MESSAGE_FAILURE;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

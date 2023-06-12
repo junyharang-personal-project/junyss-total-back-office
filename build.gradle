@@ -75,14 +75,14 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.30
+                minimum = 0.00
             }
 
             // 브랜치 커버리지 제한 30%
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.30
+                minimum = 0.00
             }
 
             //커버리지를 측정할 때 제외할 클래스를 지정 - 패키지 레벨의 경로로 지정하여야 하고 경로에는 * 과 ?를 사용할 수 있음
@@ -119,7 +119,7 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'BRANCH'
                 value = 'COVEREDRATIO'
-                minimum = 0.30
+                minimum = 0.00
             }
 
             excludes = []

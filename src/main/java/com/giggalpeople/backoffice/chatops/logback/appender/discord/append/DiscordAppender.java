@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.chatops.logback.appender.discord.append;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

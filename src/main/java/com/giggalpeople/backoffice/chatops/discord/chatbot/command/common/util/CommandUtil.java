@@ -1,8 +1,12 @@
 package com.giggalpeople.backoffice.chatops.discord.chatbot.command.common.util;
 
-import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CALLER_DISCORD_BOT;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CREW;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_SUGGEST;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.CONNECTED_USER;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.LOG;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -160,20 +164,20 @@ public class CommandUtil {
 	}
 
 	public static boolean checkSearchCommand(String key) {
-		return key.matches(CrewSearchType.CREW_NUMBER.getDescription()) ||
-			key.matches(CrewSuggestSearchType.HOW_KNOW_INFO.getDescription()) ||
-			key.matches(CrewSuggestSearchType.NAME.getDescription()) ||
-			key.matches(CrewSuggestSearchType.SEX.getDescription()) ||
-			key.matches(CrewSuggestSearchType.BIRTH_DATE.getDescription()) ||
-			key.matches(CrewSuggestSearchType.AGE_INFO.getDescription()) ||
-			key.matches(CrewSuggestSearchType.MBTI.getDescription()) ||
-			key.matches(CrewSuggestSearchType.LAST_EDUCATIONAL.getDescription()) ||
-			key.matches(CrewSuggestSearchType.SCHOOL_NAME.getDescription()) ||
-			key.matches(CrewSuggestSearchType.STATION_NAME.getDescription()) ||
-			key.matches(CrewSuggestSearchType.PRIVACY_INFO_AGREE.getDescription()) ||
-			key.matches(CrewSuggestSearchType.ADDENDUM_INFO_AGREE.getDescription()) ||
-			key.matches(CrewSuggestSearchType.PARTICIPATION.getDescription()) ||
-			key.matches(CrewSuggestSearchType.SUGGEST_PART.getDescription());
+		return key.matches(CrewSearchType.CREW_NUMBER.getDescription())
+			|| key.matches(CrewSuggestSearchType.HOW_KNOW_INFO.getDescription())
+			|| key.matches(CrewSuggestSearchType.NAME.getDescription())
+			|| key.matches(CrewSuggestSearchType.SEX.getDescription())
+			|| key.matches(CrewSuggestSearchType.BIRTH_DATE.getDescription())
+			|| key.matches(CrewSuggestSearchType.AGE_INFO.getDescription())
+			|| key.matches(CrewSuggestSearchType.MBTI.getDescription())
+			|| key.matches(CrewSuggestSearchType.LAST_EDUCATIONAL.getDescription())
+			|| key.matches(CrewSuggestSearchType.SCHOOL_NAME.getDescription())
+			|| key.matches(CrewSuggestSearchType.STATION_NAME.getDescription())
+			|| key.matches(CrewSuggestSearchType.PRIVACY_INFO_AGREE.getDescription())
+			|| key.matches(CrewSuggestSearchType.ADDENDUM_INFO_AGREE.getDescription())
+			|| key.matches(CrewSuggestSearchType.PARTICIPATION.getDescription())
+			|| key.matches(CrewSuggestSearchType.SUGGEST_PART.getDescription());
 	}
 
 	/**
