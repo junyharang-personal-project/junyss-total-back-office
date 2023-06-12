@@ -7,27 +7,26 @@ pipeline {
     environment {
         WEBHOOK_URL = credentials("Total-Back-Office-BE-Discord-Webhook")
     }
-
-    stage(SET_VARIABLE) {
-        steps {
-            script {
-                // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
-                DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
-
-                // 소나큐브 설정
-                SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
-//                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
-                SONARQUBE_CREDENTIAL_ID = "Total-Back-Office-BE-SonarQube"
-
-                // TEST Coverage Report Path
-                JUNIT_REPORT_PATH = "build/test-results/test"
-                JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
-                CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
-            }
-        }
-    } // stage(SET_VARIABLE) 끝
-
     stages {
+        stage(SET_VARIABLE) {
+            steps {
+                script {
+                    // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
+                    DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+
+                    // 소나큐브 설정
+                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
+//                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
+                    SONARQUBE_CREDENTIAL_ID = "Total-Back-Office-BE-SonarQube"
+
+                    // TEST Coverage Report Path
+                    JUNIT_REPORT_PATH = "build/test-results/test"
+                    JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
+                    CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
+                }
+            }
+        } // stage(SET_VARIABLE) 끝
+
         stage('Project Build 작업') {
             steps {
                 sh '''
