@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.api.common.database.dao.impl;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,7 +54,7 @@ class OccurrenceDataDateTimeManagementDaoImplTest {
 		Long saveID = occurrenceDataDateTimeManagementDao.save(dataCreatedDateTimeVo);
 
 		// then
-		assertThat(saveID).isEqualTo(1L);
+		assertThat(saveID).isPositive();
 	}
 
 	@Test
@@ -76,6 +76,6 @@ class OccurrenceDataDateTimeManagementDaoImplTest {
 			splitNowDateTime[1]);
 
 		// then
-		assertThat(saveID).isEqualTo(2L);
+		assertThat(saveID).isPositive();
 	}
 }

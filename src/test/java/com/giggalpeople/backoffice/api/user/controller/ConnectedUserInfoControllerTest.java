@@ -1,15 +1,22 @@
 package com.giggalpeople.backoffice.api.user.controller;
 
-import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
-import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.*;
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.*;
-import static org.hamcrest.Matchers.*;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CALLER_DISCORD_BOT;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_PREFIX_URN;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_VERSION;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.CONNECTED_USER;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.GENERAL_CREW;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.TEAM_LEADER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NO_AUTHORIZATION;
+import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.SUCCESS;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

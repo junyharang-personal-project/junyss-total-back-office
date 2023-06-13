@@ -41,11 +41,11 @@ public interface ErrorRecordManagementMapper {
 
 	/**
 	 * <b>Log 저장</b>
-	 * @param errorRecordVO log 정보를 Data Base에 저장하기 위한 Value Object
+	 * @param errorRecordVo log 정보를 Data Base에 저장하기 위한 Value Object
 	 * @return Log 저장 뒤 생성된 Log ID
 	 */
 
-	Long save(ErrorRecordVo errorRecordVO);
+	Long save(ErrorRecordVo errorRecordVo);
 
 	/**
 	 * <b>Error Log 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
@@ -53,7 +53,7 @@ public interface ErrorRecordManagementMapper {
 	 * @return Data Base에서 조회된 Data의 ID 개수
 	 */
 
-	int totalErrorLogSearchCount(@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
+	int totalErrorLogSearchCount(@Param("errorRecordSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
@@ -62,7 +62,7 @@ public interface ErrorRecordManagementMapper {
 	 */
 
 	Optional<ErrorRecordTotalInfoVo> findByErrorLogInfoSearchOneThing(
-		@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
+		@Param("errorRecordSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Error Log 목록 조회 시 1개 이상 검색 결과가 있을 경우 Limit 절을 태워 Paging 처리를 하기 위한 Method</b>
@@ -72,7 +72,7 @@ public interface ErrorRecordManagementMapper {
 	 */
 
 	List<ErrorRecordTotalInfoVo> findByErrorLogInfoList(@Param("criteria") Criteria criteria,
-		@Param("errorLogSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
+		@Param("errorRecordSearchDto") ErrorRecordSearchDto errorRecordSearchDto);
 
 	/**
 	 * <b>Discord Bot을 통해 팀장 이상 크루가 Error Log 상세 조회 시 이용자 정보 포함한 정보 반환 Method</b>

@@ -1,10 +1,17 @@
-package com.giggalpeople.backoffice.api.record.service.impl;
+package com.giggalpeople.backoffice.api.error_record.service;
 
-import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.*;
-import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.*;
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.EXCEPTION_BRIEF;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_CREATE_DATE;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_ID;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_LEVEL;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.SERVER_IP;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.GENERAL_CREW;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.TEAM_LEADER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_ERROR_LOG;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_NULL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +37,7 @@ import com.giggalpeople.backoffice.api.common.database.dao.OccurrenceDataDateTim
 import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
 import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
+import com.giggalpeople.backoffice.api.record.exception.ErrorRecordException;
 import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
 import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordDetailSearchRequestDto;
 import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
@@ -51,7 +59,6 @@ import com.giggalpeople.backoffice.common.database.DataBaseManagerMapper;
 import com.giggalpeople.backoffice.common.entity.ServerInfo;
 import com.giggalpeople.backoffice.common.enumtype.GiggalPeopleServerNames;
 import com.giggalpeople.backoffice.common.env.exception.ServerInfoException;
-import com.giggalpeople.backoffice.api.record.exception.ErrorRecordException;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
@@ -113,7 +120,7 @@ class ErrorRecordServiceImplTest {
 
 	@BeforeEach
 	void beforeTestSetup() {
-		this.totalErrorRecordSaveRequestDto = initializedMockModels();
+		totalErrorRecordSaveRequestDto = initializedMockModels();
 
 		initializedMockSearchRequestDto();
 	}
@@ -251,7 +258,8 @@ class ErrorRecordServiceImplTest {
 	void toDiscordAllErrorInfoFind() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		ErrorRecordSearchDto errorRecordSearchDto = new ErrorRecordSearchDto();
@@ -311,7 +319,8 @@ class ErrorRecordServiceImplTest {
 		dataBaseManagerMapper.initializeAutoIncrement("data_created_date_time");
 
 		IntStream.rangeClosed(1, 10).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		Criteria requestPaging = new Criteria();
@@ -343,7 +352,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogIdSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -364,7 +374,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogCreatedDateSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -385,7 +396,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogCreatedDateRangeSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -406,7 +418,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogLevelSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -427,7 +440,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogServerNameSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -448,7 +462,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogServerIpSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -469,7 +484,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorLogUserIpSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -490,7 +506,8 @@ class ErrorRecordServiceImplTest {
 	void toErrorRecordExceptionBriefSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			System.out.println("Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
+			System.out.println(
+				"Service Logic 저장 상태 여부 확인 : " + errorRecordService.save(totalErrorRecordSaveRequestDto));
 		});
 
 		//when
@@ -518,7 +535,8 @@ class ErrorRecordServiceImplTest {
 		errorRecordDetailSearchRequestDto.setCrewGrade(TEAM_LEADER);
 
 		//when
-		DefaultResponse<ErrorRecordTotalDetailResponseDto> responseInfo = errorRecordService.toDiscordDetailErrorInfoFind(errorRecordDetailSearchRequestDto);
+		DefaultResponse<ErrorRecordTotalDetailResponseDto> responseInfo = errorRecordService.toDiscordDetailErrorInfoFind(
+			errorRecordDetailSearchRequestDto);
 
 		//then
 		assertThat(responseInfo.getStatusCode()).isEqualTo(200);

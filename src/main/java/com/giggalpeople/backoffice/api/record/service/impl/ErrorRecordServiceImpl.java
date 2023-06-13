@@ -128,15 +128,15 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 			throw new ErrorRecordException(NOT_EXIST_ERROR_LOG, NOT_EXIST_ERROR_LOG.getMessage());
 
 		} else if (searchCount == 1) {
-			List<ErrorRecordListResponseDto> responseDTOList = new ArrayList<>();
+			List<ErrorRecordListResponseDto> responseDtoList = new ArrayList<>();
 			Optional<ErrorRecordTotalInfoVo> byErrorLogTotalInfoSearchOneThing = errorRecordManagementDao.findByErrorLogTotalInfoSearchOneThing(
 				errorRecordSearchDto);
 
 			byErrorLogTotalInfoSearchOneThing.ifPresent(
-				errorLogTotalInfoVO -> responseDTOList.add(ErrorRecordListResponseDto.toDTO(errorLogTotalInfoVO)));
+				errorLogTotalInfoVO -> responseDtoList.add(ErrorRecordListResponseDto.toDTO(errorLogTotalInfoVO)));
 
 			return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-				new Pagination(criteria, searchCount), responseDTOList);
+				new Pagination(criteria, searchCount), responseDtoList);
 		}
 
 		return DefaultListResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),

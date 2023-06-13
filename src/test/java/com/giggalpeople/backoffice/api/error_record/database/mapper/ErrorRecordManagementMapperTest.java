@@ -1,9 +1,12 @@
-package com.giggalpeople.backoffice.api.log.database.dao.impl;
+package com.giggalpeople.backoffice.api.error_record.database.mapper;
 
 import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.EXCEPTION_BRIEF;
 import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_CREATE_DATE;
 import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_ID;
 import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.LOG_LEVEL;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.SERVER_IP;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.SERVER_NAME;
+import static com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType.USER_IP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 
@@ -23,29 +26,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.giggalpeople.backoffice.api.common.database.dao.OccurrenceDataDateTimeManagementDao;
+import com.giggalpeople.backoffice.api.common.database.mapper.OccurrenceDataDateTimeManagementMapper;
 import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.common.model.dto.request.DataCreatedDateTimeRequestDto;
 import com.giggalpeople.backoffice.api.common.model.vo.DataCreatedDateTimeVo;
-import com.giggalpeople.backoffice.api.record.database.dao.ErrorRecordManagementDao;
-import com.giggalpeople.backoffice.api.record.model.dto.enumtype.ErrorRecordSearchType;
+import com.giggalpeople.backoffice.api.record.database.mapper.ErrorRecordManagementMapper;
 import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSaveRequestDto;
 import com.giggalpeople.backoffice.api.record.model.dto.request.ErrorRecordSearchDto;
 import com.giggalpeople.backoffice.api.record.model.dto.request.TotalErrorRecordSaveRequestDto;
+import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordListResponseDto;
 import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordTotalInfoVo;
-import com.giggalpeople.backoffice.api.server.database.dao.ServerInfoDao;
+import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo;
+import com.giggalpeople.backoffice.api.server.database.mapper.ServerManagementMapper;
 import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
-import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
+import com.giggalpeople.backoffice.api.user.database.mapper.UserManagementMapper;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
-import com.giggalpeople.backoffice.api.record.model.dto.response.ErrorRecordListResponseDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
-import com.giggalpeople.backoffice.api.record.model.vo.ErrorRecordVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.database.DataBaseManagerMapper;
@@ -56,19 +60,22 @@ import com.giggalpeople.backoffice.common.util.CryptoUtil;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class ErrorRecordManagementDaoImplTest {
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class ErrorRecordManagementMapperTest {
 
 	@Autowired
-	ErrorRecordManagementDao errorRecordManagementDao;
+	ErrorRecordManagementMapper errorRecordManagementMapper;
 
 	@Autowired
-	OccurrenceDataDateTimeManagementDao occurrenceDataDateTimeManagementDao;
+	OccurrenceDataDateTimeManagementMapper occurrenceDataDateTimeManagementMapper;
 
 	@Autowired
-	ServerInfoDao serverInfoDao;
+	ServerManagementMapper serverManagementMapper;
 
 	@Autowired
-	UserInfoDao userInfoDao;
+	UserManagementMapper userManagementMapper;
 
 	@Autowired
 	DataBaseManagerMapper dataBaseManagerMapper;
@@ -112,7 +119,7 @@ class ErrorRecordManagementDaoImplTest {
 
 	Criteria criteria;
 
-	List<ErrorRecordListResponseDto> errorRecordList;
+	List<ErrorRecordListResponseDto> errorLogList;
 
 	@Transactional
 	@BeforeEach
@@ -146,7 +153,7 @@ class ErrorRecordManagementDaoImplTest {
 	void save() {
 		//given
 		//when
-		Long saveId = errorRecordManagementDao.save(initializedLogVo());
+		Long saveId = errorRecordManagementMapper.save(initializedLogVo());
 
 		//then
 		assertThat(saveId).isEqualTo(1L);
@@ -159,7 +166,8 @@ class ErrorRecordManagementDaoImplTest {
 	void findByErrorLogLevel() {
 		//given
 		//when
-		Long byErrorLogLevel = errorRecordManagementDao.findByErrorLogLevel(totalErrorRecordSaveRequestDto.getLevel());
+		Long byErrorLogLevel = errorRecordManagementMapper.findByErrorLogLevel(
+			totalErrorRecordSaveRequestDto.getLevel());
 
 		//then
 		assertThat(byErrorLogLevel).isEqualTo(5L);
@@ -172,14 +180,14 @@ class ErrorRecordManagementDaoImplTest {
 	void totalErrorLogSearchCount() {
 		//given
 		IntStream.rangeClosed(0, 10).forEach(count -> {
-			System.out.println(count + "번째 테스트를 위한 정보 저장 상황 : " + errorRecordManagementDao.save(initializedLogVo()));
+			System.out.println(count + "번째 테스트를 위한 정보 저장 상황 : " + errorRecordManagementMapper.save(initializedLogVo()));
 		});
 
 		ErrorRecordSearchDto errorRecordSearchDto = new ErrorRecordSearchDto();
 		errorRecordSearchDto.setInputSearchType(null);
 		errorRecordSearchDto.setSearchWord(null);
 		//when
-		int searchCount = errorRecordManagementDao.totalErrorLogSearchCount(errorRecordSearchDto);
+		int searchCount = errorRecordManagementMapper.totalErrorLogSearchCount(errorRecordSearchDto);
 
 		//then
 		assertTrue(String.valueOf(searchCount), searchCount > 10);
@@ -192,7 +200,7 @@ class ErrorRecordManagementDaoImplTest {
 	void findByErrorLogTotalInfoSearchOneThing() {
 		//given
 		//when
-		errorRecordManagementDao.findByErrorLogTotalInfoSearchOneThing(searchForErrorLogId)
+		errorRecordManagementMapper.findByErrorLogInfoSearchOneThing(searchForErrorLogId)
 			.ifPresent(totalInfoVo -> {
 				//then
 				assertThat(totalInfoVo.getLogId()).isEqualTo(1L);
@@ -209,20 +217,20 @@ class ErrorRecordManagementDaoImplTest {
 	void findByErrorLogTotalInfoList() {
 		//given
 		IntStream.rangeClosed(0, 10).forEach(count -> {
-			System.out.println(count + "번째 테스트를 위한 정보 저장 상황 : " + errorRecordManagementDao.save(initializedLogVo()));
+			System.out.println(count + "번째 테스트를 위한 정보 저장 상황 : " + errorRecordManagementMapper.save(initializedLogVo()));
 		});
 
 		ErrorRecordSearchDto errorRecordSearchDto = new ErrorRecordSearchDto();
 		errorRecordSearchDto.setInputSearchType(null);
 		errorRecordSearchDto.setSearchWord(null);
 
-		List<ErrorRecordTotalInfoVo> byErrorRecordTotalInfoList = errorRecordManagementDao.findByErrorLogTotalInfoList(
+		List<ErrorRecordTotalInfoVo> byErrorLogTotalInfoList = errorRecordManagementMapper.findByErrorLogInfoList(
 			criteria,
 			errorRecordSearchDto);
 
-		for (ErrorRecordTotalInfoVo errorRecordTotalInfoVo : byErrorRecordTotalInfoList) {
-			assertThat(errorRecordTotalInfoVo.getLevel()).isEqualTo("ERROR");
-			assertThat(errorRecordTotalInfoVo.getExceptionBrief()).isEqualTo(
+		for (ErrorRecordTotalInfoVo ErrorRecordTotalInfoVo : byErrorLogTotalInfoList) {
+			assertThat(ErrorRecordTotalInfoVo.getLevel()).isEqualTo("ERROR");
+			assertThat(ErrorRecordTotalInfoVo.getExceptionBrief()).isEqualTo(
 				"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
 		}
 	}
@@ -233,15 +241,15 @@ class ErrorRecordManagementDaoImplTest {
 	@Transactional
 	void detailErrorTotalInfoFind() {
 		//given
-		System.out.println("테스트를 위한 정보 저장 상황 : " + errorRecordManagementDao.save(initializedLogVo()));
+		System.out.println("테스트를 위한 정보 저장 상황 : " + errorRecordManagementMapper.save(initializedLogVo()));
 
 		//when
-		errorRecordManagementDao.detailErrorTotalInfoFind("1")
-			.ifPresent(logTotalInfoVo -> {
+		errorRecordManagementMapper.detailErrorInfoFind("1")
+			.ifPresent(ErrorRecordTotalInfoVo -> {
 				//then
-				assertThat(logTotalInfoVo.getLogId()).isEqualTo(1L);
-				assertThat(logTotalInfoVo.getLevel()).isEqualTo("ERROR");
-				assertThat(logTotalInfoVo.getExceptionBrief()).isEqualTo(
+				assertThat(ErrorRecordTotalInfoVo.getLogId()).isEqualTo(1L);
+				assertThat(ErrorRecordTotalInfoVo.getLevel()).isEqualTo("ERROR");
+				assertThat(ErrorRecordTotalInfoVo.getExceptionBrief()).isEqualTo(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
 			});
 	}
@@ -252,17 +260,17 @@ class ErrorRecordManagementDaoImplTest {
 	@Transactional
 	void forGeneralCrewDetailErrorTotalInfoFind() {
 		//given
-		System.out.println("테스트를 위한 정보 저장 상황 : " + errorRecordManagementDao.save(initializedLogVo()));
+		System.out.println("테스트를 위한 정보 저장 상황 : " + errorRecordManagementMapper.save(initializedLogVo()));
 
 		//when
-		errorRecordManagementDao.forGeneralCrewDetailErrorTotalInfoFind("1")
-			.ifPresent(logTotalInfoVo -> {
+		errorRecordManagementMapper.forGeneralCrewDetailErrorInfoFind("1")
+			.ifPresent(ErrorRecordTotalInfoVo -> {
 				//then
-				assertThat(logTotalInfoVo.getLogId()).isEqualTo(1L);
-				assertThat(logTotalInfoVo.getLevel()).isEqualTo("ERROR");
-				assertThat(logTotalInfoVo.getExceptionBrief()).isEqualTo(
+				assertThat(ErrorRecordTotalInfoVo.getLogId()).isEqualTo(1L);
+				assertThat(ErrorRecordTotalInfoVo.getLevel()).isEqualTo("ERROR");
+				assertThat(ErrorRecordTotalInfoVo.getExceptionBrief()).isEqualTo(
 					"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
-				assertThat(logTotalInfoVo.getUserIP()).isEqualTo(null);
+				assertThat(ErrorRecordTotalInfoVo.getUserIP()).isEqualTo(null);
 			});
 	}
 
@@ -271,16 +279,15 @@ class ErrorRecordManagementDaoImplTest {
 	 * @return Data Base에 저장될 Error Log Vo
 	 */
 	private ErrorRecordVo initializedLogVo() {
-		return ErrorRecordVo.toVO(
-			ErrorRecordSaveRequestDto.builder()
-				.internalServerID(saveMockServerInfo())
-				.dataCreatedDateTimeID(saveMockCreatedLogDateTime())
-				.connectedUserID(saveMockConnectedUserId())
-				.connectedUserRequestInfoID(saveMockConnectedUserRequestInfo())
-				.logLevelID(getLogId())
-				.exceptionBrief(totalErrorRecordSaveRequestDto.getExceptionBrief())
-				.exceptionDetail(totalErrorRecordSaveRequestDto.getExceptionDetail())
-				.build());
+		return ErrorRecordVo.toVO(ErrorRecordSaveRequestDto.builder()
+			.internalServerID(saveMockServerInfo())
+			.dataCreatedDateTimeID(saveMockCreatedLogDateTime())
+			.connectedUserID(saveMockConnectedUserId())
+			.connectedUserRequestInfoID(saveMockConnectedUserRequestInfo())
+			.logLevelID(getLogId())
+			.exceptionBrief(totalErrorRecordSaveRequestDto.getExceptionBrief())
+			.exceptionDetail(totalErrorRecordSaveRequestDto.getExceptionDetail())
+			.build());
 	}
 
 	/**
@@ -289,7 +296,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 
 	private Long getLogId() {
-		return errorRecordManagementDao.findByErrorLogLevel(totalErrorRecordSaveRequestDto.getLevel());
+		return errorRecordManagementMapper.findByErrorLogLevel(totalErrorRecordSaveRequestDto.getLevel());
 	}
 
 	/**
@@ -297,7 +304,7 @@ class ErrorRecordManagementDaoImplTest {
 	 * @return Error 발생 이용자 요청 정보 PK 값
 	 */
 	private Long saveMockConnectedUserRequestInfo() {
-		return userInfoDao.findByRequestInfoSave(UserRequestInfoVo.toVo(CryptoUtil.userRequestInfoEncrypt(
+		return userManagementMapper.findByRequestInfoSave(UserRequestInfoVo.toVo(CryptoUtil.userRequestInfoEncrypt(
 			ConnectedUserRequestInfoSaveRequestDto.builder()
 				.internalServerID(saveMockServerInfo())
 				.dataCreatedDateTimeID(saveMockCreatedLogDateTime())
@@ -318,7 +325,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 
 	private Long saveMockConnectedUserId() {
-		return userInfoDao.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
+		return userManagementMapper.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
 			ConnectedUserInfoSaveRequestDto.builder()
 				.internalServerID(saveMockServerInfo())
 				.dataCreatedDateTimeID(saveMockCreatedLogDateTime())
@@ -337,7 +344,7 @@ class ErrorRecordManagementDaoImplTest {
 	private Long saveMockCreatedLogDateTime() {
 		String[] initializedCreateDateTime = initializedCreateDateTime();
 
-		return occurrenceDataDateTimeManagementDao.save(DataCreatedDateTimeVo.toVO(
+		return occurrenceDataDateTimeManagementMapper.save(DataCreatedDateTimeVo.toVO(
 			DataCreatedDateTimeRequestDto.builder()
 				.createdDate(initializedCreateDateTime[0])
 				.createdTime(initializedCreateDateTime[1])
@@ -349,7 +356,7 @@ class ErrorRecordManagementDaoImplTest {
 	 * @return Server 정보 PK 값
 	 */
 	private Long saveMockServerInfo() {
-		return serverInfoDao.save(ServerInfoVo.toVo(ServerInfoSaveRequestDto.builder()
+		return serverManagementMapper.save(ServerInfoVo.toVo(ServerInfoSaveRequestDto.builder()
 			.serverName(serverInfo.getServerName())
 			.serverVmInfo(serverInfo.getVmInfo())
 			.serverOsInfo(serverInfo.getOsInfo())
@@ -362,10 +369,10 @@ class ErrorRecordManagementDaoImplTest {
 	 * <b>가짜 ErrorLog 정보를 만들기 위한 Method</b>
 	 */
 	private void initializedMocErrorLogInfoList() {
-		this.errorRecordList = new ArrayList<>();
+		this.errorLogList = new ArrayList<>();
 
 		IntStream.rangeClosed(1, 11).forEach(count -> {
-			errorRecordList.add(ErrorRecordListResponseDto.builder()
+			errorLogList.add(ErrorRecordListResponseDto.builder()
 				.logId((long)count)
 				.createdDateTime(this.totalErrorRecordSaveRequestDto.getCreatedAt())
 				.level(this.totalErrorRecordSaveRequestDto.getLevel())
@@ -391,7 +398,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 	private void initializedMockSearchUserIpRequestDto() {
 		this.searchForUserIp = new ErrorRecordSearchDto();
-		this.searchForUserIp.setInputSearchType(ErrorRecordSearchType.USER_IP);
+		this.searchForUserIp.setInputSearchType(USER_IP);
 		this.searchForUserIp.setSearchWord("127.0.0.1");
 	}
 
@@ -400,7 +407,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 	private void initializedMockSearchServerIpRequestDto() {
 		this.searchForServerIp = new ErrorRecordSearchDto();
-		this.searchForServerIp.setInputSearchType(ErrorRecordSearchType.SERVER_IP);
+		this.searchForServerIp.setInputSearchType(SERVER_IP);
 		this.searchForServerIp.setSearchWord("192.168.20.2");
 	}
 
@@ -409,7 +416,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 	private void initializedMockSearchServerNameRequestDto() {
 		this.searchForServerName = new ErrorRecordSearchDto();
-		this.searchForServerName.setInputSearchType(ErrorRecordSearchType.SERVER_NAME);
+		this.searchForServerName.setInputSearchType(SERVER_NAME);
 		this.searchForServerName.setSearchWord("통합관리서버");
 	}
 
