@@ -52,7 +52,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalIn
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.service.ConnectedUserInfoService;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
@@ -78,7 +78,7 @@ class ConnectedUserInfoControllerTest {
 	ServerInfo serverInfo;
 	ServerInfoVo serverInfoVO;
 
-	ErrorLogUserInfoVo userInfoVO;
+	ConnectedUserInfoVo userInfoVO;
 
 	Long dataCreatedDateTimeSaveId;
 	Long serverInfoSaveId;
@@ -150,7 +150,7 @@ class ConnectedUserInfoControllerTest {
 			.userEnvironment("\"Mozilla/5.0\"")
 			.build();
 
-		userInfoVO = ErrorLogUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
+		userInfoVO = ConnectedUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
 
 		connectedUserRequestInfoSaveRequestDto = ConnectedUserRequestInfoSaveRequestDto.builder()
 			.internalServerID(serverInfoSaveId)
@@ -439,7 +439,7 @@ class ConnectedUserInfoControllerTest {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String[] splitNowDateTime = simpleDateFormat.format(new Date(System.currentTimeMillis())).split(" ");
 
-		ConnectedUserInfoVo connectedUserInfoVo = new ConnectedUserInfoVo(
+		ConnectedUserRequestInfoVo connectedUserRequestInfoVo = new ConnectedUserRequestInfoVo(
 			1L,
 			splitNowDateTime[0],
 			splitNowDateTime[1],
@@ -458,7 +458,7 @@ class ConnectedUserInfoControllerTest {
 
 		given(connectedUserInfoService.toDiscordDetailConnectedUserInfoFind(userInfoDetailSearchRequestDto)).willReturn(
 			DefaultResponse.response(SUCCESS.getStatusCode(), SUCCESS.getMessage(),
-				new UserInfoDetailResponseDto().toDto(connectedUserInfoVo)));
+				new UserInfoDetailResponseDto().toDto(connectedUserRequestInfoVo)));
 
 		mockMvc.perform(get(API_PREFIX_URN + API_VERSION + API_CALLER_DISCORD_BOT + CONNECTED_USER + "/details")
 				.contentType(MediaType.APPLICATION_JSON)

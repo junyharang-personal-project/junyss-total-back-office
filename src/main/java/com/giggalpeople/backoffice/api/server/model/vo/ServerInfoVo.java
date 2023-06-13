@@ -13,15 +13,15 @@ public class ServerInfoVo {
 	private String serverIP;
 	private String serverEnvironment;
 
-	public static ServerInfoVo toVo(ServerInfoSaveRequestDto serverInfoSaveRequestDTO) {
-		ServerInfoVo serverInfoVO = new ServerInfoVo();
+	public static ServerInfoVo toVo(ServerInfoSaveRequestDto serverInfoSaveRequestDto) {
+		ServerInfoVo serverInfoVo = new ServerInfoVo();
 
-		serverInfoVO.serverName = serverInfoSaveRequestDTO.getServerName();
-		serverInfoVO.serverVmInfo = serverInfoSaveRequestDTO.getServerVmInfo();
-		serverInfoVO.serverOsInfo = serverInfoSaveRequestDTO.getServerOsInfo();
-		serverInfoVO.serverIP = serverInfoSaveRequestDTO.getServerIP();
-		serverInfoVO.serverEnvironment = serverInfoSaveRequestDTO.getServerEnvironment();
+		serverInfoVo.serverName = serverInfoSaveRequestDto.getServerName();
+		serverInfoVo.serverVmInfo = serverInfoSaveRequestDto.getServerVmInfo();
+		serverInfoVo.serverOsInfo = serverInfoSaveRequestDto.getServerOsInfo();
+		serverInfoVo.serverIP = serverInfoSaveRequestDto.getServerIP();
+		serverInfoVo.serverEnvironment = serverInfoSaveRequestDto.getServerEnvironment();
 
-		return serverInfoVO;
+		return serverInfoVo;
 	}
 }

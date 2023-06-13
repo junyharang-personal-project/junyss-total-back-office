@@ -1,11 +1,11 @@
 package com.giggalpeople.backoffice.api.user.model.dto.response;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER_JSON_PARSING_ERROR;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
-import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.common.util.CryptoUtil;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -60,21 +60,22 @@ public class UserInfoListResponseDto {
 
 	/**
 	 * <b>Data Base에서 조회된 결과를 담은 VO를 DTO로 변환하기 위한 Method</b>
-	 * @param connectedUserInfoVO Data Base에서 조회된 결과를 담은 VO
+	 * @param connectedUserRequestInfoVO Data Base에서 조회된 결과를 담은 VO
 	 * @return DTO로 변환된 UserInfoListResponseDTO
 	 */
 
-	public static UserInfoListResponseDto toDTO(ConnectedUserInfoVo connectedUserInfoVO) {
+	public static UserInfoListResponseDto toDTO(ConnectedUserRequestInfoVo connectedUserRequestInfoVO) {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		try {
 			return UserInfoListResponseDto.builder()
-				.connectedUserRequestInfoID(connectedUserInfoVO.getConnectedUserRequestInfoID())
+				.connectedUserRequestInfoID(connectedUserRequestInfoVO.getConnectedUserRequestInfoID())
 				.connectedDateTime(
-					connectedUserInfoVO.getDataCreatedDate() + " " + connectedUserInfoVO.getDataCreatedTime())
-				.serverName(connectedUserInfoVO.getServerName())
+					connectedUserRequestInfoVO.getDataCreatedDate() + " "
+						+ connectedUserRequestInfoVO.getDataCreatedTime())
+				.serverName(connectedUserRequestInfoVO.getServerName())
 				.userIP(objectMapper.writerWithDefaultPrettyPrinter()
-					.writeValueAsString(CryptoUtil.userInfoIPDecrypt(connectedUserInfoVO.getUserIp())))
+					.writeValueAsString(CryptoUtil.userInfoIPDecrypt(connectedUserRequestInfoVO.getUserIp())))
 				.build();
 
 		} catch (JsonProcessingException jsonProcessingException) {

@@ -44,7 +44,7 @@ import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
 import com.giggalpeople.backoffice.api.user.model.UpdateUserInfo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
@@ -196,21 +196,21 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 WAS 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDto Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processServerInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
-		if (totalErrorRecordSaveRequestDTO.getServerIP() != null) {
-			Long byServerIP = serverInfoDAO.findByServerID(totalErrorRecordSaveRequestDTO.getServerIP());
+	private Long processServerInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
+		if (totalErrorRecordSaveRequestDto.getServerIP() != null) {
+			Long byServerIP = serverInfoDAO.findByServerID(totalErrorRecordSaveRequestDto.getServerIP());
 
 			if (byServerIP == null || byServerIP <= 0) {
 				return serverInfoDAO.save(ServerInfoVo.toVo(ServerInfoSaveRequestDto.builder()
-					.serverName(totalErrorRecordSaveRequestDTO.getServerName())
-					.serverVmInfo(totalErrorRecordSaveRequestDTO.getVmInfo())
-					.serverOsInfo(totalErrorRecordSaveRequestDTO.getOsInfo())
-					.serverIP(totalErrorRecordSaveRequestDTO.getServerIP())
-					.serverEnvironment(totalErrorRecordSaveRequestDTO.getServerEnvironment())
+					.serverName(totalErrorRecordSaveRequestDto.getServerName())
+					.serverVmInfo(totalErrorRecordSaveRequestDto.getVmInfo())
+					.serverOsInfo(totalErrorRecordSaveRequestDto.getOsInfo())
+					.serverIP(totalErrorRecordSaveRequestDto.getServerIP())
+					.serverEnvironment(totalErrorRecordSaveRequestDto.getServerEnvironment())
 					.build()));
 			}
 			return byServerIP;
@@ -222,21 +222,21 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 날짜와 시각 정보 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDto Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processOccurrenceInfoDateTimeSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
-		if (totalErrorRecordSaveRequestDTO.getCreatedDate() != null
-			&& totalErrorRecordSaveRequestDTO.getCreatedTime() != null) {
+	private Long processOccurrenceInfoDateTimeSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
+		if (totalErrorRecordSaveRequestDto.getCreatedDate() != null
+			&& totalErrorRecordSaveRequestDto.getCreatedTime() != null) {
 			Long byOccurrenceInfoDateTimeID = occurrenceDataDateTimeManagementDAO.findByOccurrenceInfoDateTime(
-				totalErrorRecordSaveRequestDTO.getCreatedDate(), totalErrorRecordSaveRequestDTO.getCreatedTime());
+				totalErrorRecordSaveRequestDto.getCreatedDate(), totalErrorRecordSaveRequestDto.getCreatedTime());
 
 			if (byOccurrenceInfoDateTimeID == null || byOccurrenceInfoDateTimeID <= 0) {
 				byOccurrenceInfoDateTimeID = occurrenceDataDateTimeManagementDAO.save(DataCreatedDateTimeVo.toVO(
 					DataCreatedDateTimeRequestDto.builder()
-						.createdDate(totalErrorRecordSaveRequestDTO.getCreatedDate())
-						.createdTime(totalErrorRecordSaveRequestDTO.getCreatedTime())
+						.createdDate(totalErrorRecordSaveRequestDto.getCreatedDate())
+						.createdTime(totalErrorRecordSaveRequestDto.getCreatedTime())
 						.build()));
 
 				return byOccurrenceInfoDateTimeID;
@@ -272,7 +272,7 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 				CryptoUtil.encryptUserIP(totalErrorRecordSaveRequestDto.getUserIp()));
 
 			if (isIdByUserIp == null || isIdByUserIp <= 0) {
-				return userInfoDAO.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
+				return userInfoDAO.connectedUserSave(ConnectedUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
 					ConnectedUserInfoSaveRequestDto.builder()
 						.internalServerID(internalServerSaveID)
 						.dataCreatedDateTimeID(dataCreatedDateTimeID)

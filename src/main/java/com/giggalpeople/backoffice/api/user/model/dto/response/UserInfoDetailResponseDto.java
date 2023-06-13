@@ -1,11 +1,11 @@
 package com.giggalpeople.backoffice.api.user.model.dto.response;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER_JSON_PARSING_ERROR;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
-import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -32,35 +32,35 @@ public class UserInfoDetailResponseDto {
 	private String requestParameter;
 	private String requestBody;
 
-	public UserInfoDetailResponseDto toDto(ConnectedUserInfoVo connectedUserInfoVo) {
+	public UserInfoDetailResponseDto toDto(ConnectedUserRequestInfoVo connectedUserRequestInfoVo) {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		UserInfoDetailResponseDto userInfoDetailResponseDto = new UserInfoDetailResponseDto();
 
-		userInfoDetailResponseDto.connectedUserRequestInfoID = connectedUserInfoVo.getConnectedUserRequestInfoID();
+		userInfoDetailResponseDto.connectedUserRequestInfoID = connectedUserRequestInfoVo.getConnectedUserRequestInfoID();
 		userInfoDetailResponseDto.dataCreatedDateTime =
-			connectedUserInfoVo.getDataCreatedDate() + " " + connectedUserInfoVo.getDataCreatedTime();
-		userInfoDetailResponseDto.serverName = connectedUserInfoVo.getServerName();
-		userInfoDetailResponseDto.serverVmInfo = connectedUserInfoVo.getServerVmInfo();
-		userInfoDetailResponseDto.serverOSInfo = connectedUserInfoVo.getServerOsInfo();
-		userInfoDetailResponseDto.serverIP = connectedUserInfoVo.getServerIp();
-		userInfoDetailResponseDto.serverEnvironment = connectedUserInfoVo.getServerEnvironment();
+			connectedUserRequestInfoVo.getDataCreatedDate() + " " + connectedUserRequestInfoVo.getDataCreatedTime();
+		userInfoDetailResponseDto.serverName = connectedUserRequestInfoVo.getServerName();
+		userInfoDetailResponseDto.serverVmInfo = connectedUserRequestInfoVo.getServerVmInfo();
+		userInfoDetailResponseDto.serverOSInfo = connectedUserRequestInfoVo.getServerOsInfo();
+		userInfoDetailResponseDto.serverIP = connectedUserRequestInfoVo.getServerIp();
+		userInfoDetailResponseDto.serverEnvironment = connectedUserRequestInfoVo.getServerEnvironment();
 
 		try {
 			userInfoDetailResponseDto.userIP = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getUserIp());
+				.writeValueAsString(connectedUserRequestInfoVo.getUserIp());
 			userInfoDetailResponseDto.userEnvironment = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getUserEnvironment());
+				.writeValueAsString(connectedUserRequestInfoVo.getUserEnvironment());
 			userInfoDetailResponseDto.userLocation = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getUserLocation());
+				.writeValueAsString(connectedUserRequestInfoVo.getUserLocation());
 			userInfoDetailResponseDto.requestHeader = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getRequestHeader());
+				.writeValueAsString(connectedUserRequestInfoVo.getRequestHeader());
 			userInfoDetailResponseDto.userCookies = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getUserCookies());
+				.writeValueAsString(connectedUserRequestInfoVo.getUserCookies());
 			userInfoDetailResponseDto.requestParameter = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getRequestParameter());
+				.writeValueAsString(connectedUserRequestInfoVo.getRequestParameter());
 			userInfoDetailResponseDto.requestBody = objectMapper.writerWithDefaultPrettyPrinter()
-				.writeValueAsString(connectedUserInfoVo.getRequestBody());
+				.writeValueAsString(connectedUserRequestInfoVo.getRequestBody());
 
 		} catch (JsonProcessingException jsonProcessingException) {
 			throw new ConnectedUserException(NOT_EXIST_CONNECTED_USER_JSON_PARSING_ERROR,

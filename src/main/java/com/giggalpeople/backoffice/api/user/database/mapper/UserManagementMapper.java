@@ -12,7 +12,7 @@ import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.user.model.UpdateUserInfo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.UpdateUserRequestInfo;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 
@@ -35,11 +35,11 @@ public interface UserManagementMapper {
 
 	/**
 	 * <b>암호화 된 이용자 접속 정보를 Data Base에 저장하기 위한 Method</b>
-	 * @param errorLogUserInfoVO 암호화된 이용자 정보
+	 * @param connectedUserInfoVo 암호화된 이용자 정보
 	 * @return Data Base에 저장된 이용자 접속 순서 번호
 	 */
 
-	Long connectedUserSave(ErrorLogUserInfoVo errorLogUserInfoVO);
+	Long connectedUserSave(ConnectedUserInfoVo connectedUserInfoVo);
 
 	Long updateCount(@Param("updateUserInfo") UpdateUserInfo updateUserInfo);
 
@@ -58,29 +58,29 @@ public interface UserManagementMapper {
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
-	 * @param userInfoSearchDTO 이용자 접속 및 요청 정보 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
+	 * @param userInfoSearchDto 이용자 접속 및 요청 정보 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
 	 * @return Data Base에서 조회된 Data의 ID 개수
 	 */
 
-	int totalUserInfoSearchCount(@Param("userInfoSearchDTO") UserInfoSearchDto userInfoSearchDTO);
+	int totalUserInfoSearchCount(@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
-	 * @param userInfoSearchDTO 이용자 접속 및 요청 검색을 위한 DTO
+	 * @param userInfoSearchDto 이용자 접속 및 요청 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
 
-	Optional<ConnectedUserInfoVo> findByUserInfoSearchOneThing(
-		@Param("userInfoSearchDTO") UserInfoSearchDto userInfoSearchDTO);
+	Optional<ConnectedUserRequestInfoVo> findByUserInfoSearchOneThing(
+		@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 목록 조회 시 여러 개 검색 결과가 있을 경우 해당 Data Limit 절 태우면서, Paging 처리 위한 Method</b>
-	 * @param userInfoSearchDTO 이용자 접속 및 요청 검색을 위한 DTO
+	 * @param userInfoSearchDto 이용자 접속 및 요청 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
 
-	List<ConnectedUserInfoVo> findByUserInfoList(@Param("criteria") Criteria criteria,
-		@Param("userInfoSearchDTO") UserInfoSearchDto userInfoSearchDTO);
+	List<ConnectedUserRequestInfoVo> findByUserInfoList(@Param("criteria") Criteria criteria,
+		@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
@@ -96,5 +96,5 @@ public interface UserManagementMapper {
 		"inner join server_info as si " +
 		"on curi.internal_server_id = si.internal_server_id " +
 		"where curi.connected_user_request_info_id = #{connectedUserRequestInfoID}")
-	Optional<ConnectedUserInfoVo> detailUserInfoFind(String connectedUserRequestInfoID);
+	Optional<ConnectedUserRequestInfoVo> detailUserInfoFind(String connectedUserRequestInfoID);
 }

@@ -1,7 +1,12 @@
 package com.giggalpeople.backoffice.api.user.service.impl;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CONNECTED_INTERNAL_SERVER_SAVE_FAILURE;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CONNECTED_USER_SAVE_FAILURE;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NO_AUTHORIZATION;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_NULL;
+import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.CREATE;
+import static com.giggalpeople.backoffice.common.enumtype.SuccessCode.SUCCESS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +36,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalIn
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.service.ConnectedUserInfoService;
@@ -106,7 +111,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 		} else if (searchListCount == 1) {
 			List<UserInfoListResponseDto> responseDtoList = new ArrayList<>();
 
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDAO.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDAO.findByUserInfoSearchOneThing(
 				userInfoSearchDto);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO ->
@@ -149,7 +154,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 			throw new ConnectedUserException(NO_AUTHORIZATION, NO_AUTHORIZATION.getMessage());
 		}
 
-		Optional<ConnectedUserInfoVo> byUserInfoVO = userInfoDAO.detailUserInfoFind(
+		Optional<ConnectedUserRequestInfoVo> byUserInfoVO = userInfoDAO.detailUserInfoFind(
 			userInfoDetailSearchRequestDto.getConnectedUserRequestInfoID());
 
 		if (byUserInfoVO.isPresent()) {
@@ -250,7 +255,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 
 			if (isIDbyUserIP == null || isIDbyUserIP <= 0) {
 				return userInfoDAO.connectedUserSave(
-					ErrorLogUserInfoVo.toVO(
+					ConnectedUserInfoVo.toVO(
 						CryptoUtil.userInfoEncrypt(
 							ConnectedUserInfoSaveRequestDto.builder()
 								.internalServerID(internalServerSaveID)

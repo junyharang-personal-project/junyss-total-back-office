@@ -1,8 +1,10 @@
 package com.giggalpeople.backoffice.api.user.database.mapper;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +40,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchTyp
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.database.DataBaseManagerMapper;
@@ -51,6 +53,7 @@ import com.giggalpeople.backoffice.common.util.CryptoUtil;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 // 실제 데이터베이스에 연결 시 필요한 어노테이션
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserManagementMapperTest {
@@ -71,7 +74,7 @@ class UserManagementMapperTest {
 
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVO;
+	ConnectedUserInfoVo userInfoVO;
 
 	Long dataCreatedDateTimeSaveId;
 	Long serverInfoSaveId;
@@ -124,7 +127,7 @@ class UserManagementMapperTest {
 
 		serverInfoSaveId = serverManagementMapper.save(serverInfoVo);
 
-		userInfoVO = ErrorLogUserInfoVo.toVO(
+		userInfoVO = ConnectedUserInfoVo.toVO(
 			ConnectedUserInfoSaveRequestDto.builder()
 				.internalServerID(serverInfoSaveId)
 				.dataCreatedDateTimeID(dataCreatedDateTimeSaveId)
@@ -256,7 +259,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForUserId);
 
 			byUserInfoSearchOneThing.ifPresent(
@@ -289,7 +292,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToConnectedDateRange == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForUserConnectedDateRange);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertTrue(
@@ -301,10 +304,10 @@ class UserManagementMapperTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
 				searchForUserConnectedDateRange);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertTrue(isWithSearchDateRange(byUserInfo.getDataCreatedDate(), searchForUserConnectedDateRange));
 			}
 		}
@@ -332,7 +335,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToConnectedDate == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForUserConnectedDate);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(
@@ -346,10 +349,10 @@ class UserManagementMapperTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
 				searchForUserConnectedDate);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(Integer.parseInt(searchForUserConnectedDate.getDate().replace("-", "")),
 					Integer.parseInt(byUserInfo.getDataCreatedDate().replace("-", "")));
 			}
@@ -379,7 +382,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToServerName == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForServerName);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(searchForServerName.getSearchWord(),
@@ -392,10 +395,10 @@ class UserManagementMapperTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
 				searchForServerName);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(searchForServerName.getSearchWord(), byUserInfo.getServerName());
 			}
 		}
@@ -424,7 +427,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToServerIp == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForServerIp);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(searchForServerIp.getSearchWord(),
@@ -437,10 +440,10 @@ class UserManagementMapperTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
 				searchForServerIp);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(searchForServerIp.getSearchWord(), byUserInfo.getServerIp());
 			}
 		}
@@ -469,7 +472,7 @@ class UserManagementMapperTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToUserIp == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userManagementMapper.findByUserInfoSearchOneThing(
 				searchForUserIp);
 
 			byUserInfoSearchOneThing.ifPresent(
@@ -483,10 +486,10 @@ class UserManagementMapperTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userManagementMapper.findByUserInfoList(criteria,
 				searchForUserIp);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(CryptoUtil.userInfoIPDecrypt(searchForUserIp.getSearchWord()),
 					CryptoUtil.userInfoIPDecrypt(byUserInfo.getUserIp()));
 			}
@@ -520,7 +523,7 @@ class UserManagementMapperTest {
 	void detailUserInfoFind() {
 		String requestUserId = "1";
 
-		Optional<ConnectedUserInfoVo> detailSearchConnectedUserInfoVO = userManagementMapper.detailUserInfoFind(
+		Optional<ConnectedUserRequestInfoVo> detailSearchConnectedUserInfoVO = userManagementMapper.detailUserInfoFind(
 			requestUserId);
 
 		if (detailSearchConnectedUserInfoVO.isPresent()) {
@@ -558,7 +561,7 @@ class UserManagementMapperTest {
 		IntStream.rangeClosed(1, 100).forEach(count -> {
 			System.out.println(count + "번째 Mock 이용자 정보 생성 시작 합니다.");
 			assertThat(userManagementMapper.connectedUserSave(
-				ErrorLogUserInfoVo.toVO(
+				ConnectedUserInfoVo.toVO(
 					CryptoUtil.userInfoEncrypt(
 						ConnectedUserInfoSaveRequestDto.builder()
 							.internalServerID(serverInfoSaveId)

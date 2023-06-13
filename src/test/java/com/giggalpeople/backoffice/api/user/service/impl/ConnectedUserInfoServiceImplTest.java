@@ -1,10 +1,14 @@
 package com.giggalpeople.backoffice.api.user.service.impl;
 
-import static com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType.*;
-import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.*;
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchType.CONNECTED_USER_REQUEST_ID;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.GENERAL_CREW;
+import static com.giggalpeople.backoffice.common.enumtype.CrewGrade.TEAM_LEADER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NO_AUTHORIZATION;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.PARAMETER_NULL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,7 +47,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoListResponseDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.service.ConnectedUserInfoService;
@@ -58,6 +62,8 @@ import com.giggalpeople.backoffice.common.env.exception.ServerInfoException;
 // JUnit 5 사용 시 사용, MyBatisTest 2.0.1 Version 이상에서 생략 가능
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 class ConnectedUserInfoServiceImplTest {
 
 	// @InjectMocks
@@ -84,7 +90,7 @@ class ConnectedUserInfoServiceImplTest {
 	ServerInfo serverInfo;
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVO;
+	ConnectedUserInfoVo userInfoVO;
 
 	UserInfoSearchDto searchForUserId;
 
@@ -638,7 +644,7 @@ class ConnectedUserInfoServiceImplTest {
 	 * <b>이용자 접속 정보를 만들기 위한 Method</b>
 	 * @return 이용자 요청 정보를 담은 Value Object
 	 */
-	private ErrorLogUserInfoVo initializedConnectedUserInfo() {
+	private ConnectedUserInfoVo initializedConnectedUserInfo() {
 		this.connectedUserInfoSaveRequestDto = ConnectedUserInfoSaveRequestDto.builder()
 			.internalServerID(1L)
 			.dataCreatedDateTimeID(1L)
@@ -650,7 +656,7 @@ class ConnectedUserInfoServiceImplTest {
 			.userEnvironment("\"Mozilla/5.0\"")
 			.build();
 
-		return ErrorLogUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
+		return ConnectedUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
 	}
 
 	/**

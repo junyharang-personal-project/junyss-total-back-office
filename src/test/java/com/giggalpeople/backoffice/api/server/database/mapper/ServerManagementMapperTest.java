@@ -1,7 +1,7 @@
 package com.giggalpeople.backoffice.api.server.database.mapper;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -27,7 +27,8 @@ import com.giggalpeople.backoffice.common.entity.ServerInfo;
 // 실제 데이터베이스에 연결 시 필요한 어노테이션
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 // Test 완료 뒤 Rollback을 위해 명시
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")        // Data Base 초기화를 위한 설정
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")        // Data Base 초기화를 위한 설정
 class ServerManagementMapperTest {
 
 	@Autowired

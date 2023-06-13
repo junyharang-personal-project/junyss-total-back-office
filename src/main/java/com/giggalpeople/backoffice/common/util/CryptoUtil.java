@@ -20,7 +20,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchTyp
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.dto.response.UserInfoDetailResponseDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.common.exception.CryptoException;
 import com.junyharang.datasecret.DataAesSecret;
@@ -402,62 +402,62 @@ public class CryptoUtil {
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 상세 조회 시 Data Base에 암호화 되어 저장 되어 있는 이용자 접속 및 요청 정보 복호화 하기 위한 Method</b>
-	 * @param connectedUserInfoVO 이용자 접속 및 요청 정보 담고 있는 VO
+	 * @param connectedUserRequestInfoVO 이용자 접속 및 요청 정보 담고 있는 VO
 	 * @return 복호화 된 이용자 접속 및 요청 정보 담고 있는 VO
 	 */
-	public static UserInfoDetailResponseDto userInfoDecrypt(ConnectedUserInfoVo connectedUserInfoVO) {
+	public static UserInfoDetailResponseDto userInfoDecrypt(ConnectedUserRequestInfoVo connectedUserRequestInfoVO) {
 		UserInfoDetailResponseDto userInfoDetailResponseDto = new UserInfoDetailResponseDto();
-		if (connectedUserInfoVO.getRequestBody() != null) {
+		if (connectedUserRequestInfoVO.getRequestBody() != null) {
 			return userInfoDetailResponseDto.toDto(
-				new ConnectedUserInfoVo(
-					connectedUserInfoVO.getConnectedUserRequestInfoID(),
-					connectedUserInfoVO.getDataCreatedDate(),
-					connectedUserInfoVO.getDataCreatedTime(),
-					connectedUserInfoVO.getServerName(),
-					connectedUserInfoVO.getServerVmInfo(),
-					connectedUserInfoVO.getServerOsInfo(),
-					connectedUserInfoVO.getServerIp(),
-					connectedUserInfoVO.getServerEnvironment(),
+				new ConnectedUserRequestInfoVo(
+					connectedUserRequestInfoVO.getConnectedUserRequestInfoID(),
+					connectedUserRequestInfoVO.getDataCreatedDate(),
+					connectedUserRequestInfoVO.getDataCreatedTime(),
+					connectedUserRequestInfoVO.getServerName(),
+					connectedUserRequestInfoVO.getServerVmInfo(),
+					connectedUserRequestInfoVO.getServerOsInfo(),
+					connectedUserRequestInfoVO.getServerIp(),
+					connectedUserRequestInfoVO.getServerEnvironment(),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserIp(),
+						connectedUserRequestInfoVO.getUserIp(),
 						2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserEnvironment(), 2),
+						connectedUserRequestInfoVO.getUserEnvironment(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserLocation(), 2),
+						connectedUserRequestInfoVO.getUserLocation(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getRequestHeader(), 2),
+						connectedUserRequestInfoVO.getRequestHeader(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserCookies(), 2),
+						connectedUserRequestInfoVO.getUserCookies(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getRequestParameter(), 2),
+						connectedUserRequestInfoVO.getRequestParameter(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getRequestBody(), 2)));
+						connectedUserRequestInfoVO.getRequestBody(), 2)));
 		} else {
 			return userInfoDetailResponseDto.toDto(
-				new ConnectedUserInfoVo(
-					connectedUserInfoVO.getConnectedUserRequestInfoID(),
-					connectedUserInfoVO.getDataCreatedDate(),
-					connectedUserInfoVO.getDataCreatedTime(),
-					connectedUserInfoVO.getServerName(),
-					connectedUserInfoVO.getServerVmInfo(),
-					connectedUserInfoVO.getServerOsInfo(),
-					connectedUserInfoVO.getServerIp(),
-					connectedUserInfoVO.getServerEnvironment(),
+				new ConnectedUserRequestInfoVo(
+					connectedUserRequestInfoVO.getConnectedUserRequestInfoID(),
+					connectedUserRequestInfoVO.getDataCreatedDate(),
+					connectedUserRequestInfoVO.getDataCreatedTime(),
+					connectedUserRequestInfoVO.getServerName(),
+					connectedUserRequestInfoVO.getServerVmInfo(),
+					connectedUserRequestInfoVO.getServerOsInfo(),
+					connectedUserRequestInfoVO.getServerIp(),
+					connectedUserRequestInfoVO.getServerEnvironment(),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserIp(),
+						connectedUserRequestInfoVO.getUserIp(),
 						2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserEnvironment(), 2),
+						connectedUserRequestInfoVO.getUserEnvironment(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserLocation(), 2),
+						connectedUserRequestInfoVO.getUserLocation(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getRequestHeader(), 2),
+						connectedUserRequestInfoVO.getRequestHeader(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getUserCookies(), 2),
+						connectedUserRequestInfoVO.getUserCookies(), 2),
 					DataAesSecret.aesSecret(256, DataAesSecret.base64Encoder(cipherKey),
-						connectedUserInfoVO.getRequestParameter(), 2),
-					connectedUserInfoVO.getRequestBody()));
+						connectedUserRequestInfoVO.getRequestParameter(), 2),
+					connectedUserRequestInfoVO.getRequestBody()));
 		}
 	}
 

@@ -1,8 +1,11 @@
 package com.giggalpeople.backoffice.api.user.database.dao.impl;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CONNECTED_USER_SAME_INFO_UPDATE_COUNT_SAVE_FAILURE;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.NOT_EXIST_CONNECTED_USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +42,7 @@ import com.giggalpeople.backoffice.api.user.model.dto.enumtype.UserInfoSearchTyp
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.entity.ServerInfo;
@@ -49,6 +53,8 @@ import com.giggalpeople.backoffice.common.util.CryptoUtil;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 class UserInfoDaoImplTest {
 
 	@Autowired
@@ -64,7 +70,7 @@ class UserInfoDaoImplTest {
 
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVo;
+	ConnectedUserInfoVo userInfoVo;
 
 	Long dataCreatedDateTimeSaveId;
 	Long serverInfoSaveId;
@@ -112,7 +118,7 @@ class UserInfoDaoImplTest {
 
 		serverInfoSaveId = serverInfoDao.save(serverInfoVo);
 
-		userInfoVo = ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(ConnectedUserInfoSaveRequestDto.builder()
+		userInfoVo = ConnectedUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(ConnectedUserInfoSaveRequestDto.builder()
 			.internalServerID(serverInfoSaveId)
 			.dataCreatedDateTimeID(dataCreatedDateTimeSaveId)
 			.userIP("127.0.0.1")
@@ -267,7 +273,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				userInfoSearchDto);
 
 			byUserInfoSearchOneThing.ifPresent(
@@ -299,7 +305,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForUserId);
 
 			byUserInfoSearchOneThing.ifPresent(
@@ -332,7 +338,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToConnectedDateRange == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForUserConnectedDateRange);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertTrue(
@@ -344,10 +350,10 @@ class UserInfoDaoImplTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
 				searchForUserConnectedDateRange);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertTrue(isWithSearchDateRange(byUserInfo.getDataCreatedDate(), searchForUserConnectedDateRange));
 			}
 		}
@@ -376,7 +382,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToConnectedDate == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForUserConnectedDate);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(
@@ -390,10 +396,10 @@ class UserInfoDaoImplTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
 				searchForUserConnectedDate);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(Integer.parseInt(searchForUserConnectedDate.getDate().replace("-", "")),
 					Integer.parseInt(byUserInfo.getDataCreatedDate().replace("-", "")));
 			}
@@ -424,7 +430,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToServerName == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForServerName);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(searchForServerName.getSearchWord(),
@@ -437,9 +443,10 @@ class UserInfoDaoImplTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria, searchForServerName);
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
+				searchForServerName);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(searchForServerName.getSearchWord(), byUserInfo.getServerName());
 			}
 		}
@@ -469,7 +476,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToServerIp == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForServerIp);
 
 			byUserInfoSearchOneThing.ifPresent(connectedUserInfoVO -> assertEquals(searchForServerIp.getSearchWord(),
@@ -482,9 +489,10 @@ class UserInfoDaoImplTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria, searchForServerIp);
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria,
+				searchForServerIp);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(searchForServerIp.getSearchWord(), byUserInfo.getServerIp());
 			}
 		}
@@ -514,7 +522,7 @@ class UserInfoDaoImplTest {
 			assertEquals(NOT_EXIST_CONNECTED_USER.getMessage(), connectedUserException.getMessage());
 		} else if (searchCountToUserIp == 1) {
 			System.out.println("요청 검색 결과가 Data Base에서 한 건이므로, 해당 Logic 처리 Test 진행");
-			Optional<ConnectedUserInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
+			Optional<ConnectedUserRequestInfoVo> byUserInfoSearchOneThing = userInfoDao.findByUserInfoSearchOneThing(
 				searchForUserIp);
 
 			byUserInfoSearchOneThing.ifPresent(
@@ -528,9 +536,9 @@ class UserInfoDaoImplTest {
 			criteria.setPerPageNum(10);
 			criteria.setPageMoveButtonNum(10);
 
-			List<ConnectedUserInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria, searchForUserIp);
+			List<ConnectedUserRequestInfoVo> byUserInfoList = userInfoDao.findByUserInfoList(criteria, searchForUserIp);
 
-			for (ConnectedUserInfoVo byUserInfo : byUserInfoList) {
+			for (ConnectedUserRequestInfoVo byUserInfo : byUserInfoList) {
 				assertEquals(CryptoUtil.userInfoIPDecrypt(searchForUserIp.getSearchWord()),
 					CryptoUtil.userInfoIPDecrypt(byUserInfo.getUserIp()));
 			}
@@ -566,7 +574,8 @@ class UserInfoDaoImplTest {
 	void detailUserInfoFind() {
 		String requestUserId = "1";
 
-		Optional<ConnectedUserInfoVo> detailSearchConnectedUserInfoVO = userInfoDao.detailUserInfoFind(requestUserId);
+		Optional<ConnectedUserRequestInfoVo> detailSearchConnectedUserInfoVO = userInfoDao.detailUserInfoFind(
+			requestUserId);
 
 		if (detailSearchConnectedUserInfoVO.isPresent()) {
 			assertEquals(detailSearchConnectedUserInfoVO.get().getConnectedUserRequestInfoID(),
@@ -603,7 +612,7 @@ class UserInfoDaoImplTest {
 	void manyConnectedUserSave() {
 		IntStream.rangeClosed(1, 100).forEach(count -> {
 			System.out.println(count + "번째 Mock 이용자 정보 생성 시작 합니다.");
-			assertThat(userInfoDao.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
+			assertThat(userInfoDao.connectedUserSave(ConnectedUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
 				ConnectedUserInfoSaveRequestDto.builder()
 					.internalServerID(serverInfoSaveId)
 					.dataCreatedDateTimeID(dataCreatedDateTimeSaveId)

@@ -65,7 +65,7 @@ import com.giggalpeople.backoffice.api.server.model.dto.request.ServerInfoSaveRe
 import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
@@ -90,7 +90,7 @@ class ErrorRecordManagementControllerTest {
 	ServerInfo serverInfo;
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVo;
+	ConnectedUserInfoVo userInfoVo;
 
 	ErrorRecordSearchDto searchForErrorLogId;
 
@@ -677,7 +677,7 @@ class ErrorRecordManagementControllerTest {
 	 * <b>이용자 접속 정보를 만들기 위한 Method</b>
 	 * @return 이용자 요청 정보를 담은 Value Object
 	 */
-	private ErrorLogUserInfoVo initializedConnectedUserInfo() {
+	private ConnectedUserInfoVo initializedConnectedUserInfo() {
 		this.connectedUserInfoSaveRequestDto = ConnectedUserInfoSaveRequestDto.builder()
 			.internalServerID(1L)
 			.dataCreatedDateTimeID(1L)
@@ -688,7 +688,7 @@ class ErrorRecordManagementControllerTest {
 			.userEnvironment("\"Mozilla/5.0\"")
 			.build();
 
-		return ErrorLogUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
+		return ConnectedUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
 	}
 
 	/**

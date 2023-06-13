@@ -24,6 +24,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
 import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.database.DataBaseManagerMapper;
@@ -56,6 +57,8 @@ import com.giggalpeople.backoffice.common.util.CryptoUtil;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 class ErrorRecordManagementDaoImplTest {
 
 	@Autowired
@@ -78,7 +81,7 @@ class ErrorRecordManagementDaoImplTest {
 	ServerInfo serverInfo;
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVo;
+	ConnectedUserInfoVo userInfoVo;
 
 	ErrorRecordSearchDto searchForErrorLogId;
 
@@ -318,7 +321,7 @@ class ErrorRecordManagementDaoImplTest {
 	 */
 
 	private Long saveMockConnectedUserId() {
-		return userInfoDao.connectedUserSave(ErrorLogUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
+		return userInfoDao.connectedUserSave(ConnectedUserInfoVo.toVO(CryptoUtil.userInfoEncrypt(
 			ConnectedUserInfoSaveRequestDto.builder()
 				.internalServerID(saveMockServerInfo())
 				.dataCreatedDateTimeID(saveMockCreatedLogDateTime())
@@ -541,7 +544,7 @@ class ErrorRecordManagementDaoImplTest {
 	 * <b>이용자 접속 정보를 만들기 위한 Method</b>
 	 * @return 이용자 요청 정보를 담은 Value Object
 	 */
-	private ErrorLogUserInfoVo initializedConnectedUserInfo() {
+	private ConnectedUserInfoVo initializedConnectedUserInfo() {
 		this.connectedUserInfoSaveRequestDto = ConnectedUserInfoSaveRequestDto.builder()
 			.internalServerID(1L)
 			.dataCreatedDateTimeID(1L)
@@ -552,7 +555,7 @@ class ErrorRecordManagementDaoImplTest {
 			.userEnvironment("\"Mozilla/5.0\"")
 			.build();
 
-		return ErrorLogUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
+		return ConnectedUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
 	}
 
 	/**

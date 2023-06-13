@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.api.user.database.dao.impl;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.CONNECTED_USER_SAME_INFO_UPDATE_COUNT_SAVE_FAILURE;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import com.giggalpeople.backoffice.api.user.exception.ConnectedUserException;
 import com.giggalpeople.backoffice.api.user.model.UpdateUserInfo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 
 import lombok.RequiredArgsConstructor;
@@ -32,14 +32,14 @@ public class UserInfoDaoImpl implements UserInfoDao {
 
 	/**
 	 * <b>암호화 된 이용자 접속 정보를 Data Base에 저장하기 위한 Method</b>
-	 * @param errorLogUserInfoVO 암호화된 이용자 정보
+	 * @param connectedUserInfoVO 암호화된 이용자 정보
 	 * @return Data Base에 저장된 이용자 접속 순서 번호
 	 */
 
 	@Transactional
 	@Override
-	public Long connectedUserSave(ErrorLogUserInfoVo errorLogUserInfoVO) {
-		return userManagementMapper.connectedUserSave(errorLogUserInfoVO);
+	public Long connectedUserSave(ConnectedUserInfoVo connectedUserInfoVO) {
+		return userManagementMapper.connectedUserSave(connectedUserInfoVO);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class UserInfoDaoImpl implements UserInfoDao {
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<ConnectedUserInfoVo> findByUserInfoSearchOneThing(UserInfoSearchDto userInfoSearchDTO) {
+	public Optional<ConnectedUserRequestInfoVo> findByUserInfoSearchOneThing(UserInfoSearchDto userInfoSearchDTO) {
 		return userManagementMapper.findByUserInfoSearchOneThing(userInfoSearchDTO);
 	}
 
@@ -110,7 +110,7 @@ public class UserInfoDaoImpl implements UserInfoDao {
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public List<ConnectedUserInfoVo> findByUserInfoList(Criteria criteria, UserInfoSearchDto userInfoSearchDTO) {
+	public List<ConnectedUserRequestInfoVo> findByUserInfoList(Criteria criteria, UserInfoSearchDto userInfoSearchDTO) {
 		return userManagementMapper.findByUserInfoList(criteria, userInfoSearchDTO);
 	}
 
@@ -121,7 +121,7 @@ public class UserInfoDaoImpl implements UserInfoDao {
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public Optional<ConnectedUserInfoVo> detailUserInfoFind(String connectedUserRequestInfoID) {
+	public Optional<ConnectedUserRequestInfoVo> detailUserInfoFind(String connectedUserRequestInfoID) {
 		return userManagementMapper.detailUserInfoFind(connectedUserRequestInfoID);
 	}
 }

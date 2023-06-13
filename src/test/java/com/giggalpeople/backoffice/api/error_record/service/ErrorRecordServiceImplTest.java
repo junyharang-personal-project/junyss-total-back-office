@@ -30,6 +30,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +51,7 @@ import com.giggalpeople.backoffice.api.server.model.vo.ServerInfoVo;
 import com.giggalpeople.backoffice.api.user.database.dao.UserInfoDao;
 import com.giggalpeople.backoffice.api.user.model.dto.request.ConnectedUserInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserRequestTotalInfoSaveRequestDto;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.dto.request.ConnectedUserRequestInfoSaveRequestDto;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 import com.giggalpeople.backoffice.common.constant.DefaultListResponse;
@@ -63,6 +64,8 @@ import com.giggalpeople.backoffice.common.env.exception.ServerInfoException;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 class ErrorRecordServiceImplTest {
 
 	@Autowired
@@ -82,7 +85,7 @@ class ErrorRecordServiceImplTest {
 	ServerInfo serverInfo;
 	ServerInfoVo serverInfoVo;
 
-	ErrorLogUserInfoVo userInfoVo;
+	ConnectedUserInfoVo userInfoVo;
 
 	ErrorRecordSearchDto searchForErrorLogId;
 
@@ -342,7 +345,7 @@ class ErrorRecordServiceImplTest {
 		assertThat(responseInfo.getMessage()).isEqualTo("성공");
 		assertThat(responseInfo.getPagination().getCriteria().getPage()).isEqualTo(3);
 		assertThat(responseInfo.getPagination().getCriteria().getPerPageNum()).isEqualTo(5);
-		assertThat(responseInfo.getPagination().getTotalCount()).isEqualTo(11);
+		assertThat(responseInfo.getPagination().getTotalCount()).isEqualTo(10);
 	}
 
 	@Test
@@ -776,7 +779,7 @@ class ErrorRecordServiceImplTest {
 	 * <b>가짜 ErrorLog 정보를 만들기 위한 Method</b>
 	 */
 	private void initializedMocErrorLogInfoList() {
-		this.errorLogList = new ArrayList<>();
+		errorLogList = new ArrayList<>();
 
 		IntStream.rangeClosed(1, 11).forEach(count -> {
 			errorLogList.add(ErrorRecordListResponseDto.builder()
@@ -794,46 +797,46 @@ class ErrorRecordServiceImplTest {
 	 * <b>Paging 처리를 위한 Criteria 객체를 만들기 위한 Method</b>
 	 */
 	private void initializedMockCriteria() {
-		this.criteria = new Criteria();
-		this.criteria.setPage(1);
-		this.criteria.setPerPageNum(10);
-		this.criteria.setPageMoveButtonNum(10);
+		criteria = new Criteria();
+		criteria.setPage(1);
+		criteria.setPerPageNum(10);
+		criteria.setPageMoveButtonNum(10);
 	}
 
 	/**
 	 * <b>이용자 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchUserIpRequestDto() {
-		this.searchForUserIp = new ErrorRecordSearchDto();
-		this.searchForUserIp.setInputSearchType(ErrorRecordSearchType.USER_IP);
-		this.searchForUserIp.setSearchWord("127.0.0.1");
+		searchForUserIp = new ErrorRecordSearchDto();
+		searchForUserIp.setInputSearchType(ErrorRecordSearchType.USER_IP);
+		searchForUserIp.setSearchWord("127.0.0.1");
 	}
 
 	/**
 	 * <b>내부 서버 IP 주소를 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerIpRequestDto() {
-		this.searchForServerIp = new ErrorRecordSearchDto();
-		this.searchForServerIp.setInputSearchType(SERVER_IP);
-		this.searchForServerIp.setSearchWord("192.168.20.2");
+		searchForServerIp = new ErrorRecordSearchDto();
+		searchForServerIp.setInputSearchType(SERVER_IP);
+		searchForServerIp.setSearchWord("192.168.20.2");
 	}
 
 	/**
 	 * <b>내부 서버 이름을 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchServerNameRequestDto() {
-		this.searchForServerName = new ErrorRecordSearchDto();
-		this.searchForServerName.setInputSearchType(ErrorRecordSearchType.SERVER_NAME);
-		this.searchForServerName.setSearchWord("통합관리서버");
+		searchForServerName = new ErrorRecordSearchDto();
+		searchForServerName.setInputSearchType(ErrorRecordSearchType.SERVER_NAME);
+		searchForServerName.setSearchWord("통합관리서버");
 	}
 
 	/**
 	 * <b>Error Log 생성일 통해 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchCreatedErrorLogDateRequestDto(String initializedCreatedDate) {
-		this.errorLogSearchCreatedErrorLogDateDto = new ErrorRecordSearchDto();
-		this.errorLogSearchCreatedErrorLogDateDto.setInputSearchType(LOG_CREATE_DATE);
-		this.errorLogSearchCreatedErrorLogDateDto.setDate(initializedCreatedDate);
+		errorLogSearchCreatedErrorLogDateDto = new ErrorRecordSearchDto();
+		errorLogSearchCreatedErrorLogDateDto.setInputSearchType(LOG_CREATE_DATE);
+		errorLogSearchCreatedErrorLogDateDto.setDate(initializedCreatedDate);
 	}
 
 	/**
@@ -841,37 +844,37 @@ class ErrorRecordServiceImplTest {
 	 */
 
 	private void initializedMockSearchUserConnectedDateRangeRequestDto(String nowDate) {
-		this.searchForCreatedErrorLogDateRange = new ErrorRecordSearchDto();
-		this.searchForCreatedErrorLogDateRange.setInputSearchType(LOG_CREATE_DATE);
-		this.searchForCreatedErrorLogDateRange.setStartDate("2023-01-01");
-		this.searchForCreatedErrorLogDateRange.setEndDate(nowDate);
+		searchForCreatedErrorLogDateRange = new ErrorRecordSearchDto();
+		searchForCreatedErrorLogDateRange.setInputSearchType(LOG_CREATE_DATE);
+		searchForCreatedErrorLogDateRange.setStartDate("2023-01-01");
+		searchForCreatedErrorLogDateRange.setEndDate(nowDate);
 	}
 
 	/**
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogIdRequestDto() {
-		this.searchForErrorLogId = new ErrorRecordSearchDto();
-		this.searchForErrorLogId.setInputSearchType(LOG_ID);
-		this.searchForErrorLogId.setSearchWord("1");
+		searchForErrorLogId = new ErrorRecordSearchDto();
+		searchForErrorLogId.setInputSearchType(LOG_ID);
+		searchForErrorLogId.setSearchWord("1");
 	}
 
 	/**
 	 * <b>Error Log 생성 순서 번호 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorLogLevelRequestDto() {
-		this.searchForErrorLogLevel = new ErrorRecordSearchDto();
-		this.searchForErrorLogLevel.setInputSearchType(LOG_LEVEL);
-		this.searchForErrorLogLevel.setSearchWord("ERROR");
+		searchForErrorLogLevel = new ErrorRecordSearchDto();
+		searchForErrorLogLevel.setInputSearchType(LOG_LEVEL);
+		searchForErrorLogLevel.setSearchWord("ERROR");
 	}
 
 	/**
 	 * <b>Error Log Exception 간략 내용으로 검색하고자 할 때, 사용하기 위한 요청 객체 DTO</b>
 	 */
 	private void initializedMockSearchErrorRecordExceptionBriefRequestDto() {
-		this.searchForErrorExceptionBrief = new ErrorRecordSearchDto();
-		this.searchForErrorExceptionBrief.setInputSearchType(EXCEPTION_BRIEF);
-		this.searchForErrorExceptionBrief.setSearchWord(
+		searchForErrorExceptionBrief = new ErrorRecordSearchDto();
+		searchForErrorExceptionBrief.setInputSearchType(EXCEPTION_BRIEF);
+		searchForErrorExceptionBrief.setSearchWord(
 			"com.giggalpeople.backoffice.api.user.exception.ConnectedUserException: Bad Request");
 	}
 
@@ -880,11 +883,11 @@ class ErrorRecordServiceImplTest {
 	 * @return Error Log 발생 정보를 담은 요청 DTO
 	 */
 	private TotalErrorRecordSaveRequestDto initializedMockModels() {
-		this.dataCreatedDateTimeVo = initializedCreateDateTimeVo();
-		this.serverInfoVo = initializedServerInfo();
-		this.userInfoVo = initializedConnectedUserInfo();
-		this.userRequestInfoVo = initializedConnectedUserRequestInfo();
-		this.userRequestTotalInfoSaveRequestDto = initializedConnectedUserRequestTotalInfo();
+		dataCreatedDateTimeVo = initializedCreateDateTimeVo();
+		serverInfoVo = initializedServerInfo();
+		userInfoVo = initializedConnectedUserInfo();
+		userRequestInfoVo = initializedConnectedUserRequestInfo();
+		userRequestTotalInfoSaveRequestDto = initializedConnectedUserRequestTotalInfo();
 
 		TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto = new TotalErrorRecordSaveRequestDto();
 		totalErrorRecordSaveRequestDto.setCreatedAt(
@@ -935,7 +938,7 @@ class ErrorRecordServiceImplTest {
 	 * @return 이용자 요청 정보 Value Object
 	 */
 	private UserRequestInfoVo initializedConnectedUserRequestInfo() {
-		this.connectedUserRequestInfoSaveRequestDto = ConnectedUserRequestInfoSaveRequestDto.builder()
+		connectedUserRequestInfoSaveRequestDto = ConnectedUserRequestInfoSaveRequestDto.builder()
 			.internalServerID(1L)
 			.dataCreatedDateTimeID(1L)
 			.connectedUserID(1L)
@@ -955,8 +958,8 @@ class ErrorRecordServiceImplTest {
 	 * <b>이용자 접속 정보를 만들기 위한 Method</b>
 	 * @return 이용자 요청 정보를 담은 Value Object
 	 */
-	private ErrorLogUserInfoVo initializedConnectedUserInfo() {
-		this.connectedUserInfoSaveRequestDto = ConnectedUserInfoSaveRequestDto.builder()
+	private ConnectedUserInfoVo initializedConnectedUserInfo() {
+		connectedUserInfoSaveRequestDto = ConnectedUserInfoSaveRequestDto.builder()
 			.internalServerID(1L)
 			.dataCreatedDateTimeID(1L)
 			.userIP("127.0.0.1")
@@ -966,7 +969,7 @@ class ErrorRecordServiceImplTest {
 			.userEnvironment("\"Mozilla/5.0\"")
 			.build();
 
-		return ErrorLogUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
+		return ConnectedUserInfoVo.toVO(connectedUserInfoSaveRequestDto);
 	}
 
 	/**
@@ -974,7 +977,7 @@ class ErrorRecordServiceImplTest {
 	 * @return 내부 서버 정보 담은 Value Object
 	 */
 	private ServerInfoVo initializedServerInfo() {
-		this.serverInfo = ServerInfo.builder()
+		serverInfo = ServerInfo.builder()
 			.serverName(GiggalPeopleServerNames.GIGGAL_TOTAL_BACK_OFFICE.getDescription())
 			.vmInfo("OpenJDK 64-Bit")
 			.osInfo("Mac OS")
@@ -982,7 +985,7 @@ class ErrorRecordServiceImplTest {
 			.serverEnvironment("dev")
 			.build();
 
-		this.serverInfoSaveRequestDto = ServerInfoSaveRequestDto.builder()
+		serverInfoSaveRequestDto = ServerInfoSaveRequestDto.builder()
 			.serverName(serverInfo.getServerName())
 			.serverVmInfo(serverInfo.getVmInfo())
 			.serverOsInfo(serverInfo.getOsInfo())
@@ -1000,7 +1003,7 @@ class ErrorRecordServiceImplTest {
 	private DataCreatedDateTimeVo initializedCreateDateTimeVo() {
 		String[] splitNowDateTime = initializedCreateDateTime();
 
-		this.dataCreatedDateTimeRequestDto = DataCreatedDateTimeRequestDto.builder()
+		dataCreatedDateTimeRequestDto = DataCreatedDateTimeRequestDto.builder()
 			.createdDate(splitNowDateTime[0])
 			.createdTime(splitNowDateTime[1])
 			.build();

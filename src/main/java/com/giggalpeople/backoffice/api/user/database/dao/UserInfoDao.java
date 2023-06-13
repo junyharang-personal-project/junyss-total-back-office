@@ -7,7 +7,7 @@ import com.giggalpeople.backoffice.api.common.model.Criteria;
 import com.giggalpeople.backoffice.api.user.model.UpdateUserInfo;
 import com.giggalpeople.backoffice.api.user.model.dto.request.UserInfoSearchDto;
 import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserInfoVo;
-import com.giggalpeople.backoffice.api.user.model.vo.ErrorLogUserInfoVo;
+import com.giggalpeople.backoffice.api.user.model.vo.ConnectedUserRequestInfoVo;
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 
 /**
@@ -25,10 +25,10 @@ public interface UserInfoDao {
 
 	/**
 	 * <b>암호화 된 이용자 접속 정보를 Data Base에 저장하기 위한 Method</b>
-	 * @param errorLogUserInfoVO 암호화된 이용자 정보
+	 * @param connectedUserInfoVO 암호화된 이용자 정보
 	 * @return Data Base에 저장된 이용자 접속 순서 번호
 	 */
-	Long connectedUserSave(ErrorLogUserInfoVo errorLogUserInfoVO);
+	Long connectedUserSave(ConnectedUserInfoVo connectedUserInfoVO);
 
 	Long updateCount(UpdateUserInfo updateUserInfo);
 
@@ -51,7 +51,7 @@ public interface UserInfoDao {
 	 * @param userInfoSearchDTO 이용자 접속 및 요청 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
-	Optional<ConnectedUserInfoVo> findByUserInfoSearchOneThing(UserInfoSearchDto userInfoSearchDTO);
+	Optional<ConnectedUserRequestInfoVo> findByUserInfoSearchOneThing(UserInfoSearchDto userInfoSearchDTO);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 목록 조회 시 여러 개 검색 결과가 있을 경우 해당 Data Limit 절 태우면서, Paging 처리 위한 Method</b>
@@ -59,12 +59,12 @@ public interface UserInfoDao {
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
 
-	List<ConnectedUserInfoVo> findByUserInfoList(Criteria criteria, UserInfoSearchDto userInfoSearchDTO);
+	List<ConnectedUserRequestInfoVo> findByUserInfoList(Criteria criteria, UserInfoSearchDto userInfoSearchDTO);
 
 	/**
 	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
 	 * @param connectedUserRequestInfoID Discord에서 입력 받은 조회할 이용자 요청 정보 ID
 	 * @return 이용자 접속 및 요청 정보를 담은 VO 객체
 	 */
-	Optional<ConnectedUserInfoVo> detailUserInfoFind(String connectedUserRequestInfoID);
+	Optional<ConnectedUserRequestInfoVo> detailUserInfoFind(String connectedUserRequestInfoID);
 }
