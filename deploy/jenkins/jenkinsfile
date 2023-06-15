@@ -17,7 +17,7 @@ pipeline {
                     // 소나큐브 설정
                     SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
 //                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
-                    SONARQUBE_CREDENTIAL_ID = "Total-Back-Office-BE-SonarQube"
+                    SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
 
                     // TEST Coverage Report Path
                     JUNIT_REPORT_PATH = "build/test-results/test"
