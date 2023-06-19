@@ -19,7 +19,7 @@ def get_commit_author() {   // git commit 작성자 가져오기
 pipeline {
     agent any
     environment {
-        WEBHOOK_URL = credentials("Total-Back-Office-BE-Discord-Webhook")
+        DISCORD_WEBHOOK_URL = credentials("Total-Back-Office-BE-Discord-Webhook")
     }
     stages {
         stage(SET_VARIABLE) {
