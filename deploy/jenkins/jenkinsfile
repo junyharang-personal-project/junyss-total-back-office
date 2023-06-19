@@ -127,11 +127,11 @@ pipeline {
 
             post {
                 success {
-                    sendBuildSuccessAlarmToDiscord('Project Build 그리고 Test 작업')
+                    sendBuildSuccessAlarmToDiscord('Project Build 그리고 Test 작업', env.DRIVE_ENV)
                 }
 
                 failure {
-                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업')
+                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업', env.DRIVE_ENV)
                 }
             } // Discord Send Post 끝
         } // stage('Project Build 작업') 끝
