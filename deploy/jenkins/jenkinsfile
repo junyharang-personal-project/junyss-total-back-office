@@ -422,9 +422,9 @@ def getStageRequiredTimeMs() {
     def endTime = System.currentTimeMillis()
     long duration = endTime - startTime
 
-    def requiredTimeMs = duration % 1000
-    def requiredTimeSeconds = (duration / 1000).mod(60) as BigInteger
-    def requiredTimeMinutes = (duration / (1000 * 60)).mod(60) as BigInteger
+    def requiredTimeMs = duration % 1000 as BigDecimal
+    def requiredTimeSeconds = (duration / 1000) % 60 as BigInteger
+    def requiredTimeMinutes = (duration / (1000 * 60)) % 60 as BigInteger
     def requiredTimeHours = (duration / (1000 * 60 * 60)) as BigInteger
 
     def result = '작업 소요 시간 : '
