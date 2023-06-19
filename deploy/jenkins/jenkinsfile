@@ -225,7 +225,7 @@ pipeline {
                                                     sshTransfer(
                                                             execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
                                                                           export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
-                                                                          export OPERATION_ENV=${OPERATION_ENV}; \
+                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
                                                                           export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
                                                                           export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
                                                                           export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
