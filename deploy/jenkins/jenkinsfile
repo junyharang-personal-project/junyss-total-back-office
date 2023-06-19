@@ -85,8 +85,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord('GITEA CHECKOUT', requiredTimeMs)
+                        sendSuccessAlarmToDiscord('GITEA CHECKOUT')
                     }
                 }
 
@@ -107,8 +106,7 @@ pipeline {
                 success {
                     success {
                         script {
-                            def requiredTimeMs = getStageRequiredTimeMs()
-                            sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업', requiredTimeMs)
+                            sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
                         }
                     }
                 }
@@ -135,8 +133,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord('Project Build 그리고 Test 작업', requiredTimeMs)
+                        sendSuccessAlarmToDiscord('Project Build 그리고 Test 작업')
                     }
                 }
 
@@ -181,8 +178,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord(SONARQUBE_ANALYSIS, requiredTimeMs)
+                        sendSuccessAlarmToDiscord(SONARQUBE_ANALYSIS)
                     }
                 }
 
@@ -222,8 +218,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord(SONARQUBE_QUALITY_GATE, requiredTimeMs)
+                        sendSuccessAlarmToDiscord(SONARQUBE_QUALITY_GATE)
                     }
                 }
 
@@ -267,8 +262,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord('Application 서버에 File 전달', requiredTimeMs)
+                        sendSuccessAlarmToDiscord('Application 서버에 File 전달')
                     }
                 }
 
@@ -298,8 +292,7 @@ pipeline {
             post {
                 success {
                     script {
-                        def requiredTimeMs = getStageRequiredTimeMs()
-                        sendSuccessAlarmToDiscord('Application 서버 배포 작업', requiredTimeMs)
+                        sendSuccessAlarmToDiscord('Application 서버 배포 작업')
                     }
                 }
 
@@ -349,10 +342,10 @@ void sendStartAlarmToDiscord() {
     )
 }
 
-void sendSuccessAlarmToDiscord(String stage, String requiredTimeMs) {
+void sendSuccessAlarmToDiscord(String stage) {
     discordSend(
             title: stage,
-            description: requiredTimeMs + " ms 소요하여 " + stage + " 작업 성공했어요. 😀 \n " + requiredTimeMs,
+            description: stage + " 작업 성공했어요. 😀 ",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
@@ -371,10 +364,10 @@ void sendFailedAlarmToDiscord(String stage) {
     )
 }
 
-void sendBuildSuccessAlarmToDiscord(String stage, String environment, String requiredTimeMs) {
+void sendBuildSuccessAlarmToDiscord(String stage, String environment) {
     discordSend(
             title: environment + stage,
-            description: environment + stage + " 작업 성공했어요. 😀 \n " + requiredTimeMs,
+            description: environment + stage + " 작업 성공했어요. 😀 ",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
@@ -415,39 +408,4 @@ void sendEndFailedAlarmToDiscord() {
             result: currentBuild.currentResult,
             webhookURL: DISCORD_WEBHOOK_URL
     )
-}
-
-def getStageRequiredTimeMs() {
-    def startTime = System.currentTimeMillis()
-    def endTime = System.currentTimeMillis()
-    long duration = endTime - startTime
-
-    def requiredTimeMs = duration
-    def requiredTimeSeconds = requiredTimeMs / 1000
-    def requiredTimeMinutes = 0
-    def requiredTimeHours = 0
-
-    if (requiredTimeSeconds > 60) {
-        requiredTimeMinutes = requiredTimeSeconds / 60
-    }
-
-    if (requiredTimeMinutes > 60) {
-        requiredTimeHours = requiredTimeMinutes / 60
-    }
-
-    def result = '작업 소요 시간 : '
-
-    if (requiredTimeHours > 0) {
-        result += "${requiredTimeHours} 시간 "
-    }
-
-    if (requiredTimeMinutes > 0) {
-        result += "${requiredTimeMinutes} 분 "
-    }
-
-    if (requiredTimeSeconds > 0) {
-        result += "${requiredTimeSeconds} 초 (${requiredTimeMs} ms) "
-    }
-
-    return result
 }
