@@ -37,12 +37,16 @@ pipeline {
                     // gitea 환경 설정
                     GITEA_CREDENTIAL_ID = ""
                     GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
-                    
+
                     GIT_COMMIT_AUTHOR = get_commit_author()
                     GIT_COMMIT_MESSAGE = get_commit_message()
 
-                    PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
-                    PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
+                    PR_ID = 'PR이 존재하지 않아요.'
+                    PR_BRANCH = 'PR이 존재하지 않아요.'
+                    if ("${GIT_COMMIT_MESSAGE}".contains('Merge')) {
+                        PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
+                        PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
+                    }
 
                     // 소나큐브 설정
                     SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
