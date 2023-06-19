@@ -104,10 +104,8 @@ pipeline {
 
             post {
                 success {
-                    success {
-                        script {
-                            sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
-                        }
+                    script {
+                        sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
                     }
                 }
 
