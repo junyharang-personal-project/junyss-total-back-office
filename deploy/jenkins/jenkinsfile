@@ -108,21 +108,28 @@ pipeline {
             } // Discord Send Post 끝
         } // stage('내부 Port 번호 추출 및 원격 서버 전달 작업') 끝
 
-        stage('Project Build 작업') {
+        stage('Project Build 그리고 Test 작업') {
             steps {
-                sh '''
-                    echo 'Project Build 작업을 시작 합니다!'
-                    ./gradlew clean build --stacktrace --warning-mode all --info
-                '''
+                if ($ { DRIVE_ENV } == 'dev') {
+                    sh '''
+                    echo '개발 환경 Project Build 그리고 Test 작업을 시작 합니다!'
+                    ./gradlew clean build --args="--spring.profiles.active=dev" --stacktrace --warning-mode all --info
+                    '''
+                } else {
+                    sh '''
+                    echo '운영 환경 Project Build 그리고 Test 작업을 시작 합니다!'
+                    ./gradlew clean build --args="--spring.profiles.active=prod" --stacktrace --warning-mode all --info
+                    '''
+                }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord('Project Build 작업')
+                    sendBuildSuccessAlarmToDiscord('Project Build 그리고 Test 작업')
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('Project Build 작업')
+                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업')
                 }
             } // Discord Send Post 끝
         } // stage('Project Build 작업') 끝
@@ -333,6 +340,28 @@ void sendFailedAlarmToDiscord(String stage) {
     discordSend(
             title: stage,
             description: stage + " 작업 실패 했어요 😤",
+            footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendBuildSuccessAlarmToDiscord(String stage, String environment) {
+    discordSend(
+            title: environment + stage,
+            description: environment + stage + " 작업 성공했어요 😀",
+            footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendBuildFailedAlarmToDiscord(String stage, String environment) {
+    discordSend(
+            title: environment + stage,
+            description: environment + stage + " 작업 실패 했어요 😤",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
