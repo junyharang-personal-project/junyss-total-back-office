@@ -438,7 +438,7 @@ def getStageRequiredTimeMs() {
     }
 
     if (requiredTimeSeconds > 0) {
-        result += "${requiredTimeSeconds} 초 (${requiredTimeMs} ms) "
+        result += "${requiredTimeSeconds} 초 (${requiredTimeMs.toBigInteger()} ms) "
     }
 
     return result
