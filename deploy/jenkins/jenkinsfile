@@ -116,11 +116,11 @@ pipeline {
                 script {
                     if (env.DRIVE_ENV == 'dev') {
                         echo '개발 환경 Project Build 그리고 Test 작업을 시작 합니다!'
-                        sh './gradlew clean build --args="--spring.profiles.active=dev" --stacktrace --warning-mode all --info'
+                        sh './gradlew clean build -Pspring.profiles.active=dev'-- stacktrace --warning - mode all --info
 
                     } else {
                         echo '운영 환경 Project Build 그리고 Test 작업을 시작 합니다!'
-                        sh './gradlew clean build --args="--spring.profiles.active=prod" --stacktrace --warning-mode all --info'
+                        sh './gradlew clean build -Pspring.profiles.active=prod'-- stacktrace --warning - mode all --info
                     }
                 }
             }
