@@ -1,6 +1,7 @@
 def SET_VARIABLE = "Jenkins File 변수 설정"
 def SONARQUBE_ANALYSIS = "소나큐브 Analysis 확인"
 def SONARQUBE_QUALITY_GATE = "소나큐브 Quality Gate 확인"
+def APPLICATION_NAME = "total-back-office"
 
 pipeline {
     agent any
@@ -13,16 +14,42 @@ pipeline {
                 script {
                     // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
                     DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+                    APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
+                    // credential id는 prod-was, dev-was여아 한다.
+
+                    // 도커 관련 설정
+                    DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
+                    DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
+
+                    // gitea 환경 설정
+                    GITEA_CREDENTIAL_ID = ""
+                    GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
+
+                    // git 환경 설정
+                    GIT_COMMIT_AUTHOR = sh(script: "git --no-pager show -s --format=%an ${env.GIT_COMMIT}", returnStdout: true).trim();
+                    GIT_COMMIT_MESSAGE = sh(script: "git --no-pager show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim();
+
+                    PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
+                    PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
 
                     // 소나큐브 설정
                     SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
-//                    SONARQUBE_PR_SERVER_NAME = "Giggal_BE_SonarBot"
                     SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
 
                     // TEST Coverage Report Path
                     JUNIT_REPORT_PATH = "build/test-results/test"
                     JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
                     CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
+
+                    DISCORD_SEND_MESSAGE_TITLE = "기깔나는 사람들 통합 관리 서비스 무중단 배포"
+
+                    DOCKER_SERVER_BASE_DIRECTORY = "/data/deploy/giggal-total-back-office"
+                }
+            }
+
+            post {
+                success {
+                    sendStartAlarmToDiscord()
                 }
             }
         } // stage(SET_VARIABLE) 끝
@@ -37,19 +64,11 @@ pipeline {
 
             post {
                 success {
-                    discordSend description: "Project Build 작업 성공 하였어요. 😀",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendSuccessAlarmToDiscord('Project Build 작업')
                 }
 
                 failure {
-                    discordSend description: "Project Build 작업 실패 하였어요. 😢",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendFailedAlarmToDiscord('Project Build 작업')
                 }
             } // Discord Send Post 끝
         } // stage('Project Build 작업') 끝
@@ -88,19 +107,11 @@ pipeline {
 
             post {
                 success {
-                    discordSend description: "소나큐브 Scan 작업 성공 하였어요. 😀",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendSuccessAlarmToDiscord(SONARQUBE_ANALYSIS)
                 }
 
                 failure {
-                    discordSend description: "소나큐브 Scan 작업 실패 하였어요. 😢",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendFailedAlarmToDiscord(SONARQUBE_ANALYSIS)
                 }
             } // Discord Send Post 끝
         } // stage(SONARQUBE_ANALYSIS) 끝
@@ -113,43 +124,105 @@ pipeline {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
-//                    script {
-//                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
-//                        def sonarQubeQualityGate = waitForQualityGate()
-//                        def qualityGateStatus = sonarQubeQualityGate.status
-//                        echo "Quality Gate 상태: ${qualityGateStatus}"
-//
-//                        if (qualityGateStatus != 'OK') {
-//                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
-//                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
-//
-//                        } else {
-//                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
-//                        }
-//
-//                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
-//                    }
+                    script {
+                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
+                        def sonarQubeQualityGate = waitForQualityGate()
+                        def qualityGateStatus = sonarQubeQualityGate.status
+                        echo "Quality Gate 상태: ${qualityGateStatus}"
+
+                        if (qualityGateStatus != 'OK') {
+                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
+                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
+
+                        } else {
+                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+                        }
+
+                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+                    }
                 }
             }
 
             post {
                 success {
-                    discordSend description: "소나큐브 Quality Gate 작업 성공 하였어요. 😀",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendSuccessAlarmToDiscord(SONARQUBE_QUALITY_GATE)
                 }
 
                 failure {
-                    discordSend description: "소나큐브 Quality Gate 작업 실패 하였어요. 😢",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendFailedAlarmToDiscord(SONARQUBE_QUALITY_GATE)
                 }
             } // Discord Send Post 끝
         } // stage(SONARQUBE_QUALITY_GATE) 끝
+
+        stage('Application 서버에 File 전달') {
+            steps([$class: "BapSshPromotionPublisherPlugin"]) {
+                script {
+                    sshPublisher(
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-management-api",
+                                            verbose: true,
+                                            transfers: [
+                                                    sshTransfer(
+//                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
+                                                            sourceFiles: "deploy/**",
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                    ),
+                                                    sshTransfer(
+                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
+                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
+                                                                          export OPERATION_ENV=${OPERATION_ENV}; \
+                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
+                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
+                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
+                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
+                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                    )
+                                            ]
+                                    )
+                            ]
+                    )
+                }
+            }
+
+            post {
+                success {
+                    sendSuccessAlarmToDiscord('Application 서버에 File 전달')
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('Application 서버에 File 전달')
+                }
+            } // Discord Send Post 끝
+        } // stage('Application 서버에 File 전달') 끝
+
+        stage('Application 서버 배포 작업') {
+            steps([$class: "BapSshPromotionPublisherPlugin"]) {
+                script {
+                    sshPublisher(
+                            sshPublisherDesc(
+                                    configName: "op-management-api",
+                                    verbose: true,
+                                    transfers: [
+                                            sshTransfer(
+                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                            )
+                                    ]
+                            )
+                    )
+                }
+            }
+
+            post {
+                success {
+                    sendSuccessAlarmToDiscord('Application 서버 배포 작업')
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('Application 서버 배포 작업')
+                }
+            } // Discord Send Post 끝
+        } // stage("Application 서버 배포 작업") 끝
 
         stage('Jenkins CI/CD 작업 완료') {
             steps {
@@ -158,21 +231,81 @@ pipeline {
 
             post {
                 success {
-                    discordSend description: "Build 성공 하였어요. 😀",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendEndSuccessAlarmToDiscord()
                 }
 
                 failure {
-                    discordSend description: "Build 실패 하였어요. 😢",
-                            footer: "Jenkins CI/CD Trigger Alarm",
-                            link: env.BUILD_URL, result: currentBuild.currentResult,
-                            title: "Jenkins CI/CD Trigger Discord를 통해 받기 시험 중 입니다.",
-                            webhookURL: env.WEBHOOK_URL
+                    sendEndFailedAlarmToDiscord()
                 }
             } // Discord Send Post 끝
         } // stage('Jenkins CI/CD 작업 완료') 끝
     } // stages 끝
+}
+
+void sendStartAlarmToDiscord() {
+    discordSend(
+            title: DISCORD_SEND_MESSAGE_TITLE,
+            description: "${DRIVE_ENV} 환경 배포 작업 시작 합니다.",
+            footer: "==============배포 작업 시작============\n\n"
+                    + "통합 관리 WAS 배포 작업이 시작되었어요.\n"
+                    + "${env.JOB_NAME}(${env.BUILD_NUMBER})\n\n"
+                    + "Git Pull Request ID 정보 \n"
+                    + "${PR_ID}\n\n"
+                    + "Git Pull Request BRANCH 정보"
+                    + "${PR_BRANCH}\n\n"
+                    + "Git COMMIT 유발자 정보 \n"
+                    + "${GIT_COMMIT_AUTHOR}\n\n"
+                    + "Git COMMIT Message \n"
+                    + "${GIT_COMMIT_MESSAGE}\n\n"
+                    + "Build URL 정보 \n\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendSuccessAlarmToDiscord(String stage) {
+    discordSend(
+            title: stage,
+            description: stage + " 작업 성공했어요 😀",
+            footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendFailedAlarmToDiscord(String stage) {
+    discordSend(
+            title: stage,
+            description: stage + " 작업 실패 했어요 😤",
+            footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendEndSuccessAlarmToDiscord() {
+    discordSend(
+            title: DISCORD_SEND_MESSAGE_TITLE,
+            description: "${DRIVE_ENV} 환경 배포 작업이 성공적으로 끝났어요.",
+            footer: "==============배포 작업 끝============\n"
+                    + "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendEndFailedAlarmToDiscord() {
+    discordSend(
+            title: DISCORD_SEND_MESSAGE_TITLE,
+            description: "${DRIVE_ENV} 환경 배포 작업이 실패로 끝났어요.",
+            footer: "==============배포 작업 끝============\n"
+                    + "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
 }

@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  giggal-total-back-office-api:
+    image: giggal-people/total-back-office:latest
+    container_name: giggal-people/total-back-office-blue-b
+    hostname: giggal-people-total-back-office
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev"
+      - LANG=ko_KR.UTF-8
+
+    build:
+      context: ..
+      dockerfile: ./deploy/docker/Dockerfile
+
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
