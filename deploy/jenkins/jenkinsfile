@@ -24,45 +24,47 @@ pipeline {
     stages {
         stage(SET_VARIABLE) {
             steps {
-                script {
-                    // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
-                    def DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
-                    // DRIVE_ENV DRIVE_ENV 변수를 다른 스테이지에서 참조할 수 있도록 환경 변수로 설정
-                    env.DRIVE_ENV = DRIVE_ENV
+                timestamps {
+                    script {
+                        // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
+                        def DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+                        // DRIVE_ENV DRIVE_ENV 변수를 다른 스테이지에서 참조할 수 있도록 환경 변수로 설정
+                        env.DRIVE_ENV = DRIVE_ENV
 
-                    APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
-                    // credential id는 prod-was, dev-was여아 한다.
+                        APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
+                        // credential id는 prod-was, dev-was여아 한다.
 
-                    // 도커 관련 설정
-                    DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
-                    DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
+                        // 도커 관련 설정
+                        DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
+                        DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
 
-                    // gitea 환경 설정
-                    GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
-                    GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
+                        // gitea 환경 설정
+                        GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
+                        GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
 
-                    GIT_COMMIT_AUTHOR = get_commit_author()
-                    GIT_COMMIT_MESSAGE = get_commit_message()
+                        GIT_COMMIT_AUTHOR = get_commit_author()
+                        GIT_COMMIT_MESSAGE = get_commit_message()
 
-                    PR_ID = 'PR이 존재하지 않아요.'
-                    PR_BRANCH = 'PR이 존재하지 않아요.'
-                    if ("${GIT_COMMIT_MESSAGE}".contains('Merge')) {
-                        PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
-                        PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
+                        PR_ID = 'PR이 존재하지 않아요.'
+                        PR_BRANCH = 'PR이 존재하지 않아요.'
+                        if ("${GIT_COMMIT_MESSAGE}".contains('Merge')) {
+                            PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
+                            PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
+                        }
+
+                        // 소나큐브 설정
+                        SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
+                        SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
+
+                        // TEST Coverage Report Path
+                        JUNIT_REPORT_PATH = "build/test-results/test"
+                        JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
+                        CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
+
+                        DISCORD_SEND_MESSAGE_TITLE = "기깔나는 사람들 통합 관리 서비스 무중단 배포"
+
+                        DOCKER_SERVER_BASE_DIRECTORY = "/data/deploy/giggal-total-back-office"
                     }
-
-                    // 소나큐브 설정
-                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
-                    SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
-
-                    // TEST Coverage Report Path
-                    JUNIT_REPORT_PATH = "build/test-results/test"
-                    JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
-                    CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
-
-                    DISCORD_SEND_MESSAGE_TITLE = "기깔나는 사람들 통합 관리 서비스 무중단 배포"
-
-                    DOCKER_SERVER_BASE_DIRECTORY = "/data/deploy/giggal-total-back-office"
                 }
             }
 
@@ -75,16 +77,18 @@ pipeline {
 
         stage('GITEA CHECKOUT') {
             steps {
-                echo "Repository Clone 작업이 시작 되었어요 😀"
+                timestamps {
+                    echo "Repository Clone 작업이 시작 되었어요 😀"
 
-                git branch: "${env.BRANCH_NAME}",
-                        credentialsId: GITEA_CREDENTIAL_ID,
-                        url: GITEA_REPOSITORY_URL
+                    git branch: "${env.BRANCH_NAME}",
+                            credentialsId: GITEA_CREDENTIAL_ID,
+                            url: GITEA_REPOSITORY_URL
+                }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord('GITEA CHECKOUT')
+                    sendSuccessAlarmToDiscord('GITEA CHECKOUT', getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -93,16 +97,18 @@ pipeline {
             } // Discord Send Post 끝
         } // stage('GITEA CHECKOUT') 끝
 
-        stage('내부 Port 번호 추출 및 원격 서버 전달 작업') {
+        stage('내부 Port 번호 추출 및 원격 서버 Port 설정을 위한 작업') {
             steps {
-                script {
-                    INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim();
+                timestamps {
+                    script {
+                        INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim();
+                    }
                 }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
+                    sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업', getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -113,20 +119,22 @@ pipeline {
 
         stage('Project Build 그리고 Test 작업') {
             steps {
-                script {
-                    if (env.DRIVE_ENV == 'dev') {
-                        echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                        sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
-                    } else {
-                        echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                        sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
+                timestamps {
+                    script {
+                        if (env.DRIVE_ENV == 'dev') {
+                            echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
+                            sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
+                        } else {
+                            echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
+                            sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
+                        }
                     }
                 }
             }
 
             post {
                 success {
-                    sendBuildSuccessAlarmToDiscord('Project Build 그리고 Test 작업', env.DRIVE_ENV)
+                    sendBuildSuccessAlarmToDiscord('Project Build 그리고 Test 작업', env.DRIVE_ENV, getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -141,10 +149,11 @@ pipeline {
             }
 
             steps {
-                script {
-                    def scannerHome = tool 'SonarQube-Scanner';
-                    withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
-                        sh "${scannerHome}/bin/sonar-scanner \
+                timestamps {
+                    script {
+                        def scannerHome = tool 'SonarQube-Scanner';
+                        withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
+                            sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=BE-total-back-office \
                         -Dsonar.projectName=BE-total-back-office \
                         -Dsonar.branch.name=master \
@@ -163,13 +172,14 @@ pipeline {
                         -Dsonar.java.checkstyle.reportPaths=${CHECKSTYLE_REPORT_PATH} \
                         -Dsonar.exclusions=**/dto/**,**/exception/**,**/constant/**,**/SpringInitProjectApplication.java,**/WebRestController.java,**/FileUploadYaml.java \
                         "
+                        }
                     }
                 }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord(SONARQUBE_ANALYSIS)
+                    sendSuccessAlarmToDiscord(SONARQUBE_ANALYSIS, getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -186,28 +196,30 @@ pipeline {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
-                    script {
-                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
-                        def sonarQubeQualityGate = waitForQualityGate()
-                        def qualityGateStatus = sonarQubeQualityGate.status
-                        echo "Quality Gate 상태: ${qualityGateStatus}"
+                    timestamps {
+                        script {
+                            echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
+                            def sonarQubeQualityGate = waitForQualityGate()
+                            def qualityGateStatus = sonarQubeQualityGate.status
+                            echo "Quality Gate 상태: ${qualityGateStatus}"
 
-                        if (qualityGateStatus != 'OK') {
-                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
-                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
+                            if (qualityGateStatus != 'OK') {
+                                echo "Quality Gate 검증 상태: ${qualityGateStatus}"
+                                error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
 
-                        } else {
-                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+                            } else {
+                                echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
+                            }
+
+                            echo "Quality Gate 검증을 모두 완료 하였어요 😎"
                         }
-
-                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
                     }
                 }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord(SONARQUBE_QUALITY_GATE)
+                    sendSuccessAlarmToDiscord(SONARQUBE_QUALITY_GATE, getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -218,20 +230,21 @@ pipeline {
 
         stage('Application 서버에 File 전달') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
-                script {
-                    sshPublisher(
-                            publishers: [
-                                    sshPublisherDesc(
-                                            configName: "op-management-api",
-                                            verbose: true,
-                                            transfers: [
-                                                    sshTransfer(
+                timestamps {
+                    script {
+                        sshPublisher(
+                                publishers: [
+                                        sshPublisherDesc(
+                                                configName: "op-management-api",
+                                                verbose: true,
+                                                transfers: [
+                                                        sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
-                                                            sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                    ),
-                                                    sshTransfer(
-                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
+                                                                sourceFiles: "deploy/**",
+                                                                execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                        ),
+                                                        sshTransfer(
+                                                                execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
                                                                           export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
                                                                           export OPERATION_ENV=${DRIVE_ENV}; \
                                                                           export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
@@ -239,17 +252,18 @@ pipeline {
                                                                           export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
                                                                           export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
                                                                           $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                    )
-                                            ]
-                                    )
-                            ]
-                    )
+                                                        )
+                                                ]
+                                        )
+                                ]
+                        )
+                    }
                 }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord('Application 서버에 File 전달')
+                    sendSuccessAlarmToDiscord('Application 서버에 File 전달', getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -260,24 +274,26 @@ pipeline {
 
         stage('Application 서버 배포 작업') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
-                script {
-                    sshPublisher(
-                            sshPublisherDesc(
-                                    configName: "op-management-api",
-                                    verbose: true,
-                                    transfers: [
-                                            sshTransfer(
-                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                            )
-                                    ]
-                            )
-                    )
+                timestamps {
+                    script {
+                        sshPublisher(
+                                sshPublisherDesc(
+                                        configName: "op-management-api",
+                                        verbose: true,
+                                        transfers: [
+                                                sshTransfer(
+                                                        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                )
+                                        ]
+                                )
+                        )
+                    }
                 }
             }
 
             post {
                 success {
-                    sendSuccessAlarmToDiscord('Application 서버 배포 작업')
+                    sendSuccessAlarmToDiscord('Application 서버 배포 작업', getStageRequiredTimeMs())
                 }
 
                 failure {
@@ -326,10 +342,10 @@ void sendStartAlarmToDiscord() {
     )
 }
 
-void sendSuccessAlarmToDiscord(String stage) {
+void sendSuccessAlarmToDiscord(String stage, long requiredTimeMs) {
     discordSend(
             title: stage,
-            description: stage + " 작업 성공했어요 😀",
+            description: requiredTimeMs + " ms 소요하여 " + stage + " 작업 성공했어요 😀",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
@@ -348,10 +364,10 @@ void sendFailedAlarmToDiscord(String stage) {
     )
 }
 
-void sendBuildSuccessAlarmToDiscord(String stage, String environment) {
+void sendBuildSuccessAlarmToDiscord(String stage, String environment, long requiredTimeMs) {
     discordSend(
             title: environment + stage,
-            description: environment + stage + " 작업 성공했어요 😀",
+            description: requiredTimeMs + " ms 소요하여 " + environment + stage + " 작업 성공했어요 😀",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
@@ -392,4 +408,10 @@ void sendEndFailedAlarmToDiscord() {
             result: currentBuild.currentResult,
             webhookURL: DISCORD_WEBHOOK_URL
     )
+}
+
+def getStageRequiredTimeMs() {
+    long startTime = currentBuild.rawBuild.getStartTimeInMillis()
+    long requiredTimeMs = System.currentTimeMillis() - startTime
+    return requiredTimeMs
 }
