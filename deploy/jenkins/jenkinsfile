@@ -24,47 +24,45 @@ pipeline {
     stages {
         stage(SET_VARIABLE) {
             steps {
-                timestamps {
-                    script {
-                        // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
-                        def DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
-                        // DRIVE_ENV DRIVE_ENV 변수를 다른 스테이지에서 참조할 수 있도록 환경 변수로 설정
-                        env.DRIVE_ENV = DRIVE_ENV
+                script {
+                    // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
+                    def DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+                    // DRIVE_ENV DRIVE_ENV 변수를 다른 스테이지에서 참조할 수 있도록 환경 변수로 설정
+                    env.DRIVE_ENV = DRIVE_ENV
 
-                        APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
-                        // credential id는 prod-was, dev-was여아 한다.
+                    APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
+                    // credential id는 prod-was, dev-was여아 한다.
 
-                        // 도커 관련 설정
-                        DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
-                        DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
+                    // 도커 관련 설정
+                    DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
+                    DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
 
-                        // gitea 환경 설정
-                        GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
-                        GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
+                    // gitea 환경 설정
+                    GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
+                    GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
 
-                        GIT_COMMIT_AUTHOR = get_commit_author()
-                        GIT_COMMIT_MESSAGE = get_commit_message()
+                    GIT_COMMIT_AUTHOR = get_commit_author()
+                    GIT_COMMIT_MESSAGE = get_commit_message()
 
-                        PR_ID = 'PR이 존재하지 않아요.'
-                        PR_BRANCH = 'PR이 존재하지 않아요.'
-                        if ("${GIT_COMMIT_MESSAGE}".contains('Merge')) {
-                            PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
-                            PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
-                        }
-
-                        // 소나큐브 설정
-                        SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
-                        SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
-
-                        // TEST Coverage Report Path
-                        JUNIT_REPORT_PATH = "build/test-results/test"
-                        JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
-                        CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
-
-                        DISCORD_SEND_MESSAGE_TITLE = "기깔나는 사람들 통합 관리 서비스 무중단 배포"
-
-                        DOCKER_SERVER_BASE_DIRECTORY = "/data/deploy/giggal-total-back-office"
+                    PR_ID = 'PR이 존재하지 않아요.'
+                    PR_BRANCH = 'PR이 존재하지 않아요.'
+                    if ("${GIT_COMMIT_MESSAGE}".contains('Merge')) {
+                        PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
+                        PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
                     }
+
+                    // 소나큐브 설정
+                    SONARQUBE_SERVER_NAME = 'SonarQube_BackEnd'
+                    SONARQUBE_CREDENTIAL_ID = "backend-total-back-office"
+
+                    // TEST Coverage Report Path
+                    JUNIT_REPORT_PATH = "build/test-results/test"
+                    JACOCO_REPORT_PATH = "build/jacoco/jacoco.xml"
+                    CHECKSTYLE_REPORT_PATH = "build/reports/checkstyle-output/checkstyle-report.xml"
+
+                    DISCORD_SEND_MESSAGE_TITLE = "기깔나는 사람들 통합 관리 서비스 무중단 배포"
+
+                    DOCKER_SERVER_BASE_DIRECTORY = "/data/deploy/giggal-total-back-office"
                 }
             }
 
@@ -77,13 +75,11 @@ pipeline {
 
         stage('GITEA CHECKOUT') {
             steps {
-                timestamps {
-                    echo "Repository Clone 작업이 시작 되었어요 😀"
+                echo "Repository Clone 작업이 시작 되었어요 😀"
 
-                    git branch: "${env.BRANCH_NAME}",
-                            credentialsId: GITEA_CREDENTIAL_ID,
-                            url: GITEA_REPOSITORY_URL
-                }
+                git branch: "${env.BRANCH_NAME}",
+                        credentialsId: GITEA_CREDENTIAL_ID,
+                        url: GITEA_REPOSITORY_URL
             }
 
             post {
