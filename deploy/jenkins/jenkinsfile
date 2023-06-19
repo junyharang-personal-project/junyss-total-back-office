@@ -26,7 +26,10 @@ pipeline {
             steps {
                 script {
                     // 구동 환경 설정 (삼항 연산자로 브런치 이름이 master라면 prod 환경이고, 아니면 dev 환경
-                    DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+                    def DRIVE_ENV = env.BRANCH_NAME.equals("master") ? "prod" : "dev"
+                    // DRIVE_ENV DRIVE_ENV 변수를 다른 스테이지에서 참조할 수 있도록 환경 변수로 설정
+                    env.DRIVE_ENV = DRIVE_ENV
+
                     APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
                     // credential id는 prod-was, dev-was여아 한다.
 
@@ -110,7 +113,7 @@ pipeline {
 
         stage('Project Build 그리고 Test 작업') {
             steps {
-                if ($ { DRIVE_ENV } == 'dev') {
+                if (env.DRIVE_ENV == 'dev') {
                     sh '''
                     echo '개발 환경 Project Build 그리고 Test 작업을 시작 합니다!'
                     ./gradlew clean build --args="--spring.profiles.active=dev" --stacktrace --warning-mode all --info
