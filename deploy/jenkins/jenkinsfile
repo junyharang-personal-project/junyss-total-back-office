@@ -99,10 +99,8 @@ pipeline {
 
         stage('내부 Port 번호 추출 및 원격 서버 Port 설정을 위한 작업') {
             steps {
-                timestamps {
-                    script {
-                        INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim();
-                    }
+                script {
+                    INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim();
                 }
             }
 
@@ -119,15 +117,13 @@ pipeline {
 
         stage('Project Build 그리고 Test 작업') {
             steps {
-                timestamps {
-                    script {
-                        if (env.DRIVE_ENV == 'dev') {
-                            echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                            sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
-                        } else {
-                            echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                            sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
-                        }
+                script {
+                    if (env.DRIVE_ENV == 'dev') {
+                        echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
+                        sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
+                    } else {
+                        echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
+                        sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
                     }
                 }
             }
@@ -149,11 +145,10 @@ pipeline {
             }
 
             steps {
-                timestamps {
-                    script {
-                        def scannerHome = tool 'SonarQube-Scanner';
-                        withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
-                            sh "${scannerHome}/bin/sonar-scanner \
+                script {
+                    def scannerHome = tool 'SonarQube-Scanner';
+                    withSonarQubeEnv(credentialsId: SONARQUBE_CREDENTIAL_ID, installationName: SONARQUBE_SERVER_NAME) {
+                        sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=BE-total-back-office \
                         -Dsonar.projectName=BE-total-back-office \
                         -Dsonar.branch.name=master \
@@ -172,7 +167,6 @@ pipeline {
                         -Dsonar.java.checkstyle.reportPaths=${CHECKSTYLE_REPORT_PATH} \
                         -Dsonar.exclusions=**/dto/**,**/exception/**,**/constant/**,**/SpringInitProjectApplication.java,**/WebRestController.java,**/FileUploadYaml.java \
                         "
-                        }
                     }
                 }
             }
@@ -196,23 +190,21 @@ pipeline {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
-                    timestamps {
-                        script {
-                            echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
-                            def sonarQubeQualityGate = waitForQualityGate()
-                            def qualityGateStatus = sonarQubeQualityGate.status
-                            echo "Quality Gate 상태: ${qualityGateStatus}"
+                    script {
+                        echo "소나큐브 Quality Gate 검사가 시작 되었어요!"
+                        def sonarQubeQualityGate = waitForQualityGate()
+                        def qualityGateStatus = sonarQubeQualityGate.status
+                        echo "Quality Gate 상태: ${qualityGateStatus}"
 
-                            if (qualityGateStatus != 'OK') {
-                                echo "Quality Gate 검증 상태: ${qualityGateStatus}"
-                                error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
+                        if (qualityGateStatus != 'OK') {
+                            echo "Quality Gate 검증 상태: ${qualityGateStatus}"
+                            error "Quality Gate 검증에 실패 하였어요 😭: ${qualityGateStatus}"
 
-                            } else {
-                                echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
-                            }
-
-                            echo "Quality Gate 검증을 모두 완료 하였어요 😎"
+                        } else {
+                            echo "Quality Gate 검증에 성공 하였어요 😀: ${qualityGateStatus}"
                         }
+
+                        echo "Quality Gate 검증을 모두 완료 하였어요 😎"
                     }
                 }
             }
@@ -230,21 +222,20 @@ pipeline {
 
         stage('Application 서버에 File 전달') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
-                timestamps {
-                    script {
-                        sshPublisher(
-                                publishers: [
-                                        sshPublisherDesc(
-                                                configName: "op-management-api",
-                                                verbose: true,
-                                                transfers: [
-                                                        sshTransfer(
+                script {
+                    sshPublisher(
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-management-api",
+                                            verbose: true,
+                                            transfers: [
+                                                    sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
-                                                                sourceFiles: "deploy/**",
-                                                                execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                        ),
-                                                        sshTransfer(
-                                                                execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
+                                                            sourceFiles: "deploy/**",
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                    ),
+                                                    sshTransfer(
+                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
                                                                           export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
                                                                           export OPERATION_ENV=${DRIVE_ENV}; \
                                                                           export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
@@ -252,12 +243,11 @@ pipeline {
                                                                           export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
                                                                           export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
                                                                           $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                        )
-                                                ]
-                                        )
-                                ]
-                        )
-                    }
+                                                    )
+                                            ]
+                                    )
+                            ]
+                    )
                 }
             }
 
@@ -274,20 +264,18 @@ pipeline {
 
         stage('Application 서버 배포 작업') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
-                timestamps {
-                    script {
-                        sshPublisher(
-                                sshPublisherDesc(
-                                        configName: "op-management-api",
-                                        verbose: true,
-                                        transfers: [
-                                                sshTransfer(
-                                                        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                )
-                                        ]
-                                )
-                        )
-                    }
+                script {
+                    sshPublisher(
+                            sshPublisherDesc(
+                                    configName: "op-management-api",
+                                    verbose: true,
+                                    transfers: [
+                                            sshTransfer(
+                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                            )
+                                    ]
+                            )
+                    )
                 }
             }
 
@@ -411,7 +399,28 @@ void sendEndFailedAlarmToDiscord() {
 }
 
 def getStageRequiredTimeMs() {
-    long startTime = currentBuild.rawBuild.getStartTimeInMillis()
-    long requiredTimeMs = System.currentTimeMillis() - startTime
-    return requiredTimeMs
+    def startTime = System.currentTimeMillis()
+    def endTime = System.currentTimeMillis()
+    long duration = endTime - startTime
+
+    def requiredTimeMs = duration % 1000
+    def requiredTimeSeconds = (duration / 1000) % 60
+    def requiredTimeMinutes = (duration / (1000 * 60)) % 60
+    def requiredTimeHours = (duration / (1000 * 60 * 60))
+
+    def result = '작업 소요 시간 : '
+
+    if (requiredTimeHours > 0) {
+        result += "${requiredTimeHours} 시간 "
+    }
+
+    if (requiredTimeMinutes > 0) {
+        result += "${requiredTimeMinutes} 분 "
+    }
+
+    if (requiredTimeSeconds > 0) {
+        result += "${requiredTimeSeconds} 초 (${requiredTimeMs} ms) "
+    }
+
+    return result
 }
