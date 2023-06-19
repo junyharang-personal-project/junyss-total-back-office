@@ -35,7 +35,7 @@ pipeline {
                     DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
 
                     // gitea 환경 설정
-                    GITEA_CREDENTIAL_ID = ""
+                    GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
                     GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
 
                     GIT_COMMIT_AUTHOR = get_commit_author()
@@ -69,6 +69,44 @@ pipeline {
                 }
             }
         } // stage(SET_VARIABLE) 끝
+
+        stage('GITEA CHECKOUT') {
+            steps {
+                echo "Repository Clone 작업이 시작 되었어요 😀"
+
+                git branch: "${env.BRANCH_NAME}",
+                        credentialsId: GITEA_CREDENTIAL_ID,
+                        url: GITEA_REPOSITORY_URL
+            }
+
+            post {
+                success {
+                    sendSuccessAlarmToDiscord('GITEA CHECKOUT')
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('GITEA CHECKOUT')
+                }
+            } // Discord Send Post 끝
+        } // stage('GITEA CHECKOUT') 끝
+
+        stage('내부 Port 번호 추출 및 원격 서버 전달 작업') {
+            steps {
+                script {
+                    INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim();
+                }
+            }
+
+            post {
+                success {
+                    sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
+                }
+            } // Discord Send Post 끝
+        } // stage('내부 Port 번호 추출 및 원격 서버 전달 작업') 끝
 
         stage('Project Build 작업') {
             steps {
@@ -267,7 +305,7 @@ void sendStartAlarmToDiscord() {
                     + "${env.JOB_NAME}(${env.BUILD_NUMBER})\n\n"
                     + "Git Pull Request ID 정보 \n"
                     + "${PR_ID}\n\n"
-                    + "Git Pull Request BRANCH 정보"
+                    + "Git Pull Request BRANCH 정보 \n"
                     + "${PR_BRANCH}\n\n"
                     + "Git COMMIT 유발자 정보 \n"
                     + "${GIT_COMMIT_AUTHOR}\n\n"
