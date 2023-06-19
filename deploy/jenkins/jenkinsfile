@@ -3,6 +3,19 @@ def SONARQUBE_ANALYSIS = "소나큐브 Analysis 확인"
 def SONARQUBE_QUALITY_GATE = "소나큐브 Quality Gate 확인"
 def APPLICATION_NAME = "total-back-office"
 
+// git 환경 정보 가져오기
+def get_commit_message() {  // git Commit Message 가져오기
+    script {
+        return sh(script: "git show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim().replace(' ', '-spc-')
+    }
+}
+
+def get_commit_author() {   // git commit 작성자 가져오기
+    script {
+        return sh(script: "git --no-pager show -s --format=%an ${env.GIT_COMMIT}", returnStdout: true).trim()
+    }
+}
+
 pipeline {
     agent any
     environment {
@@ -24,10 +37,9 @@ pipeline {
                     // gitea 환경 설정
                     GITEA_CREDENTIAL_ID = ""
                     GITEA_REPOSITORY_URL = "http://192.168.20.3:81/giggals-s-people/TotalBackOffice-BackEnd.git"
-
-                    // git 환경 설정
-                    GIT_COMMIT_AUTHOR = sh(script: "git --no-pager show -s --format=%an ${env.GIT_COMMIT}", returnStdout: true).trim();
-                    GIT_COMMIT_MESSAGE = sh(script: "git --no-pager show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim();
+                    
+                    GIT_COMMIT_AUTHOR = get_commit_author()
+                    GIT_COMMIT_MESSAGE = get_commit_message()
 
                     PR_ID = "${GIT_COMMIT_MESSAGE}".substring("${GIT_COMMIT_MESSAGE}".indexOf('#') + 1, "${GIT_COMMIT_MESSAGE}".indexOf(')')).trim();
                     PR_BRANCH = "${GIT_COMMIT_MESSAGE}".split("from")[1].split("into")[0].trim();
