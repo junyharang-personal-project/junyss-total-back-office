@@ -139,7 +139,7 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Project Build 그리고 Test 작업')
+                        sendSuccessAlarmToDiscord('Project Build 그리고 Test 작업', requiredTimeSecond)
                     }
                 }
 
@@ -237,6 +237,8 @@ pipeline {
         stage('Application 서버에 File 전달') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
                 script {
+                    def startTimeMillis = System.currentTimeMillis()
+
                     sshPublisher(
                             publishers: [
                                     sshPublisherDesc(
@@ -262,13 +264,19 @@ pipeline {
                                     )
                             ]
                     )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo 'Application 서버에 File 전달 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버에 File 전달')
+                        sendSuccessAlarmToDiscord('Application 서버에 File 전달', requiredTimeSecond)
                     }
                 }
 
@@ -281,6 +289,8 @@ pipeline {
         stage('Application 서버 배포 작업') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
                 script {
+                    def startTimeMillis = System.currentTimeMillis()
+
                     sshPublisher(
                             sshPublisherDesc(
                                     configName: "op-management-api",
@@ -292,13 +302,19 @@ pipeline {
                                     ]
                             )
                     )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo 'Application 서버 배포 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버 배포 작업')
+                        sendSuccessAlarmToDiscord('Application 서버 배포 작업', requiredTimeSecond)
                     }
                 }
 
@@ -348,10 +364,10 @@ void sendStartAlarmToDiscord() {
     )
 }
 
-void sendSuccessAlarmToDiscord(String stage) {
+void sendSuccessAlarmToDiscord(String stage, String requiredTime) {
     discordSend(
             title: stage,
-            description: stage + " 작업 성공했어요. 😀 ",
+            description: stage + " 작업 성공했어요. 😀 \n " + "작업 소요 시간 : " + requiredTime + " 초",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
