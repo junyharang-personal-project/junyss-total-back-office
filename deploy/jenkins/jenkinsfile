@@ -235,6 +235,10 @@ pipeline {
         } // stage(SONARQUBE_QUALITY_GATE) 끝
 
         stage('Application 서버에 File 전달') {
+            when {
+                branch pattern: "(master|develop)", comparator: "REGEXP"
+            }
+
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
@@ -246,9 +250,13 @@ pipeline {
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(
+                                                            remoteDirectory: "deploy/",
+                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
+                                                    ),
+                                                    sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/shell-script/deploy.sh"
                                                     ),
                                                     sshTransfer(
                                                             execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
@@ -258,7 +266,7 @@ pipeline {
                                                                           export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
                                                                           export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
                                                                           export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                                          $DOCKER_SERVER_BASE_DIRECTORY/shell-script/deploy.sh"
                                                     )
                                             ]
                                     )
