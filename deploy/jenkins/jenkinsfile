@@ -139,7 +139,7 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Project Build 그리고 Test 작업', requiredTimeSecond)
+                        sendSuccessAlarmAndRequiredTimeToDiscord('Project Build 그리고 Test 작업', requiredTimeSecond)
                     }
                 }
 
@@ -276,7 +276,7 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버에 File 전달', requiredTimeSecond)
+                        sendSuccessAlarmAndRequiredTimeToDiscord('Application 서버에 File 전달', requiredTimeSecond)
                     }
                 }
 
@@ -314,7 +314,7 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버 배포 작업', requiredTimeSecond)
+                        sendSuccessAlarmAndRequiredTimeToDiscord('Application 서버 배포 작업', requiredTimeSecond)
                     }
                 }
 
@@ -364,7 +364,18 @@ void sendStartAlarmToDiscord() {
     )
 }
 
-void sendSuccessAlarmToDiscord(String stage, String requiredTime) {
+void sendSuccessAlarmToDiscord(String stage) {
+    discordSend(
+            title: stage,
+            description: stage + " 작업 성공했어요. 😀 ",
+            footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
+            link: env.BUILD_URL,
+            result: currentBuild.currentResult,
+            webhookURL: DISCORD_WEBHOOK_URL
+    )
+}
+
+void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, String requiredTime) {
     discordSend(
             title: stage,
             description: stage + " 작업 성공했어요. 😀 \n " + "작업 소요 시간 : " + requiredTime + " 초",
