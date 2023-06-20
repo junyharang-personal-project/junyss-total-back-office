@@ -411,7 +411,7 @@ void sendSuccessAlarmToDiscord(String stage) {
     )
 }
 
-void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, String requiredTime) {
+void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, BigDecimal requiredTime) {
     discordSend(
             title: stage,
             description: stage + " 작업 성공했어요. 😀 \n " + "작업 소요 시간 : " + requiredTime + " 초",
