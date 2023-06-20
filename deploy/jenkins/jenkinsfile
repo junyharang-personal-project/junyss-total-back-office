@@ -266,7 +266,7 @@ pipeline {
                                                                           export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
                                                                           export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
                                                                           export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-                                                                          $DOCKER_SERVER_BASE_DIRECTORY/shell-script/deploy.sh"
+                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
                                                     )
                                             ]
                                     )
