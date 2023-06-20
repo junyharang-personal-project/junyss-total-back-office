@@ -10,6 +10,10 @@
         <property resource="application-dev-logback.yml"/>
         <property resource="application-dev-environment.yml"/>
     </springProfile>
+    <springProfile name="prod">
+        <property resource="application-prod-logback.yml"/>
+        <property resource="application-prod-environment.yml"/>
+    </springProfile>
     <!-- application-dev-logback.yml에서 정보를 가져옴 -->
     <springProperty name="DISCORD_WEBHOOK_URI" source="logging.discord.webhook-uri"/>
     <property name="LOG_ROOT_PATH" value="log"/>

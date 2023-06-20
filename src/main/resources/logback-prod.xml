@@ -10,6 +10,10 @@
         <property resource="application-dev-logback.yml"/>
         <property resource="application-dev-environment.yml"/>
     </springProfile>
+    <springProfile name="prod">
+        <property resource="application-prod-logback.yml"/>
+        <property resource="application-prod-environment.yml"/>
+    </springProfile>
     <!-- application-dev-logback.yml에서 정보를 가져옴 -->
     <springProperty name="DISCORD_WEBHOOK_URI" source="logging.discord.webhook-uri"/>
     <property name="LOG_ROOT_PATH" value="log"/>
@@ -34,12 +38,12 @@
     </appender>
 
     <!-- Console appender 설정 -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <!--     날짜       시간   로그레벨  로거이름  프로세스 ID  [로깅 발생 파일명]메소드 명,호출지 정보,(라인 수) 로그메세지 -->
-            <pattern>[%d{yyyy-MM-dd}] [%d{HH:mm:ss.SSS}] [%p] ${PID:-} [%F] %M (%L\) : %m%n</pattern>
-        </encoder>
-    </appender>
+    <!--    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+    <!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+    <!--            &lt;!&ndash;     날짜       시간   로그레벨  로거이름  프로세스 ID  [로깅 발생 파일명]메소드 명,호출지 정보,(라인 수) 로그메세지 &ndash;&gt;-->
+    <!--            <pattern>[%d{yyyy-MM-dd}] [%d{HH:mm:ss.SSS}] [%p] ${PID:-} [%F] %M (%L\) : %m%n</pattern>-->
+    <!--        </encoder>-->
+    <!--    </appender>-->
 
     <!-- Log File 저장 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -94,9 +98,9 @@
         </filter>
     </appender>
 
-    <!-- 모든 로그 출력 (콘솔/디코/파일) -->
+    <!-- 모든 로그 출력 (디코/파일) -->
     <root level="${LOG_LEVEL}">
-        <appender-ref ref="STDOUT"/>
+        <!--        <appender-ref ref="STDOUT"/>-->
         <appender-ref ref="ASYNC_DISCORD"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>

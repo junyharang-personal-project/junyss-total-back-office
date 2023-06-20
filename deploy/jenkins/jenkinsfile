@@ -118,6 +118,8 @@ pipeline {
         stage('Project Build 그리고 Test 작업') {
             steps {
                 script {
+                    def startTimeMillis = System.currentTimeMillis()
+
                     if (env.DRIVE_ENV == 'dev') {
                         echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
                         sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
@@ -125,6 +127,12 @@ pipeline {
                         echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
                         sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
                     }
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo 'Project Build 그리고 Test 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 

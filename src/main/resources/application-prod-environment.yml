@@ -1,4 +1,4 @@
 server:
   name: Giggal-Total-Back-Office
   environment: Operation
-  port: 9998
+  port: 8080

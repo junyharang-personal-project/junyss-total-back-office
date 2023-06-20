@@ -10,18 +10,7 @@
         </encoder>
     </appender>
 
-    <!--    <property resource="local-db.yml" />-->
-    <!--    <appender name="DB" class="ch.qos.logback.classic.db.DBAppender">-->
-    <!--        <connectionSource class="ch.qos.logback.core.db.DriverManagerConnectionSource">-->
-    <!--            <driverClass>${datasource.driver-class-name}</driverClass>-->
-    <!--            <url>${datasource.url}</url>-->
-    <!--            <user>${datasource.username}</user>-->
-    <!--            <password>${datasource.password}</password>-->
-    <!--        </connectionSource>-->
-    <!--    </appender>-->
-
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
-        <!--        <appender-ref ref="DB"/>-->
     </root>
 </configuration>
