@@ -254,6 +254,10 @@ pipeline {
                                                             execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                     ),
                                                     sshTransfer(
+                                                            remoteDirectory: "/data/deploy/giggal-total-back-office/deploy",
+                                                            sourceFiles: "build/libs/*.jar",
+                                                    ),
+                                                    sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"

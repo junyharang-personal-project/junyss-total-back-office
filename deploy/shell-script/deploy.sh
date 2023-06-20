@@ -24,21 +24,25 @@ checkLogDirectory() {
   if [ -d "$LOG_DIR" ];
   then
     echo "[$NOW] [INFO] LOG Directory 존재 합니다."
+    echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
+    echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/$NOW-deploy.log 2>&1
+    echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/$NOW-deploy.log 2>&1
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/$NOW-deploy.log 2>&1
 
   else
       echo "[$NOW] [INFO] LOG Directory 존재 하지 않아 생성 합니다."
-      echo "[$NOW] [INFO] LOG Directory 존재 하지 않아 생성 합니다." >> $LOG_DIR/$NOW-deploy.log 2>&1
 
       mkdir -p $LOG_DIR
 
       if [ $? != 0 ];
       then
         echo "[$NOW] [ERROR] LOG Directory 생성 작업 실패 하였어요."
-        echo "[$NOW] [ERROR] LOG Directory 생성 작업 실패 하였어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
         exit 1
       else
         echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요."
+        echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
+        echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/$NOW-deploy.log 2>&1
+        echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/$NOW-deploy.log 2>&1
         echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
 
         checkNginxStatus
@@ -394,10 +398,6 @@ showRetryLoading() {
   # 작업 완료 시 체크 마크 출력
   printf "\r[✔]      \n"
 }
-
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
-echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/$NOW-deploy.log 2>&1
-echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/$NOW-deploy.log 2>&1
 
 checkLogDirectory
 
