@@ -256,7 +256,7 @@ pipeline {
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/shell-script/deploy.sh"
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
                                                     ),
                                                     sshTransfer(
                                                             execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
