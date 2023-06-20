@@ -311,7 +311,8 @@ irrelevantEnvironmentDirectoryClear() {
 shutdownBeforeContainer() {
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다."
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다." >> $LOG_DIR/$NOW-deploy.log 2>&1
-  EXIST_BLUE_A=$(docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down
+#  EXIST_BLUE_A=$(docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down)
+  docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down
 
    if [ $? != 0 ];
     then
@@ -325,7 +326,8 @@ shutdownBeforeContainer() {
       echo "[$NOW] [INFO] ${BEFORE_COMPOSE_COLOR} 컨테이너 A 종료 작업 성공 하였어요." >> $LOG_DIR/$NOW-deploy.log 2>&1
   fi
 
-  EXIST_BLUE_B=$(docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down
+#  EXIST_BLUE_B=$(docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down)
+  docker-comapose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down
 
    if [ $? != 0 ];
     then
