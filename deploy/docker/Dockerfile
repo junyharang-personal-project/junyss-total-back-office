@@ -4,8 +4,8 @@ FROM ubuntu:latest
 #작성자
 MAINTAINER 주니 <junyharang8592@gmail.com>
 
-# Build 된 뒤 만들어진 jar file 위치 지정
-ARG JAR_FILE=build/libs/*.jar
+# 실제 Docker 기동 서버의 Build 된 뒤 만들어진 jar file 위치 지정
+ARG JAR_FILE=/data/deploy/giggal-total-back-office/build/libs/*.jar
 
 # 컨테이너 안에 /app 디렉토리 생성
 # 컨테이너 안에는 기본적으로 root권한으로 만들어짐
