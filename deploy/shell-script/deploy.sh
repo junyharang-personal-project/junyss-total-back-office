@@ -62,7 +62,8 @@ checkNginxStatus() {
 
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
+#  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
+  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${DOCKER_CONTAINER_NGINX_NAME}\$")
 
   if [ -z "$EXIST_NGINX" ];
     then
