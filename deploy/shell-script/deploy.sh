@@ -23,7 +23,8 @@ DOCKER_CONTAINER_NGINX_NAME=giggal-total-back-office-nginx
 APPLICATION_BASE_DIR=/data/deploy/giggal-total-back-office
 
 checkLogDirectory() {
-  showWorkLoading $!
+  sleep 5
+
   LOG_DIR="/var/log/deploy/giggal-total-back-office/api"
 
   if [ -d "$LOG_DIR" ];
@@ -57,7 +58,8 @@ checkLogDirectory() {
 
 # NGINX 기동 여부 확인 함수
 checkNginxStatus() {
-  showWorkLoading $!
+  sleep 5
+
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
@@ -66,7 +68,19 @@ checkNginxStatus() {
     then
       echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다."
       echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      docker-compose -p giggal-total-back-office-nginx -f ${NGINX_DIR}/docker-compose.nginx.yml up -d
+
+      NGINX_UP_COMMAND=$(docker-compose -p giggal-total-back-office-nginx -f ${NGINX_DIR}/docker-compose.nginx.yml up -d)
+      if [ -z "$NGINX_UP_COMMAND" ];
+      then
+        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요."
+        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
+
+      else
+        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요."
+        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      fi
+
     else
       echo "[$NOW] [INFO] NGINX Container 기동 중이에요."
       echo "[$NOW] [INFO] NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -76,7 +90,8 @@ checkNginxStatus() {
 }
 
 checkContainerStatus() {
-  showWorkLoading $!
+  sleep 5
+
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요."
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-a -f "${DOCKER_DIR}"/docker-compose.blueA.yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-blue-a)
@@ -169,7 +184,7 @@ applicationContainerHealthCheck
 }
 
 beforeBackupCheckOldContainerStatus() {
-  showWorkLoading $!
+  sleep 5
 
   checkDockerBackupDirectory
 
@@ -209,7 +224,7 @@ beforeBackupCheckOldContainerStatus() {
 }
 
 checkDockerBackupDirectory() {
-  showWorkLoading $!
+  sleep 5
 
   DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup"
 
@@ -234,6 +249,8 @@ checkDockerBackupDirectory() {
 }
 
 dockerBackup() {
+  sleep 5
+
   cd $DOCKER_BACKUP_DIR
 
   local containerName=$1
@@ -255,7 +272,8 @@ dockerBackup() {
 }
 
 applicationContainerHealthCheck() {
-  showWorkLoading $!
+  sleep 5
+
   checkServerEnvironment
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -269,7 +287,7 @@ applicationContainerHealthCheck() {
     echo "[$NOW] [INFO] curl -s http://$APPLICATION_SERVER_IP:$IDLE_PORT "
     echo "[$NOW] [INFO] curl -s http://$APPLICATION_SERVER_IP:$IDLE_PORT " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    showWorkLoading $!
+    sleep 5
 
     for RETRY_COUNT in {1..10}
     do
@@ -288,7 +306,7 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload
 
-        showWorkLoading $!
+        sleep 5
 
         shutdownBeforeContainer
         break
@@ -313,7 +331,7 @@ applicationContainerHealthCheck() {
       echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
       echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      showRetryLoading $!
+      sleep 7
 
     done
 
@@ -328,7 +346,8 @@ applicationContainerHealthCheck() {
 
 # 서버 환경 확인 함수
 checkServerEnvironment() {
-  showWorkLoading $!
+  sleep 5
+
   echo "[$NOW] [INFO] Application 구동 환경 정보를 확인할게요."
   echo "[$NOW] [INFO] Application 구동 환경 정보를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   DEVELOPE_ENVIRONMENT_STRING=dev
@@ -363,7 +382,8 @@ checkServerEnvironment() {
 }
 
 irrelevantEnvironmentDirectoryClear() {
-  showWorkLoading $!
+  sleep 5
+
   echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업을 진행 합니다."
   echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업을 진행 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   irrelevantEnvironment=$1
@@ -409,7 +429,8 @@ irrelevantEnvironmentDirectoryClear() {
 }
 
 shutdownBeforeContainer() {
-  showWorkLoading $!
+  sleep 5
+
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다."
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 #  EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down)
@@ -460,7 +481,8 @@ shutdownBeforeContainer() {
 }
 
 removeOldContainerImage() {
-  showWorkLoading $!
+  sleep 5
+
   local containerName=$1
   local containerColor=$2
 
@@ -487,44 +509,6 @@ removeOldContainerImage() {
           echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       fi
   fi
-}
-
-# 작업 Loading 처리 함수
-showWorkLoading() {
-  local pid=$1
-  local delay=5
-  local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
-
-  while ps -p "$pid" 2 > /dev/null;
-  do
-    for frame in "${frames[@]}";
-    do
-      printf "/r[%s] 작업을 처리 중 입니다. 잠시만 기다려 주세요.  " "$frame"
-      sleep $delay
-    done
-  done
-
-  # 작업 완료 시 체크 마크 출력
-  printf "\r[✔]      \n"
-}
-
-# 재 시도 Loading 처리 함수
-showRetryLoading() {
-  local pid=$1
-  local delay=7
-  local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
-
-  while ps -p "$pid" 2 > /dev/null;
-  do
-    for frame in "${frames[@]}";
-    do
-      printf "/r[%s] 연결 작업을 재 시도 중 입니다. 잠시만 기다려 주세요.  " "$frame"
-      sleep $delay
-    done
-  done
-
-  # 작업 완료 시 체크 마크 출력
-  printf "\r[✔]      \n"
 }
 
 checkLogDirectory
