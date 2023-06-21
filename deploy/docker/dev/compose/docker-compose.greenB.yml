@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  giggal-total-back-office-api:
-    image: giggal-people/total-back-office:latest
-    container_name: giggal-people/total-back-office-green-b
+  giggal-total-back-office-api-green-b:
+    image: giggal-people/total-back-office-green-b:latest
+    container_name: giggal-people-total-back-office-green-b
     hostname: giggal-people-total-back-office
     environment:
       - "SPRING_PROFILES_ACTIVE=dev"
@@ -11,7 +11,7 @@ services:
 
     build:
       context: ..
-      dockerfile: ./deploy/docker/Dockerfile
+      dockerfile: /data/deploy/giggal-total-back-office/deploy/docker/Dockerfile
 
     restart: unless-stopped
     ports:

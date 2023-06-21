@@ -13,8 +13,10 @@ NGINX_DIR=/data/deploy/nginx
 
 DOCKER_DIR=/data/deploy/giggal-total-back-office/deploy/docker
 
-#Docker Container Name
-DOCKER_CONTAINER_NAME=giggal-total-back-office-api
+#Docker Container Image Name
+DOCKER_CONTAINER_IMAGE_NAME=giggal-people/total-back-office
+#Docker Container Image Name
+DOCKER_CONTAINER_NAME=giggal-people-total-back-office
 #NGINX Container Name
 DOCKER_CONTAINER_NGINX_NAME=giggal-total-back-office-nginx
 
@@ -70,35 +72,13 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   fi
 
-  showWorkLoading $!
-
   checkContainerStatus
-}
-
-createDockerImage() {
-  showWorkLoading $!
-  echo "[$NOW] [INFO] Jenkins에서 전달된 jar File과 DockerFile을 이용하여 Docker Image를 만듭니다."
-  echo "[$NOW] [INFO] Jenkins에서 전달된 jar File과 DockerFile을 이용하여 Docker Image를 만듭니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  if ! docker build ${DOCKER_DIR};
-    then
-     echo "[$NOW] [ERROR] Docker Image 생성 작업 실패 하였어요."
-     echo "[$NOW] [ERROR] Docker Image 생성 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-     echo "[$NOW] [ERROR] Docker Image 생성 작업 실패로 스크립트를 종료 합니다."
-     echo "[$NOW] [ERROR] Docker Image 생성 작업 실패로 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-     exit 1
-
-   else
-    echo "[$NOW] [INFO] Docker Image 생성 작업 성공 하였어요."
-    echo "[$NOW] [INFO] Docker Image 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  fi
 }
 
 checkContainerStatus() {
   showWorkLoading $!
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요."
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  containerColor=green
   EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-a -f "${DOCKER_DIR}"/docker-compose.blueA.yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-blue-a)
   EXIST_BLUE_B=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-b -f "${DOCKER_DIR}"/docker-compose.blueB.yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-blue-b)
 
@@ -106,6 +86,9 @@ checkContainerStatus() {
   echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   if [ -z "$EXIST_BLUE_A" ] && [ -z "$EXIST_BLUE_B" ];
     then
+      containerColor=green
+      beforeBackupCheckOldContainerStatus "${DOCKER_CONTAINER_NAME}" "${containerColor}"
+
       echo "[$NOW] [INFO] GREEN 컨테이너 기동 작업 시작합니다."
       echo "[$NOW] [INFO] GREEN 컨테이너 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       echo "[$NOW] [INFO] GREEN 컨테이너 A 기동 작업 시작합니다."
@@ -143,16 +126,15 @@ checkContainerStatus() {
     AFTER_COMPOSE_COLOR="blue"
 
   else
-    containerColor=blue
-    removeOldContainerImage "${DOCKER_CONTAINER_NAME}" "${containerColor}"
+    beforeBackupCheckOldContainerStatus "${DOCKER_CONTAINER_NAME}" "${AFTER_COMPOSE_COLOR}"
     echo "[$NOW] [INFO] BLUE 컨테이너 기동 작업 시작합니다."
     echo "[$NOW] [INFO] BLUE 컨테이너 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 시작합니다."
     echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#    docker-compose -p ${DOCKER_CONTAINER_NAME}-green-a -f ${DOCKER_DIR}/docker-compose.greenA.yml up -d
+#    docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-green-a -f ${DOCKER_DIR}/docker-compose.greenA.yml up -d
 
 #    if [ $? != 0 ];
-    if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${containerColor}-a -f "${DOCKER_DIR}"/docker-compose.${containerColor}A.yml up -d;
+    if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-a -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}A.yml up -d;
      then
        echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패 하였어요."
        echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -166,8 +148,7 @@ checkContainerStatus() {
 
    echo "[$NOW] [INFO] BLUE 컨테이너 B 기동 작업 시작합니다."
 
-
-   if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${containerColor}-b -f "${DOCKER_DIR}"/docker-compose.${containerColor}B.yml up -d;
+   if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-b -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}B.yml up -d;
     then
       echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패 하였어요."
       echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -184,9 +165,93 @@ checkContainerStatus() {
   AFTER_COMPOSE_COLOR="green"
 fi
 
-showWorkLoading $!
-
 applicationContainerHealthCheck
+}
+
+beforeBackupCheckOldContainerStatus() {
+  showWorkLoading $!
+
+  checkDockerBackupDirectory
+
+  for (( index=0; index < 2; index++ ));
+  do
+    if [ "${index}" == 0 ];
+    then
+      containerDivision="-a"
+    else
+      containerDivision="-b"
+    fi
+
+    echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업 전 Container 상태 확인 실시합니다."
+    echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업 전 Container 상태 확인 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    local containerName=$1
+    local containerColor=$2
+
+    DOCKER_ID=$(docker ps -a | grep "${containerName}"-"${containerColor}-${containerDivision}" | awk '{print $1}')
+    if [ -z "${DOCKER_ID}" ];
+      then
+        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되지 않아요."
+        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 Backup 작업을 실패하였어요. 스크립트를 종료 합니다."
+        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 Backup 작업을 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
+
+      else
+        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되었어요."
+        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업을 실시합니다."
+        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업을 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        dockerBackup "${containerName}" "${containerColor}" "${containerDivision}"
+      fi
+  done
+}
+
+checkDockerBackupDirectory() {
+  showWorkLoading $!
+
+  DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup"
+
+  if [ -d "$DOCKER_BACKUP_DIR" ];
+  then
+    echo "[$NOW] [INFO] Docker Backup Directory 존재 합니다."
+    echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  else
+      echo "[$NOW] [INFO] Docker Backup Directory 존재 하지 않아 생성 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      if ! mkdir -p $DOCKER_BACKUP_DIR;
+      then
+        echo "[$NOW] [ERROR] Docker Backup Directory 생성 작업 실패 하였어요."
+        echo "[$NOW] [ERROR] Docker Backup Directory 생성 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
+      else
+        echo "[$NOW] [INFO] Docker Backup Directory 생성 작업 성공 하였어요."
+        echo "[$NOW] [INFO] Docker Backup Directory 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      fi
+  fi
+}
+
+dockerBackup() {
+  cd $DOCKER_BACKUP_DIR
+
+  local containerName=$1
+  local containerColor=$2
+  local containerDivision=$3
+
+  DOCKER_BACKUP_COMMAND=$(docker save -o "$NOW"-"${containerName}"-"${containerColor}"-"${containerDivision}".tar "${DOCKER_CONTAINER_IMAGE_NAME}")
+
+  if [ -z "${DOCKER_BACKUP_COMMAND}" ];
+  then
+   echo "[$NOW] [INFO] /data/deploy/giggal-total-back-office/backup Directory 밑에 $NOW-${containerName}-${containerColor}-${containerDivision}.tar File로 Backup 성공 하였어요."
+   echo "[$NOW] [INFO] /data/deploy/giggal-total-back-office/backup Directory 밑에 $NOW-${containerName}-${containerColor}-${containerDivision}.tar File로 Backup 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  else
+    echo "[$NOW] [ERROR] Docker Backup 작업 실패 하였어요. 스크립트를 종료 합니다."
+    echo "[$NOW] [ERROR] Docker Backup 작업 실패 하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    exit 1
+  fi
 }
 
 applicationContainerHealthCheck() {
@@ -347,9 +412,9 @@ shutdownBeforeContainer() {
   showWorkLoading $!
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다."
   echo "[$NOW] [INFO] 이 전 컨테이너 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#  EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down)
+#  EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down)
 
-   if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down;
+   if ! docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-${BEFORE_COMPOSE_COLOR}-a -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"A".yml down;
     then
       echo "[$NOW] [ERROR] ${BEFORE_COMPOSE_COLOR} 컨테이너 A 종료 작업 실패 하였어요."
       echo "[$NOW] [ERROR] ${BEFORE_COMPOSE_COLOR} 컨테이너 A 종료 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -361,9 +426,9 @@ shutdownBeforeContainer() {
       echo "[$NOW] [INFO] ${BEFORE_COMPOSE_COLOR} 컨테이너 A 종료 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   fi
 
-#  EXIST_BLUE_B=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down)
+#  EXIST_BLUE_B=$(docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down)
 
-   if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down;
+   if ! docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-${BEFORE_COMPOSE_COLOR}-b -f ${DOCKER_DIR}/docker-compose.${BEFORE_COMPOSE_COLOR}"B".yml down;
     then
       echo "[$NOW] [ERROR] ${BEFORE_COMPOSE_COLOR} 컨테이너 B 종료 작업 실패 하였어요."
       echo "[$NOW] [ERROR] ${BEFORE_COMPOSE_COLOR} 컨테이너 B 종료 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -391,7 +456,7 @@ shutdownBeforeContainer() {
   echo "[$NOW] [INFO] ${BEFORE_COMPOSE_COLOR} 컨테이너 종료 작업이 끝났어요."
   echo "[$NOW] [INFO] ${BEFORE_COMPOSE_COLOR} 컨테이너 종료 작업이 끝났어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  removeOldContainerImage "${DOCKER_CONTAINER_NAME}" "${BEFORE_COMPOSE_COLOR}"
+  removeOldContainerImage "${DOCKER_CONTAINER_IMAGE_NAME}" "${BEFORE_COMPOSE_COLOR}"
 }
 
 removeOldContainerImage() {
@@ -423,7 +488,6 @@ removeOldContainerImage() {
       fi
   fi
 }
-
 
 # 작업 Loading 처리 함수
 showWorkLoading() {
