@@ -49,10 +49,10 @@ checkLogDirectory() {
         echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-        checkNginxStatus
       fi
   fi
+
+  checkNginxStatus
 }
 
 # NGINX 기동 여부 확인 함수
@@ -495,8 +495,10 @@ showWorkLoading() {
   local delay=5
   local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
 
-  while kill -0 "$pid" 2 > /dev/null; do
-    for frame in "${frames[@]}"; do
+  while kill -0 "$pid" 2 > /dev/null;
+  do
+    for frame in "${frames[@]}";
+    do
       printf "/r[%s] 작업을 처리 중 입니다. 잠시만 기다려 주세요.  " "$frame"
       sleep $delay
     done
@@ -512,8 +514,10 @@ showRetryLoading() {
   local delay=7
   local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
 
-  while kill -0 "$pid" 2 > /dev/null; do
-    for frame in "${frames[@]}"; do
+  while kill -0 "$pid" 2 > /dev/null;
+  do
+    for frame in "${frames[@]}";
+    do
       printf "/r[%s] 연결 작업을 재 시도 중 입니다. 잠시만 기다려 주세요.  " "$frame"
       sleep $delay
     done
