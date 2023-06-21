@@ -8,8 +8,17 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
+echo "[$NOW] [INFO] Jenkins에서 전달된 export 환경 변수를 확인할게요."
+echo "[$NOW] [INFO] INTERNAL_PORT : ${INTERNAL_PORT}"
+echo "[$NOW] [INFO] DOCKER_IMAGE_NAME : ${DOCKER_IMAGE_NAME}"
+echo "[$NOW] [INFO] OPERATION_ENV : ${OPERATION_ENV}"
+echo "[$NOW] [INFO] EXTERNAL_BLUE_A_PORT : ${EXTERNAL_BLUE_A_PORT}"
+echo "[$NOW] [INFO] EXTERNAL_BLUE_B_PORT : ${EXTERNAL_BLUE_B_PORT}"
+echo "[$NOW] [INFO] EXTERNAL_GREEN_A_PORT : ${EXTERNAL_GREEN_A_PORT}"
+echo "[$NOW] [INFO] EXTERNAL_GREEN_B_PORT : ${EXTERNAL_GREEN_B_PORT}"
+
 #Nginx File path
-NGINX_DIR=/data/deploy/nginx
+NGINX_DIR=/data/deploy/giggal-total-back-office/deploy/nginx
 
 DOCKER_DIR=/data/deploy/giggal-total-back-office/deploy/docker
 
@@ -29,10 +38,18 @@ checkLogDirectory() {
 
   if [ -d "$LOG_DIR" ];
   then
-    echo "[$NOW] [INFO] LOG Directory 존재 합니다."
     echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Jenkins에서 전달된 export 환경 변수를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] INTERNAL_PORT : ${INTERNAL_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] DOCKER_IMAGE_NAME : ${DOCKER_IMAGE_NAME}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] OPERATION_ENV : ${OPERATION_ENV}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] EXTERNAL_BLUE_A_PORT : ${EXTERNAL_BLUE_A_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] EXTERNAL_BLUE_B_PORT : ${EXTERNAL_BLUE_B_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] EXTERNAL_GREEN_A_PORT : ${EXTERNAL_GREEN_A_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] EXTERNAL_GREEN_B_PORT : ${EXTERNAL_GREEN_B_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] LOG Directory 존재 합니다."
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   else
@@ -51,40 +68,6 @@ checkLogDirectory() {
         echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       fi
-  fi
-
-  checkNginxStatus
-}
-
-# NGINX 기동 여부 확인 함수
-checkNginxStatus() {
-  sleep 5
-
-  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
-  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
-  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${DOCKER_CONTAINER_NGINX_NAME}\$")
-
-  if [ -z "$EXIST_NGINX" ];
-    then
-      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다."
-      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      NGINX_UP_COMMAND=$(docker-compose -p giggal-total-back-office-nginx -f ${NGINX_DIR}/docker-compose.nginx.yml up -d)
-      if [ -z "$NGINX_UP_COMMAND" ];
-      then
-        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요."
-        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-
-      else
-        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요."
-        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      fi
-
-    else
-      echo "[$NOW] [INFO] NGINX Container 기동 중이에요."
-      echo "[$NOW] [INFO] NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   fi
 
   checkContainerStatus
@@ -510,6 +493,42 @@ removeOldContainerImage() {
           echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       fi
   fi
+
+  checkNginxStatus
+}
+
+# NGINX 기동 여부 확인 함수
+checkNginxStatus() {
+  sleep 5
+
+  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
+  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+#  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
+  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${DOCKER_CONTAINER_NGINX_NAME}\$")
+
+  if [ -z "$EXIST_NGINX" ];
+    then
+      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다."
+      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      NGINX_UP_COMMAND=$(docker-compose -p giggal-total-back-office-nginx -f ${NGINX_DIR}/docker-compose.nginx.yml up -d)
+      if [ -z "$NGINX_UP_COMMAND" ];
+      then
+        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요."
+        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
+
+      else
+        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요."
+        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      fi
+
+    else
+      echo "[$NOW] [INFO] NGINX Container 기동 중이에요."
+      echo "[$NOW] [INFO] NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  fi
+
+  checkContainerStatus
 }
 
 checkLogDirectory
