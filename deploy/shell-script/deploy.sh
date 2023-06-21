@@ -3,6 +3,7 @@
 set -e
 
 NOW=$(date +"%y-%m-%d_%H:%M:%S")
+#CREATE_DATE=$(date +"%Y-%m-%d")
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================"
@@ -18,18 +19,16 @@ echo "[$NOW] [INFO] EXTERNAL_GREEN_A_PORT : ${EXTERNAL_GREEN_A_PORT}"
 echo "[$NOW] [INFO] EXTERNAL_GREEN_B_PORT : ${EXTERNAL_GREEN_B_PORT}"
 
 #Nginx File path
-NGINX_DIR=/data/deploy/giggal-total-back-office/deploy/nginx
+NGINX_DIR="/data/deploy/giggal-total-back-office/deploy/nginx"
 
-DOCKER_DIR=/data/deploy/giggal-total-back-office/deploy/docker
+DOCKER_DIR="/data/deploy/giggal-total-back-office/deploy/docker"
 
 #Docker Container Image Name
-DOCKER_CONTAINER_IMAGE_NAME=giggal-people/total-back-office
-#Docker Container Image Name
-DOCKER_CONTAINER_NAME=giggal-people-total-back-office
+DOCKER_CONTAINER_IMAGE_NAME="giggal-people/total-back-office"
 #NGINX Container Name
-DOCKER_CONTAINER_NGINX_NAME=giggal-total-back-office-nginx
+DOCKER_CONTAINER_NGINX_NAME="giggal-total-back-office-nginx"
 
-APPLICATION_BASE_DIR=/data/deploy/giggal-total-back-office
+APPLICATION_BASE_DIR="/data/deploy/giggal-total-back-office"
 
 checkLogDirectory() {
   sleep 5
@@ -53,21 +52,8 @@ checkLogDirectory() {
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   else
-      echo "[$NOW] [INFO] LOG Directory 존재 하지 않아 생성 합니다."
-
-#      mkdir -p $LOG_DIR
-
-      if ! mkdir -p $LOG_DIR;
-      then
-        echo "[$NOW] [ERROR] LOG Directory 생성 작업 실패 하였어요."
-        exit 1
-      else
-        echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요."
-        echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [INFO] LOG Directory 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      fi
+      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${LOG_DIR} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      exit 1
   fi
 
   checkContainerStatus

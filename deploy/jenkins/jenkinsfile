@@ -263,16 +263,16 @@ pipeline {
                                                             sourceFiles: "deploy/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
                                                     ),
-                                                    sshTransfer(
-                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
-                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
-                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
-                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
-                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
-                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
-                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-                                                    )
+//                                                    sshTransfer(
+//                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
+//                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
+//                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
+//                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
+//                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
+//                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
+//                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
+//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+//                                                    )
                                             ]
                                     )
                             ]
@@ -289,17 +289,17 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버에 File 전달')
+                        sendSuccessAlarmToDiscord('Application 서버에 File 전달 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('Application 서버에 File 전달')
+                    sendFailedAlarmToDiscord('Application 서버에 File 전달 작업')
                 }
             } // Discord Send Post 끝
         } // stage('Application 서버에 File 전달') 끝
 
-        stage('Application 서버 배포 작업') {
+        stage('Docker Image 생성 및 Backup 작업') {
             steps([$class: "BapSshPromotionPublisherPlugin"]) {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
@@ -310,7 +310,10 @@ pipeline {
                                     verbose: true,
                                     transfers: [
                                             sshTransfer(
-                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
+                                            ),
+                                            sshTransfer(
+                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
                                             )
                                     ]
                             )
@@ -320,19 +323,19 @@ pipeline {
                     def requiredTimeMillis = endTimeMillis - startTimeMillis
                     def requiredTimeSecond = requiredTimeMillis / 1000
 
-                    echo 'Application 서버 배포 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                    echo 'Docker Image 생성 및 Backup 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버 배포 작업')
+                        sendSuccessAlarmToDiscord('Docker Image 생성 및 Backup 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('Application 서버 배포 작업')
+                    sendFailedAlarmToDiscord('Docker Image 생성 및 Backup 작업')
                 }
             } // Discord Send Post 끝
         } // stage("Application 서버 배포 작업") 끝
