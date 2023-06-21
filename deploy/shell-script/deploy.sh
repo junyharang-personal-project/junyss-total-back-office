@@ -495,7 +495,7 @@ showWorkLoading() {
   local delay=5
   local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
 
-  while kill -0 "$pid" 2 > /dev/null;
+  while ps -p "$pid" 2 > /dev/null;
   do
     for frame in "${frames[@]}";
     do
@@ -514,7 +514,7 @@ showRetryLoading() {
   local delay=7
   local frames=("▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" "▇" "▆" "▅" "▄" "▃" "▂")
 
-  while kill -0 "$pid" 2 > /dev/null;
+  while ps -p "$pid" 2 > /dev/null;
   do
     for frame in "${frames[@]}";
     do
