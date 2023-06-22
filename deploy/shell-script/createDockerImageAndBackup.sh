@@ -15,7 +15,7 @@ NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-
 APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/docker"
 
 #Nginx Docker File 경로
-NGINX_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/conf.d/prod"
+NGINX_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod"
 
 APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup/application"
 
@@ -199,7 +199,7 @@ nginxDockerImageBackUp() {
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요."
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker save -o "$NOW"-giggal-nginx-green-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME-green";
+  if ! docker save -o "$NOW"-giggal-nginx-green-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-green;
   then
     echo "[$NOW] [ERROR] Green Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
     exit 1
@@ -212,7 +212,7 @@ nginxDockerImageBackUp() {
   echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요."
   echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker save -o "$NOW"-giggal-nginx-blue-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue";
+  if ! docker save -o "$NOW"-giggal-nginx-blue-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-blue;
   then
     echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
