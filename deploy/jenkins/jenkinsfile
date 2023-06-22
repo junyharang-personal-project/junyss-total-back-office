@@ -252,17 +252,15 @@ pipeline {
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/",
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
-                                                            execCommand: "rm -rf *;"
-                                                    ),
+                                                            execCommand: "rm -rf *;"),
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/docker/",
-                                                            sourceFiles: "build/libs/*.jar",
-                                                    ),
+                                                            sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh && chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
-                                                    ),
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
 //                                                    sshTransfer(
 //                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
 //                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
@@ -271,8 +269,7 @@ pipeline {
 //                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
 //                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
 //                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
-//                                                    )
+//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh")
                                             ]
                                     )
                             ]
@@ -310,8 +307,7 @@ pipeline {
                                     verbose: true,
                                     transfers: [
 //                                            sshTransfer(
-//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
-//                                            ),
+//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
 sshTransfer(
         execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
 )

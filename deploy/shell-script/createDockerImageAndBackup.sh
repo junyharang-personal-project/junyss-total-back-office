@@ -47,14 +47,20 @@ checkLogDirectory() {
 
 unknownNameImageDelete() {
   sleep 5
-  echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if ! docker rmi "$(docker images -f "dangling=true" -q)";
+  if ! docker images | grep "^<none>";
   then
-    echo "[$NOW] [ERROR] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   else
-    echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    if ! docker rmi $(docker images -f "dangling=true" -q);
+    then
+      echo "[$NOW] [ERROR] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    else
+      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    fi
   fi
 
   createdApplicationDockerImage
@@ -91,7 +97,7 @@ applicationDockerImageBackUp() {
   checkBackupDirectory "$APPLICATION_DOCKER_BACKUP_DIR"
   cd $APPLICATION_DOCKER_BACKUP_DIR
 
-  if ! docker save -o "$NOW"-giggal-total-back-office.tar "$DOCKER_IMAGE_NAME";
+  if ! docker save -o "$NOW"-giggal-total-back-office.tar "$APPLICATION_DOCKER_CONTAINER_IMAGE_NAME";
   then
     echo "[$NOW] [ERROR] Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     exit 1
