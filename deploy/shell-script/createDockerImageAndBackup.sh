@@ -42,6 +42,21 @@ checkLogDirectory() {
       exit 1
   fi
 
+  unknownNameImageDelete
+}
+
+unknownNameImageDelete() {
+  sleep 5
+  echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  if ! docker rmi "$(docker images -f "dangling=true" -q)";
+  then
+    echo "[$NOW] [ERROR] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  else
+    echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  fi
+
   createdApplicationDockerImage
 }
 
