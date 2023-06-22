@@ -52,20 +52,15 @@ unknownNameImageDelete() {
   sleep 5
   echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image 삭제 작업 시작할게요."
   echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  DOCKER_IMAGES_LIST=$(docker images)
-
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} "
-  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+  checkDockerImage
 
   if ! docker images | grep "^<none>";
   then
     echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요."
     echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+    checkDockerImage
 
   else
     if ! docker rmi $(docker images -f "dangling=true" -q);
@@ -76,10 +71,21 @@ unknownNameImageDelete() {
     else
       echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요."
       echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+      checkDockerImage
     fi
   fi
 
   createdApplicationDockerImage
+}
+
+checkDockerImage() {
+  DOCKER_IMAGES_LIST=$(docker images)
+
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} "
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 }
 
 createdApplicationDockerImage() {
@@ -144,7 +150,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
+  if ! docker build -f prod-green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
   then
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -167,7 +173,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
+  if ! docker build -f prod-blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
   then
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
