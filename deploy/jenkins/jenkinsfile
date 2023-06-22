@@ -261,7 +261,7 @@ pipeline {
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh"
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh && chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
                                                     ),
 //                                                    sshTransfer(
 //                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
@@ -309,12 +309,12 @@ pipeline {
                                     configName: "op-management-api",
                                     verbose: true,
                                     transfers: [
-                                            sshTransfer(
-                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
-                                            ),
-                                            sshTransfer(
-                                                    execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
-                                            )
+//                                            sshTransfer(
+//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
+//                                            ),
+sshTransfer(
+        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
+)
                                     ]
                             )
                     )

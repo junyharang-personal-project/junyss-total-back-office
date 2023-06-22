@@ -9,5 +9,5 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - /data/docker-management/volume-mapping/giggal-total-back-office/nginx:/etc/nginx/nginx.conf
+      - /data/docker-management/volume-mapping/giggal-total-back-office/nginx:/etc/nginx/nginx.blue.conf
     container_name: giggal-total-back-office-nginx
