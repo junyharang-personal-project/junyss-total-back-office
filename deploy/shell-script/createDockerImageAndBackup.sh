@@ -35,7 +35,7 @@ checkLogDirectory() {
   if [ -d "$LOG_DIR" ];
   then
     echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 도커 이미지 생성 및 도커 백업 작업이 시작 되었어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    echo "======================================[$NOW] 통합 백 오피스 도커 이미지 생성 및 도커 백업======================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "======================================[$NOW] 통합 백 오피스 도커 이미지 생성 및 도커 백업======================================" >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
     echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
     echo "[$NOW] [INFO] LOG Directory 존재 합니다."
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
