@@ -150,7 +150,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -f prod-green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
+  if ! docker build -f $NGINX_DOCKER_GREEN_FILE_PATH/prod-green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
   then
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -173,7 +173,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -f prod-blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
+  if ! docker build -f $NGINX_DOCKER_GREEN_FILE_PATH/prod-blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
   then
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
