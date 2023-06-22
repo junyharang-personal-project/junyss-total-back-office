@@ -15,7 +15,9 @@ NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-
 APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/docker"
 
 #Nginx Docker File 경로
-NGINX_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod"
+NGINX_DOCKER_GREEN_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod/green"
+
+NGINX_DOCKER_BLUE_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod/blue"
 
 APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup/application"
 
@@ -142,7 +144,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_FILE_PATH/prod-green-nginx.Dockerfile;
+  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
   then
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -150,7 +152,7 @@ createdNginxDockerImage() {
 
   else
 
-    if ! docker images | grep "$NGINX_DOCKER_CONTAINER_IMAGE_NAME-green";
+    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green;
     then
       echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
       echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -165,7 +167,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_FILE_PATH/prod-blue-nginx.Dockerfile;
+  if ! docker build -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
   then
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -173,7 +175,7 @@ createdNginxDockerImage() {
 
   else
 
-    if ! docker images | grep "$NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue";
+    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue;
     then
       echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
       echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
