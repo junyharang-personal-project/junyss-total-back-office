@@ -114,6 +114,8 @@ applicationDockerImageBackUp() {
 
   else
     echo "[$NOW] [INFO] Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+    createdNginxDockerImage
   fi
 }
 
@@ -194,6 +196,8 @@ nginxDockerImageBackUp() {
 checkBackupDirectory() {
   sleep 5
   local backupDirectoryPath=$1
+
+  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
   if [ -d "$backupDirectoryPath" ];
   then

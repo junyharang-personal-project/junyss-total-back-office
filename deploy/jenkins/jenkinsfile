@@ -239,11 +239,13 @@ pipeline {
                 branch pattern: "(master|develop)", comparator: "REGEXP"
             }
 
-            steps([$class: "BapSshPromotionPublisherPlugin"]) {
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
 
                     sshPublisher(
+                            continueOnError: false, failOnError: true,
+
                             publishers: [
                                     sshPublisherDesc(
                                             configName: "op-management-api",
@@ -297,22 +299,24 @@ pipeline {
         } // stage('Application 서버에 File 전달') 끝
 
         stage('Docker Image 생성 및 Backup 작업') {
-            steps([$class: "BapSshPromotionPublisherPlugin"]) {
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
 
                     sshPublisher(
-                            sshPublisherDesc(
-                                    configName: "op-management-api",
-                                    verbose: true,
-                                    transfers: [
+                            continueOnError: false, failOnError: true,
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-management-api",
+                                            verbose: true,
+                                            transfers: [
 //                                            sshTransfer(
 //                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
 sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"
-)
-                                    ]
-                            )
+        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh")
+                                            ]
+                                    )
+                            ]
                     )
 
                     def endTimeMillis = System.currentTimeMillis()
