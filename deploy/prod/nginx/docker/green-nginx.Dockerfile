@@ -2,7 +2,7 @@
 FROM nginx:latest
 
 # 실제 Docker 기동 서버의 Build 된 뒤 만들어진 설정 file 위치 지정
-ARG CONFIG_FILE=../conf.d/nginx.green.conf
+ARG CONFIG_FILE=./conf.d/nginx.green.conf
 
 # 컨테이너 안의 /app 디렉터리를 활용 디렉터리(Work Dircetory)로 설정
 WORKDIR /etc/nginx
