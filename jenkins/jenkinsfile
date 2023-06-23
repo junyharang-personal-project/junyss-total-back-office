@@ -253,11 +253,11 @@ pipeline {
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/dev/",
+                                                            remoteDirectory: "deploy/",
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/dev/docker/",
+                                                            remoteDirectory: "deploy/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
@@ -318,11 +318,11 @@ pipeline {
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/prod/",
+                                                            remoteDirectory: "deploy/",
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
-                                                            execCommand: "rm -rf *;"),
+                                                            execCommand: "cd ../; rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/prod/docker/",
+                                                            remoteDirectory: "deploy/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
