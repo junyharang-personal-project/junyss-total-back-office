@@ -320,7 +320,7 @@ pipeline {
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/",
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
-                                                            execCommand: "cd ../; rm -rf *;"),
+                                                            execCommand: "cd /data/deploy/giggal-total-back-office; rm -rf *;"),
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
