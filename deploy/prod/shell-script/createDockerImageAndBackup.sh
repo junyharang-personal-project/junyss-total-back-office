@@ -12,16 +12,16 @@ APPLICATION_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/giggal-total-back-office-
 NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api"
 
 #Application Docker File 경로
-APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/docker"
+APPLICATION_DOCKER_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/docker"
 
 #Nginx Docker File 경로
-NGINX_DOCKER_GREEN_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod/green"
+NGINX_DOCKER_GREEN_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/nginx/docker/prod/green"
 
-NGINX_DOCKER_BLUE_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/nginx/docker/prod/blue"
+NGINX_DOCKER_BLUE_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/nginx/docker/prod/blue"
 
-APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup/application"
+APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/prod/giggal-total-back-office/backup/application"
 
-NGINX_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup/nginx"
+NGINX_DOCKER_BACKUP_DIR="/data/deploy/prod/giggal-total-back-office/backup/nginx"
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 도커 이미지 생성 및 도커 백업 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 도커 이미지 생성 및 도커 백업======================================"

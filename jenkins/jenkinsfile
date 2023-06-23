@@ -234,9 +234,10 @@ pipeline {
             } // Discord Send Post 끝
         } // stage(SONARQUBE_QUALITY_GATE) 끝
 
-        stage('Application 서버에 File 전달') {
+        stage('개발 환경 Application 서버에 File 전달') {
             when {
-                branch pattern: "(master|develop)", comparator: "REGEXP"
+                expression { env.GIT_BRANCH == 'develop' }
+//                branch pattern: "(develop)", comparator: "REGEXP"
             }
 
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
@@ -252,17 +253,17 @@ pipeline {
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/",
+                                                            remoteDirectory: "deploy/dev/",
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/docker/",
+                                                            remoteDirectory: "deploy/dev/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
-                                                            sourceFiles: "deploy/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
+                                                            sourceFiles: "deploy/dev/**",
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/deploy.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh"),
 //                                                    sshTransfer(
 //                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
 //                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
@@ -288,12 +289,77 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Application 서버에 File 전달 작업')
+                        sendSuccessAlarmToDiscord('개발 환경 Application 서버에 File 전달')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('Application 서버에 File 전달 작업')
+                    sendFailedAlarmToDiscord('개발 환경 Application 서버에 File 전달')
+                }
+            } // Discord Send Post 끝
+        } // stage('Application 서버에 File 전달') 끝
+
+        stage('운영 환경 Application 서버에 File 전달') {
+            when {
+                expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
+//                branch pattern: "(master|main)", comparator: "REGEXP"
+            }
+
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
+                script {
+                    def startTimeMillis = System.currentTimeMillis()
+
+                    sshPublisher(
+                            continueOnError: false, failOnError: true,
+
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-management-api",
+                                            verbose: true,
+                                            transfers: [
+                                                    sshTransfer(
+                                                            remoteDirectory: "deploy/prod/",
+//                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
+                                                            execCommand: "rm -rf *;"),
+                                                    sshTransfer(
+                                                            remoteDirectory: "deploy/prod/docker/",
+                                                            sourceFiles: "build/libs/*.jar"),
+                                                    sshTransfer(
+//                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
+                                                            sourceFiles: "deploy/prod/**",
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/deploy.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh"),
+//                                                    sshTransfer(
+//                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
+//                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
+//                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
+//                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
+//                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
+//                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
+//                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
+//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh")
+                                            ]
+                                    )
+                            ]
+                    )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo 'Application 서버에 File 전달 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                }
+            }
+
+            post {
+                success {
+                    script {
+                        sendSuccessAlarmToDiscord('운영 환경 Application 서버에 File 전달')
+                    }
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('운영 환경 Application 서버에 File 전달')
                 }
             } // Discord Send Post 끝
         } // stage('Application 서버에 File 전달') 끝
