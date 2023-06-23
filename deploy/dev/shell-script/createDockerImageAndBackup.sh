@@ -12,16 +12,14 @@ APPLICATION_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/giggal-total-back-office-
 NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api"
 
 #Application Docker File 경로
-APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/docker"
+APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/dev/docker"
 
 #Nginx Docker File 경로
-NGINX_DOCKER_GREEN_FILE_PATH="/data/deploy/dev/giggal-total-back-office/deploy/nginx/docker/prod/green"
+NGINX_DOCKER_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/dev/nginx/docker/"
 
-NGINX_DOCKER_BLUE_FILE_PATH="/data/deploy/dev/giggal-total-back-office/deploy/nginx/docker/prod/blue"
+APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/dev/backup/application"
 
-APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/dev/giggal-total-back-office/backup/application"
-
-NGINX_DOCKER_BACKUP_DIR="/data/deploy/dev/giggal-total-back-office/backup/nginx"
+NGINX_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/dev/backup/nginx"
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 도커 이미지 생성 및 도커 백업 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 도커 이미지 생성 및 도커 백업======================================"
@@ -150,7 +148,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -f $NGINX_DOCKER_GREEN_FILE_PATH/prod-green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_GREEN_FILE_PATH;
+  if ! docker build -f $NGINX_DOCKER_FILE_PATH/green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_FILE_PATH;
   then
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -173,7 +171,7 @@ createdNginxDockerImage() {
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -f $NGINX_DOCKER_GREEN_FILE_PATH/prod-blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_BLUE_FILE_PATH;
+  if ! docker build -f $NGINX_DOCKER_FILE_PATH/blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_FILE_PATH;
   then
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
     echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
