@@ -144,7 +144,7 @@ pipeline {
                 }
 
                 failure {
-                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업', env.DRIVE_ENV)
+                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업')
                 }
             } // Discord Send Post 끝
         } // stage('Project Build 작업') 끝
@@ -299,6 +299,52 @@ pipeline {
             } // Discord Send Post 끝
         } // stage('Application 서버에 File 전달') 끝
 
+        stage('개발 환경 Docker Image 생성 및 Backup 작업') {
+            when {
+                expression { env.GIT_BRANCH == 'develop' }
+//                branch pattern: "(develop)", comparator: "REGEXP"
+            }
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
+                script {
+                    def startTimeMillis = System.currentTimeMillis()
+
+                    sshPublisher(
+                            continueOnError: false, failOnError: true,
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-management-api",
+                                            verbose: true,
+                                            transfers: [
+//                                            sshTransfer(
+//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
+sshTransfer(
+        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh")
+                                            ]
+                                    )
+                            ]
+                    )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo 'Docker Image 생성 및 Backup 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                }
+            }
+
+            post {
+                success {
+                    script {
+                        sendSuccessAlarmToDiscord('개발 환경 Docker Image 생성 및 Backup 작업')
+                    }
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('개발 환경 Docker Image 생성 및 Backup 작업')
+                }
+            } // Discord Send Post 끝
+        } // stage("운영 환경 Application 서버 배포 작업") 끝
+
         stage('운영 환경 Application 서버에 File 전달') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
@@ -322,7 +368,7 @@ pipeline {
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/docker/",
+                                                            remoteDirectory: "deploy/prod/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
@@ -364,7 +410,11 @@ pipeline {
             } // Discord Send Post 끝
         } // stage('Application 서버에 File 전달') 끝
 
-        stage('Docker Image 생성 및 Backup 작업') {
+        stage('운영 환경 Docker Image 생성 및 Backup 작업') {
+            when {
+                expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
+//                branch pattern: "(master|main)", comparator: "REGEXP"
+            }
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
@@ -379,7 +429,7 @@ pipeline {
 //                                            sshTransfer(
 //                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
 sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh")
+        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh")
                                             ]
                                     )
                             ]
@@ -396,15 +446,15 @@ sshTransfer(
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('Docker Image 생성 및 Backup 작업')
+                        sendSuccessAlarmToDiscord('운영 환경 Docker Image 생성 및 Backup 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('Docker Image 생성 및 Backup 작업')
+                    sendFailedAlarmToDiscord('운영 환경 Docker Image 생성 및 Backup 작업')
                 }
             } // Discord Send Post 끝
-        } // stage("Application 서버 배포 작업") 끝
+        } // stage("운영 환경 Application 서버 배포 작업") 끝
 
         stage('Jenkins CI/CD 작업 완료') {
             steps {
