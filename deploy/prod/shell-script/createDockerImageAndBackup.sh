@@ -12,10 +12,10 @@ APPLICATION_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/giggal-total-back-office-
 NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api"
 
 #Application Docker File 경로
-APPLICATION_DOCKER_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/prod/docker"
+APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/docker"
 
 #Nginx Docker File 경로
-NGINX_DOCKER_FILE_PATH="/data/deploy/prod/giggal-total-back-office/deploy/prod/nginx/docker/"
+NGINX_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/"
 
 APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/prod/backup/application"
 
