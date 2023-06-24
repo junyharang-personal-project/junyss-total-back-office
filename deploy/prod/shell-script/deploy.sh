@@ -5,21 +5,17 @@ set -e
 NOW=$(date +"%y-%m-%d_%H:%M:%S")
 #CREATE_DATE=$(date +"%Y-%m-%d")
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요."
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Docker Container 기동 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-echo "[$NOW] [INFO] Jenkins에서 전달된 export 환경 변수를 확인할게요."
-echo "[$NOW] [INFO] INTERNAL_PORT : ${INTERNAL_PORT}"
-echo "[$NOW] [INFO] DOCKER_IMAGE_NAME : ${DOCKER_IMAGE_NAME}"
-echo "[$NOW] [INFO] OPERATION_ENV : ${OPERATION_ENV}"
-echo "[$NOW] [INFO] EXTERNAL_BLUE_A_PORT : ${EXTERNAL_BLUE_A_PORT}"
-echo "[$NOW] [INFO] EXTERNAL_BLUE_B_PORT : ${EXTERNAL_BLUE_B_PORT}"
-echo "[$NOW] [INFO] EXTERNAL_GREEN_A_PORT : ${EXTERNAL_GREEN_A_PORT}"
-echo "[$NOW] [INFO] EXTERNAL_GREEN_B_PORT : ${EXTERNAL_GREEN_B_PORT}"
+SERVER_IP=192.168.20.12
 
 #Nginx File path
 NGINX_DIR="/data/deploy/giggal-total-back-office/deploy/nginx"
+NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/nginx/docker/conf.d"
+
+NGINX_CONTAINER_CONFIG_DIR="/etc/nginx"
 
 DOCKER_DIR="/data/deploy/giggal-total-back-office/deploy/docker"
 
@@ -30,6 +26,29 @@ DOCKER_CONTAINER_NGINX_NAME="giggal-total-back-office-nginx"
 
 APPLICATION_BASE_DIR="/data/deploy/giggal-total-back-office"
 
+APPLICATION_DOCKER_IMAGE_NAME="giggal-people/giggal-total-back-office-api"
+
+APPLICATION_CONTAINER_NAME="giggal-people/giggal-total-back-office"
+
+APPLICATION_BLUE_A_CONTAINER_NAME="total-back-office-api-blue-a"
+APPLICATION_BLUE_B_CONTAINER_NAME="total-back-office-api-blue-b"
+APPLICATION_GREEN_A_CONTAINER_NAME="total-back-office-api-green-b"
+APPLICATION_GREEN_B_CONTAINER_NAME="total-back-office-api-green-b"
+
+APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
+APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
+APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
+APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
+
+NGINX_DOCKER_BLUE_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
+NGINX_DOCKER_GREEN_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-green"
+
+NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
+NGINX_GREEN_CONTAINER_NAME="nginx-total-back-office-green"
+
+NGINX_BLUE_EXTERNAL_PORT_NUMBER=1000
+NGINX_GREEN_EXTERNAL_PORT_NUMBER=1010
+
 checkLogDirectory() {
   sleep 5
 
@@ -37,17 +56,9 @@ checkLogDirectory() {
 
   if [ -d "$LOG_DIR" ];
   then
-    echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Docker Container 기동 작업이 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] Jenkins에서 전달된 export 환경 변수를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] INTERNAL_PORT : ${INTERNAL_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] DOCKER_IMAGE_NAME : ${DOCKER_IMAGE_NAME}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] OPERATION_ENV : ${OPERATION_ENV}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] EXTERNAL_BLUE_A_PORT : ${EXTERNAL_BLUE_A_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] EXTERNAL_BLUE_B_PORT : ${EXTERNAL_BLUE_B_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] EXTERNAL_GREEN_A_PORT : ${EXTERNAL_GREEN_A_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] EXTERNAL_GREEN_B_PORT : ${EXTERNAL_GREEN_B_PORT}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] LOG Directory 존재 합니다."
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
@@ -64,338 +75,424 @@ checkContainerStatus() {
 
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요."
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  EXIST_BLUE_A=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-a -f "${DOCKER_DIR}"/docker-compose.blueA.yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-blue-a)
-  EXIST_BLUE_B=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-b -f "${DOCKER_DIR}"/docker-compose.blueB.yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-blue-b)
+  APPLICATION_BLUE_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME | grep running)
+  APPLICATION_BLUE_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME | grep running)
 
   echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다."
   echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  if [ -z "$EXIST_BLUE_A" ] && [ -z "$EXIST_BLUE_B" ];
+
+  if [ "$APPLICATION_BLUE_A_STATUS" != "running" ] || [ "$APPLICATION_BLUE_B_STATUS" != "running" ];
+  then
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    if [ "$APPLICATION_BLUE_A_STATUS" != "running" ];
     then
-      containerColor=green
-      beforeBackupCheckOldContainerStatus "${DOCKER_CONTAINER_NAME}" "${containerColor}"
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      echo "[$NOW] [INFO] GREEN 컨테이너 기동 작업 시작합니다."
-      echo "[$NOW] [INFO] GREEN 컨테이너 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [INFO] GREEN 컨테이너 A 기동 작업 시작합니다."
-      echo "[$NOW] [INFO] GREEN 컨테이너 A 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
+    elif [ "$APPLICATION_BLUE_B_STATUS" != "running" ];
+    then
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${containerColor}-a -f "${DOCKER_DIR}"/docker-compose.${containerColor}A.yml up -d;
-       then
-         echo "[$NOW] [ERROR] GREEN 컨테이너 A 기동 작업 실패 하였어요."
-         echo "[$NOW] [ERROR] GREEN 컨테이너 A 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-         echo "[$NOW] [ERROR] GREEN 컨테이너 A 기동 작업 실패로 스크립트를 종료 합니다."
-         echo "[$NOW] [ERROR] GREEN 컨테이너 A 기동 작업 실패로 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-         exit 1
-       else
-         echo "[$NOW] [INFO] GREEN 컨테이너 A 기동 작업 성공 하였어요."
-         echo "[$NOW] [INFO] GREEN 컨테이너 A 기동 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-     fi
+      applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
 
-     echo "[$NOW] GREEN 컨테이너 B 기동 작업 시작합니다."
-     echo "[$NOW] GREEN 컨테이너 B 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    else
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-     if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-blue-b -f "${DOCKER_DIR}"/docker-compose.blueB.yml up -d;
-      then
-        echo "[$NOW] [ERROR] GREEN 컨테이너 B 기동 작업 실패 하였어요."
-        echo "[$NOW] [ERROR] GREEN 컨테이너 B 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] GREEN 컨테이너 B 기동 작업 실패로 스크립트를 종료 합니다."
-        echo "[$NOW] [ERROR] GREEN 컨테이너 B 기동 작업 실패로 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-      else
-        echo "[$NOW] [INFO] GREEN 컨테이너 B 기동 작업 성공 하였어요."
-        echo "[$NOW] [INFO] GREEN 컨테이너 B 기동 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
+      applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
     fi
 
-    IDLE_PORT=8090
-    BEFORE_COMPOSE_COLOR="green"
-    AFTER_COMPOSE_COLOR="blue"
-
   else
-    beforeBackupCheckOldContainerStatus "${DOCKER_CONTAINER_NAME}" "${AFTER_COMPOSE_COLOR}"
-    echo "[$NOW] [INFO] BLUE 컨테이너 기동 작업 시작합니다."
-    echo "[$NOW] [INFO] BLUE 컨테이너 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 시작합니다."
-    echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#    docker-compose -p ${DOCKER_CONTAINER_IMAGE_NAME}-green-a -f ${DOCKER_DIR}/docker-compose.greenA.yml up -d
+    APPLICATION_GREEN_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME | grep running)
+    APPLICATION_GREEN_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME | grep running)
 
-#    if [ $? != 0 ];
-    if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-a -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}A.yml up -d;
-     then
-       echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패 하였어요."
-       echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-       echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패로 스크립트를 종료 합니다."
-       echo "[$NOW] [ERROR] BLUE 컨테이너 A 기동 작업 실패로 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-       exit 1
-     else
-       echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 성공 하였어요."
-       echo "[$NOW] [INFO] BLUE 컨테이너 A 기동 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-   fi
+   if [ "$APPLICATION_GREEN_A_STATUS" != "running" ] || [ "$APPLICATION_GREEN_B_STATUS"  != "running" ];
+   then
+    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-   echo "[$NOW] [INFO] BLUE 컨테이너 B 기동 작업 시작합니다."
-
-   if ! docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-b -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}B.yml up -d;
+    if [ "$APPLICATION_GREEN_A_STATUS" != "running" ];
     then
-      echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패 하였어요."
-      echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패로 스크립트를 종료 합니다."
-      echo "[$NOW] [ERROR] BLUE 컨테이너 B 기동 작업 실패로 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      exit 1
-    else
-      echo "[$NOW] [INFO] BLUE 컨테이너 B 기동 작업 성공 하였어요."
-      echo "[$NOW] [INFO] BLUE 컨테이너 B 기동 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  fi
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  IDLE_PORT=8080
-  BEFORE_COMPOSE_COLOR="blue"
-  AFTER_COMPOSE_COLOR="green"
-fi
+      applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
+
+    elif [ "$APPLICATION_GREEN_B_STATUS" != "running" ];
+    then
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
+
+    else
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
+      applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
+     fi
+    fi
+  fi
 
 applicationContainerHealthCheck
 }
 
-beforeBackupCheckOldContainerStatus() {
+applicationDockerContainerRun() {
   sleep 5
-
-  checkDockerBackupDirectory
-
-  for (( index=0; index < 2; index++ ));
-  do
-    if [ "${index}" == 0 ];
-    then
-      containerDivision="-a"
-    else
-      containerDivision="-b"
-    fi
-
-    echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업 전 Container 상태 확인 실시합니다."
-    echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업 전 Container 상태 확인 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    local containerName=$1
-    local containerColor=$2
-
-    DOCKER_ID=$(docker ps -a | grep "${containerName}"-"${containerColor}-${containerDivision}" | awk '{print $1}')
-    if [ -z "${DOCKER_ID}" ];
-      then
-        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되지 않아요."
-        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 Backup 작업을 실패하였어요. 스크립트를 종료 합니다."
-        echo "[$NOW] [WARN] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 Backup 작업을 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-
-      else
-        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되었어요."
-        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container ${containerName}-${containerColor}-${containerDivision}의 기동 상태가 확인되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업을 실시합니다."
-        echo "[$NOW] [INFO] 이 전에 기동 중이였던 Application Container Backup 작업을 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-        dockerBackup "${containerName}" "${containerColor}" "${containerDivision}"
-      fi
-  done
-}
-
-checkDockerBackupDirectory() {
-  sleep 5
-
-  DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/backup"
-
-  if [ -d "$DOCKER_BACKUP_DIR" ];
-  then
-    echo "[$NOW] [INFO] Docker Backup Directory 존재 합니다."
-    echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  else
-      echo "[$NOW] [INFO] Docker Backup Directory 존재 하지 않아 생성 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      if ! mkdir -p $DOCKER_BACKUP_DIR;
-      then
-        echo "[$NOW] [ERROR] Docker Backup Directory 생성 작업 실패 하였어요."
-        echo "[$NOW] [ERROR] Docker Backup Directory 생성 작업 실패 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-      else
-        echo "[$NOW] [INFO] Docker Backup Directory 생성 작업 성공 하였어요."
-        echo "[$NOW] [INFO] Docker Backup Directory 생성 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      fi
-  fi
-}
-
-dockerBackup() {
-  sleep 5
-
-  cd $DOCKER_BACKUP_DIR
-
   local containerName=$1
-  local containerColor=$2
-  local containerDivision=$3
 
-  DOCKER_BACKUP_COMMAND=$(docker save -o "$NOW"-"${containerName}"-"${containerColor}"-"${containerDivision}".tar "${DOCKER_CONTAINER_IMAGE_NAME}")
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if [ -z "${DOCKER_BACKUP_COMMAND}" ];
+  if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
   then
-   echo "[$NOW] [INFO] /data/deploy/giggal-total-back-office/backup Directory 밑에 $NOW-${containerName}-${containerColor}-${containerDivision}.tar File로 Backup 성공 하였어요."
-   echo "[$NOW] [INFO] /data/deploy/giggal-total-back-office/backup Directory 밑에 $NOW-${containerName}-${containerColor}-${containerDivision}.tar File로 Backup 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    variableName="giggal-total-back-office-api-blue-a"
+    portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+
+  elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
+  then
+    variableName="giggal-total-back-office-api-blue-b"
+    portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+
+  elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
+  then
+    variableName="giggal-total-back-office-api-green-a"
+    portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
 
   else
-    echo "[$NOW] [ERROR] Docker Backup 작업 실패 하였어요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] Docker Backup 작업 실패 하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    exit 1
+    variableName="giggal-total-back-office-api-green-b"
+    portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
+  fi
+
+  dockerRunCommand=$(docker run -itd --privilieged \
+                    --name $variableName \
+                    --hostname $variableName \
+                    -e container=docker \
+                    -p $portNumber:8080 \
+                    -v /sysfs/cgroup:/sys/fs/cgroup:ro \
+                    -v /tmp/$(mktemp -d):/run \
+                    --restart unless-stopped \
+                    $APPLICATION_DOCKER_IMAGE_NAME \
+                    /usr/sbin/init)
+
+  if ! $dockerRunCommand;
+  then
+    failedCommand "${dockerRunCommand}"
+  else
+    successCommand "${dockerRunCommand}"
   fi
 }
 
 applicationContainerHealthCheck() {
   sleep 5
 
-  checkServerEnvironment
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  CONTAINER_A_STATUS=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-a -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}"A".yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-a)
-  CONTAINER_B_STATUS=$(docker-compose -p ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-b -f "${DOCKER_DIR}"/docker-compose.${AFTER_COMPOSE_COLOR}"B".yml ps --status=running | grep ${DOCKER_CONTAINER_NAME}-${AFTER_COMPOSE_COLOR}-b)
+  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME | grep running)
+  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME | grep running)
+  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME | grep running)
+  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME | grep running)
 
-  if [ -n "$CONTAINER_A_STATUS" ] && [ -n "$CONTAINER_B_STATUS" ];
+  if [ "$BLUE_CONTAINER_A_STATUS" == "running" ] && [ "$BLUE_CONTAINER_B_STATUS" == "running" ] && [ "$GREEN_CONTAINER_A_STATUS" == "running" ] && [ "$GREEN_CONTAINER_B_STATUS" == "running" ];
   then
-    echo "[$NOW] [INFO] Application Container IDLE PORT 번호 : $IDLE_PORT"
-    echo "[$NOW] [INFO] Application Container IDLE PORT 번호 : $IDLE_PORT" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] curl -s http://$APPLICATION_SERVER_IP:$IDLE_PORT "
-    echo "[$NOW] [INFO] curl -s http://$APPLICATION_SERVER_IP:$IDLE_PORT " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container BLUE A PORT 번호 : $APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER"
+    echo "[$NOW] [INFO] Application Container BLUE A PORT 번호 : $APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container BLUE B PORT 번호 : $APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER"
+    echo "[$NOW] [INFO] Application Container BLUE B PORT 번호 : $APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container GREEN A PORT 번호 : $APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER"
+    echo "[$NOW] [INFO] Application Container GREEN A PORT 번호 : $APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER"
+    echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    sleep 5
-
-    for RETRY_COUNT in {1..10}
+    for loop_count in {1..4}
     do
-      RESPONSE=$(curl -s http://"${APPLICATION_SERVER_IP}":"${IDLE_PORT}")
-      UP_COUNT=$(echo "${RESPONSE}" | grep "timestamp" | wc -l)
 
-      # up_count >= 1
-      if [ "${UP_COUNT}" -ge 1 ];
+      if [ $loop_count == 1 ];
       then
-        echo "[$NOW] [INFO] Application Container 상태가 정상이에요."
-        #Health check가 정상적으로 성공 된 후 nginx 설정값을 변경해주어야 서버가 다운타임 없이 배포 진행.
-        # nginx.config를 컨테이너에 맞게 변경해주고 reload 진행.
-        cp "${NGINX_CONFIG_DIR}"/nginx."${AFTER_COMPOSE_COLOR}".conf "${NGINX_CONFIG_DIR}"/nginx.conf
+        applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+        containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
+        containerColor="green"
+        nginxConfUpdateLine=12
 
-        echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
-        echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload
+      elif [ $loop_count == 2 ];
+      then
+        applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
+        containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
+        containerColor="green"
+        nginxConfUpdateLine=14
 
-        sleep 5
-
-        shutdownBeforeContainer
-        break
+      elif [ $loop_count == 3 ];
+      then
+        applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+        containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
+        containerColor="blue"
+        nginxConfUpdateLine=12
 
       else
-        echo "[$NOW] [ERROR] Application Container 상태에 문제가 있어요."
-        echo "[$NOW] [ERROR] Application Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}"
-        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+        containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
+        containerColor="blue"
+        nginxConfUpdateLine=14
       fi
 
-      # RETRY_COUNT == 10
-      if [ "${RETRY_COUNT}" -eq 10 ];
+      echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
+      echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} "
+      echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      for RETRY_COUNT in {1..10}
+      do
+        RESPONSE=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber})
+        UP_COUNT=$(echo "${RESPONSE}" | grep "HTTP" | wc -l)
+
+        # up_count >= 1
+        if [ ${UP_COUNT} -ge 1 ];
         then
-          echo "[$NOW] [ERROR] Application Health 상태 문제가 있어요."
-          echo "[$NOW] [ERROR] Application Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-          echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
-          echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-          exit 1
-      fi
+          echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
+          echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
-      echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+          nginxHealthCheck "${containerColor}"
 
-      sleep 7
+          shutdownBeforeContainer
+          break
 
+        else
+          echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요."
+          echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+          echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}"
+          echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+          echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+          echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+          applicationDockerContainerRun "${containerName}"
+        fi
+
+        # RETRY_COUNT == 10
+        if [ "${RETRY_COUNT}" -eq 10 ];
+          then
+            echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+            echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+            echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+            echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+            applicationDockerContainerRun "${containerName}"
+        fi
+
+        echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
+        echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
+        echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
+      done
     done
 
   else
-    echo "[$NOW] [ERROR] ${AFTER_COMPOSE_COLOR} 컨테이너 기동 작업에 문제가 있어 작업을 실패하였어요."
-    echo "[$NOW] [ERROR] ${AFTER_COMPOSE_COLOR} 컨테이너 기동 작업에 문제가 있어 작업을 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [ERROR] ${AFTER_COMPOSE_COLOR} 컨테이너 기동 작업에 문제가 있어 작업 실패로 스크립트 종료 합니다."
-    echo "[$NOW] [ERROR] ${AFTER_COMPOSE_COLOR} 컨테이너 기동 작업에 문제가 있어 작업 실패로 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    exit 1
+    if [ "$BLUE_CONTAINER_A_STATUS" != "running" ];
+    then
+      containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+      echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerRun "${containerName}"
+
+    elif [ "$BLUE_CONTAINER_B_STATUS" != "running" ]; then
+      containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+      echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerRun "${containerName}"
+      
+      elif [ "$GREEN_CONTAINER_A_STATUS" != "running" ];
+      then
+        containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+        echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+
+      elif [ "$GREEN_CONTAINER_B_STATUS" != "running" ];
+      then
+        containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+        echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+
+      else
+        echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요."
+        echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+
+        containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+
+        containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+
+        containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        applicationDockerContainerRun "${containerName}"
+    fi
   fi
 }
 
-# 서버 환경 확인 함수
-checkServerEnvironment() {
+nginxHealthCheck() {
   sleep 5
 
-  echo "[$NOW] [INFO] Application 구동 환경 정보를 확인할게요."
-  echo "[$NOW] [INFO] Application 구동 환경 정보를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  DEVELOPE_ENVIRONMENT_STRING=dev
-  OPERATION_ENVIRONMENT_STRING=op
-  APPLICATION_SERVER_HOSTNAME=$(hostname -f)
+  local nginxColor=$1
 
-  if [[ "$APPLICATION_SERVER_HOSTNAME" == *"$DEVELOPE_ENVIRONMENT_STRING"* ]];
+  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요."
+  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  NGINX_STATUS=$(docker inspect -f '{{.State.Status}}' $NGINX_BLUE_CONTAINER_NAME | grep running)
+
+  if [ "$NGINX_STATUS" != "running" ];
   then
-    echo "[$NOW] [INFO] Application 구동 환경은 개발 환경입니다."
-    echo "[$NOW] [INFO] Application 구동 환경은 개발 환경입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    APPLICATION_SERVER_ENVIRONMENT="dev"
-    APPLICATION_SERVER_IP="192.168.20.6"
-    # Docker-compose File path
-    DOCKER_DIR=/data/deploy/giggal-total-back-office/docker/dev
-    #Nginx.conf File Path
-    NGINX_CONFIG_DIR=/data/deploy/giggal-total-back-office/volume-mapping/nginx/conf.d/dev
+    echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요."
+    echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    irrelevantEnvironmentDirectoryClear $DEVELOPE_ENVIRONMENT_STRING
+    nginxDockerContainerRun "${nginxColor}"
 
   else
-    echo "[$NOW] [INFO] Application 구동 환경은 운영 환경입니다."
-    echo "[$NOW] [INFO] Application 구동 환경은 개발 환경입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    APPLICATION_SERVER_ENVIRONMENT="prod"
-    APPLICATION_SERVER_IP="192.168.20.12"
-    # Docker-compose File path
-    DOCKER_DIR=/data/deploy/giggal-total-back-office/docker/prod
-    #Nginx.conf File Path
-    NGINX_CONFIG_DIR=/data/deploy/giggal-total-back-office/volume-mapping/nginx/conf.d/prod
+    echo "[$NOW] [INFO] nginx ${nginxColor} 정상 기동 중이에요."
+    echo "[$NOW] [INFO] nginx ${nginxColor} 정상 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  fi
 
-    irrelevantEnvironmentDirectoryClear $OPERATION_ENVIRONMENT_STRING
+  echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요."
+  echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  command=$(sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf)
+
+  if ! $command;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  command=$(cp ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf ${NGINX_CONFIG_DIR}/nginx.conf)
+
+  if ! $command;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  command=$(docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload)
+
+  if ! $command;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
   fi
 }
 
-irrelevantEnvironmentDirectoryClear() {
+nginxDockerContainerRun() {
   sleep 5
+  local nginxColor=$1
 
-  echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업을 진행 합니다."
-  echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업을 진행 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  irrelevantEnvironment=$1
+  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 할게요."
+  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if [[ "$irrelevantEnvironment" ==  *"$DEVELOPE_ENVIRONMENT_STRING"* ]];
+  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
+  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+
+  if [ "$nginxColor" == "blue" ];
   then
-    echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업을 진행 합니다."
-    echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업을 진행 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    REMOVE_PROD_DOCKER_DIR=$(rm -rf ${APPLICATION_BASE_DIR}/docker/prod)
-    REMOVE_PROD_NGINX_DIR=$(rm -rf ${APPLICATION_BASE_DIR}/volume-mapping/nginx/conf.d/prod)
-
-    if [ -z "$REMOVE_PROD_DOCKER_DIR" ] && [ -z "$REMOVE_PROD_NGINX_DIR" ];
-    then
-      echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업 성공 하였어요."
-      echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    else
-      echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업 실패 하였어요. 배포 스크립트를 종료 합니다."
-      echo "[$NOW] [INFO] 운영 환경과 관련된 Directory 삭제 작업 실패 하였어요. 배포 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      exit 1
-    fi
+    variableName=$NGINX_BLUE_CONTAINER_NAME
+    portNumber=$NGINX_BLUE_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_BLUE_IMAGE_NAME
+    dockerContainerName=$NGINX_BLUE_CONTAINER_NAME
 
   else
-    echo "[$NOW] [INFO] 개발 환경과 관련된 Directory 삭제 작업을 진행 합니다."
-    echo "[$NOW] [INFO] 개발 환경과 관련된 Directory 삭제 작업을 진행 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    REMOVE_DEV_DOCKER_DIR=$(rm -rf ${APPLICATION_BASE_DIR}/docker/dev)
-    REMOVE_DEV_NGINX_DIR=$(rm -rf ${APPLICATION_BASE_DIR}/volume-mapping/nginx/conf.d/dev)
-
-    if [ -z "$REMOVE_DEV_DOCKER_DIR" ] && [ -z "$REMOVE_DEV_NGINX_DIR" ];
-    then
-      echo "[$NOW] [INFO] 개발 환경과 관련된 Directory 삭제 작업 성공 하였어요."
-      echo "[$NOW] [INFO] 개발 환경과 관련된 Directory 삭제 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    else
-      echo "[$NOW] [ERROR] 개발 환경과 관련된 Directory 삭제 작업 실패 하였어요. 배포 스크립트를 종료 합니다."
-      echo "[$NOW] [ERROR] 개 환경과 관련된 Directory 삭제 작업 실패 하였어요. 배포 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      exit 1
-    fi
+    variableName=$NGINX_GREEN_CONTAINER_NAME
+    portNumber=$NGINX_GREEN_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_GREEN_IMAGE_NAME
+    dockerContainerName=$NGINX_GREEN_CONTAINER_NAME
   fi
 
-  echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업 완료 하였어요."
-  echo "[$NOW] [INFO] Application 구동 환경과 관계 없는 Directory 삭제 작업 완료 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요."
+  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  dockerRunCommand=$(docker run -itd --privilieged \
+                    --name $variableName \
+                    --hostname $variableName \
+                    -e container=docker \
+                    -p $portNumber:80 \
+                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
+                    --restart unless-stopped \
+                    $dockerImageName)
+
+  if ! $dockerRunCommand;
+  then
+    failedCommand "${dockerRunCommand}"
+  else
+    successCommand "${dockerRunCommand}"
+
+    checkNginxStatus "${dockerContainerName}"
+  fi
+}
+
+# NGINX 기동 여부 확인 함수
+checkNginxStatus() {
+  sleep 5
+
+  local nginxDockerContainerName=$1
+
+  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
+  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+#  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
+  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${nginxDockerContainerName}\$")
+
+  if [ -z "$EXIST_NGINX" ];
+    then
+      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다."
+      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      if [ "$dockerContainerName" == "$NGINX_BLUE_CONTAINER_NAME" ];
+      then
+        nginxDockerContainerRun "blue"
+      else
+        nginxDockerContainerRun "green"
+      fi
+
+    else
+      echo "[$NOW] [INFO] ${dockerContainerName} NGINX Container 기동 중이에요."
+      echo "[$NOW] [INFO] ${dockerContainerName} NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  fi
 }
 
 shutdownBeforeContainer() {
@@ -450,71 +547,19 @@ shutdownBeforeContainer() {
   removeOldContainerImage "${DOCKER_CONTAINER_IMAGE_NAME}" "${BEFORE_COMPOSE_COLOR}"
 }
 
-removeOldContainerImage() {
-  sleep 5
+failedCommand() {
+  local command=$1
 
-  local containerName=$1
-  local containerColor=$2
-
-  echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하는지 확인할게요."
-  echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하는지 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  if ! docker images -a | grep "${containerName}"-"${containerColor}";
-    then
-      echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하지 않아요."
-      echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    else
-      echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 시작할게요."
-      echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      if ! docker rmi -f "${containerName}"-"${containerColor}";
-        then
-          echo "[$NOW] [ERROR] ${containerName}-${containerColor} 기존 Docker Image 삭제 작업 실패하였어요. 스크립트를 종료 합니다."
-          echo "[$NOW] [ERROR] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-          exit 1
-
-        else
-          echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 성공하였어요."
-          echo "[$NOW] [INFO] ${containerName}-${containerColor} 기존 Docker Image가 존재하여 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      fi
-  fi
-
-  checkNginxStatus
+  echo "[$NOW] [ERROR] ${command} 명령어 작업 실패하였어요. 스크립트를 종료합니다."
+  echo "[$NOW] [ERROR] ${command} 명령어 작업 실패하였어요. 스크립트를 종료합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  exit 1
 }
 
-# NGINX 기동 여부 확인 함수
-checkNginxStatus() {
-  sleep 5
+successCommand() {
+  local command=$1
 
-  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
-  echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
-  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${DOCKER_CONTAINER_NGINX_NAME}\$")
-
-  if [ -z "$EXIST_NGINX" ];
-    then
-      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다."
-      echo "[$NOW] [INFO] NGINX Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      NGINX_UP_COMMAND=$(docker-compose -p giggal-total-back-office-nginx -f ${NGINX_DIR}/docker-compose.nginx.yml up -d)
-      if [ -z "$NGINX_UP_COMMAND" ];
-      then
-        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요."
-        echo "[$NOW] [ERROR] NGINX Container 기동 작업 실패했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-
-      else
-        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요."
-        echo "[$NOW] [INFO] NGINX Container 기동 작업 성공했어요. 스크립트를 종료할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      fi
-
-    else
-      echo "[$NOW] [INFO] NGINX Container 기동 중이에요."
-      echo "[$NOW] [INFO] NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  fi
-
-  checkContainerStatus
+  echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요."
+  echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 }
 
 checkLogDirectory
