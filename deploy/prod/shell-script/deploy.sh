@@ -32,7 +32,7 @@ APPLICATION_CONTAINER_NAME="giggal-people/giggal-total-back-office"
 
 APPLICATION_BLUE_A_CONTAINER_NAME="total-back-office-api-blue-a"
 APPLICATION_BLUE_B_CONTAINER_NAME="total-back-office-api-blue-b"
-APPLICATION_GREEN_A_CONTAINER_NAME="total-back-office-api-green-b"
+APPLICATION_GREEN_A_CONTAINER_NAME="total-back-office-api-green-a"
 APPLICATION_GREEN_B_CONTAINER_NAME="total-back-office-api-green-b"
 
 APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
