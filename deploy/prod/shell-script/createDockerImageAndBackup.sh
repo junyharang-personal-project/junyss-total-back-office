@@ -6,7 +6,10 @@ NOW=$(date +"%y-%m-%d_%H:%M:%S")
 #CREATE_DATE=$(date +"%Y-%m-%d")
 
 #Application Docker Container Image Name
-APPLICATION_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/giggal-total-back-office-api"
+APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-a"
+APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-b"
+APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-a"
+APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-b"
 
 #Nginx Docker Container Image Name
 NGINX_DOCKER_CONTAINER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api"
@@ -91,41 +94,61 @@ createdApplicationDockerImage() {
   echo "[$NOW] [INFO] Docker Image 생성 작업 시작할게요."
   echo "[$NOW] [INFO] Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-  if ! docker build -t $APPLICATION_DOCKER_CONTAINER_IMAGE_NAME $APPLICATION_DOCKER_FILE_PATH;
-  then
-    echo "[$NOW] [ERROR] Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    exit 1
-
-  else
-
-    if ! docker images | grep "$APPLICATION_DOCKER_CONTAINER_IMAGE_NAME";
+  for loop_count in {1..4}
+  do
+    if [ $loop_count == 1 ];
     then
-      echo "[$NOW] [ERROR] Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-      echo "[$NOW] [ERROR] Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-      exit 1
-
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
+    elif [ $loop_count == 2 ];
+    then
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
+    elif [ $loop_count == 3 ];
+    then
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
     else
-      echo "[$NOW] [INFO] Docker Image 생성 작업 성공하였어요."
-      echo "[$NOW] [INFO] Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-      applicationDockerImageBackUp
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
     fi
-  fi
+
+    if ! docker build -t $dockerImageName $APPLICATION_DOCKER_FILE_PATH;
+
+      then
+        echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+        echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+        exit 1
+
+      else
+
+        if ! docker images | grep "$dockerImageName";
+        then
+          echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+          echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+          exit 1
+
+        else
+          echo "[$NOW] [INFO] ${dockerImageName} Docker Image 생성 작업 성공하였어요."
+          echo "[$NOW] [INFO] ${dockerImageName} Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+          applicationDockerImageBackUp "${dockerImageName}"
+        fi
+      fi
+  done
 }
 
 applicationDockerImageBackUp() {
   sleep 5
-  echo "[$NOW] [INFO] Docker Image Back Up 작업 시작할게요."
-  echo "[$NOW] [INFO] Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+  local dockerImageName=$1
+
+  echo "[$NOW] [INFO] ${dockerImageName} Docker Image Back Up 작업 시작할게요."
+  echo "[$NOW] [INFO] ${dockerImageName} Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
   checkBackupDirectory "$APPLICATION_DOCKER_BACKUP_DIR"
   cd $APPLICATION_DOCKER_BACKUP_DIR
 
-  if ! docker save -o "$NOW"-giggal-total-back-office.tar "$APPLICATION_DOCKER_CONTAINER_IMAGE_NAME";
+  if ! docker save -o "$NOW"-"$dockerImageName".tar "$dockerImageName";
   then
-    echo "[$NOW] [ERROR] Docker Image 백업 작업 실패하였어요."
-    echo "[$NOW] [ERROR] Docker Image 백업 작업 실패하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+    echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 백업 작업 실패하였어요."
+    echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 백업 작업 실패하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
     DIRECTORY_OWNER_CHECK=$(ls -al ./)
 
@@ -134,8 +157,8 @@ applicationDockerImageBackUp() {
     exit 1
 
   else
-    echo "[$NOW] [INFO] Docker Image 백업 작업 성공하였어요."
-    echo "[$NOW] [INFO] Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+    echo "[$NOW] [INFO] ${dockerImageName} Docker Image 백업 작업 성공하였어요."
+    echo "[$NOW] [INFO] ${dockerImageName} Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
     createdNginxDockerImage
   fi
