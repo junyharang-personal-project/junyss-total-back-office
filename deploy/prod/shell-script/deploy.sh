@@ -67,127 +67,88 @@ checkLogDirectory() {
       exit 1
   fi
 
-  checkContainerStatus
+  checkContainerExistenceStatus
 }
 
-checkContainerStatus() {
+checkContainerExistenceStatus() {
   sleep 5
 
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요."
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  APPLICATION_BLUE_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME 2>/dev/null)
-  APPLICATION_BLUE_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME 2>/dev/null)
+  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다."
-  echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  APPLICATION_DOCKER_BLUE_A_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_A_CONTAINER_NAME")
+  APPLICATION_DOCKER_BLUE_B_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_B_CONTAINER_NAME")
 
-  if [[ "$APPLICATION_BLUE_A_STATUS" != "running" ]] || [[ "$APPLICATION_BLUE_B_STATUS" != "running" ]];
+  if [[ -z "$APPLICATION_DOCKER_BLUE_A_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_BLUE_B_STATUS" ]];
   then
-    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if [[ "$APPLICATION_BLUE_A_STATUS" != "running" ]];
+    if [[ -z "$APPLICATION_DOCKER_BLUE_A_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
-    elif [[ "$APPLICATION_BLUE_B_STATUS" != "running" ]];
+    elif [[ -z "$APPLICATION_DOCKER_BLUE_B_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
 
     else
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
       applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
     fi
 
   else
-    APPLICATION_GREEN_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME 2>/dev/null)
-    APPLICATION_GREEN_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME 2>/dev/null)
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-   if [[ "$APPLICATION_GREEN_A_STATUS" != "running" ]] || [[ "$APPLICATION_GREEN_B_STATUS" != "running" ]];
+    echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요."
+    echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    APPLICATION_DOCKER_GREEN_A_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_A_CONTAINER_NAME")
+    APPLICATION_DOCKER_GREEN_B_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_B_CONTAINER_NAME")
+
+    if [[ -z "$APPLICATION_DOCKER_GREEN_A_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_GREEN_B_STATUS" ]];
    then
-    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+    echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if [[ "$APPLICATION_GREEN_A_STATUS" != "running" ]];
+    if [[ -z "$APPLICATION_DOCKER_GREEN_A_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
 
-    elif [[ "$APPLICATION_GREEN_B_STATUS" != "running" ]];
+    elif [[ -z "$APPLICATION_DOCKER_GREEN_B_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
 
     else
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
       applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
      fi
+
+    else
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     fi
   fi
 
 applicationContainerHealthCheck
-}
-
-applicationDockerContainerRun() {
-  sleep 5
-  local containerName=$1
-
-  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
-  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
-  then
-    variableName="giggal-total-back-office-api-blue-a"
-    portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-
-  elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
-  then
-    variableName="giggal-total-back-office-api-blue-b"
-    portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-
-  elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
-  then
-    variableName="giggal-total-back-office-api-green-a"
-    portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-
-  else
-    variableName="giggal-total-back-office-api-green-b"
-    portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-  fi
-
-  dockerRunCommand=$(docker run -itd --privilieged \
-                    --name $variableName \
-                    --hostname $variableName \
-                    -e container=docker \
-                    -p $portNumber:8080 \
-                    -v /sysfs/cgroup:/sys/fs/cgroup:ro \
-                    -v /tmp/$(mktemp -d):/run \
-                    --restart unless-stopped \
-                    $APPLICATION_DOCKER_IMAGE_NAME \
-                    /usr/sbin/init)
-
-  if ! $dockerRunCommand;
-  then
-    failedCommand "${dockerRunCommand}"
-  else
-    successCommand "${dockerRunCommand}"
-  fi
 }
 
 applicationContainerHealthCheck() {
@@ -195,10 +156,19 @@ applicationContainerHealthCheck() {
 
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME | grep running)
-  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME | grep running)
-  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME | grep running)
-  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME | grep running)
+  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME 2>/dev/null)
+  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME 2>/dev/null)
+  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME 2>/dev/null)
+  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME 2>/dev/null)
+
+  echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS"
+  echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS"
+  echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS"
+  echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS"
+  echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   if [ "$BLUE_CONTAINER_A_STATUS" == "running" ] && [ "$BLUE_CONTAINER_B_STATUS" == "running" ] && [ "$GREEN_CONTAINER_A_STATUS" == "running" ] && [ "$GREEN_CONTAINER_B_STATUS" == "running" ];
   then
@@ -315,7 +285,7 @@ applicationContainerHealthCheck() {
       echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
       echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationDockerContainerRun "${containerName}"
-      
+
       elif [ "$GREEN_CONTAINER_A_STATUS" != "running" ];
       then
         containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
@@ -360,6 +330,60 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerRun "${containerName}"
     fi
+  fi
+}
+
+applicationDockerContainerRun() {
+  sleep 5
+  local containerName=$1
+
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
+  then
+    variableName="giggal-total-back-office-api-blue-a"
+    portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+
+  elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
+  then
+    variableName="giggal-total-back-office-api-blue-b"
+    portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+
+  elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
+  then
+    variableName="giggal-total-back-office-api-green-a"
+    portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+
+  else
+    variableName="giggal-total-back-office-api-green-b"
+    portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
+  fi
+
+  echo "[$NOW] [INFO] 설정된 변수 정보: "
+  echo "[$NOW] [INFO] 설정된 변수 정보: " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} "
+  echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
+  echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  dockerRunCommand=$(docker run -itd --privileged \
+                    --name $variableName \
+                    --hostname $variableName \
+                    -e container=docker \
+                    -p $portNumber:8080 \
+                    -v /sysfs/cgroup:/sys/fs/cgroup:ro \
+                    -v /tmp/$(mktemp -d):/run \
+                    --restart unless-stopped \
+                    $APPLICATION_DOCKER_IMAGE_NAME \
+                    /usr/sbin/init)
+
+  if ! $dockerRunCommand;
+  then
+    failedCommand "${dockerRunCommand}"
+  else
+    successCommand "${dockerRunCommand}"
   fi
 }
 
@@ -447,7 +471,7 @@ nginxDockerContainerRun() {
   echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요."
   echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand=$(docker run -itd --privilieged \
+  dockerRunCommand=$(docker run -itd --privileged \
                     --name $variableName \
                     --hostname $variableName \
                     -e container=docker \
