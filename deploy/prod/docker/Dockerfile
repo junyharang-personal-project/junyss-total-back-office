@@ -24,6 +24,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 필요 패키지 설치
 RUN apt-get update && apt-get upgrade -y \
+    && apt-get install -y apt-utils \
     && apt-get install -y init systemd \
     && apt-get install -y build-essential \
     && apt-get install -y vim curl \

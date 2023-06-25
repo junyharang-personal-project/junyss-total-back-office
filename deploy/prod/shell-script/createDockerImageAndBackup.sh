@@ -91,23 +91,29 @@ checkDockerImage() {
 
 createdApplicationDockerImage() {
   sleep 5
-  echo "[$NOW] [INFO] Docker Image 생성 작업 시작할게요."
-  echo "[$NOW] [INFO] Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+  echo "[$NOW] [INFO] Docker Image 생성 작업을 위해 docker Image 이름에 대한 변수 설정 작업을 시작합니다."
+  echo "[$NOW] [INFO] Docker Image 생성 작업을 위해 docker Image 이름에 대한 변수 설정 작업을 시작합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
   for loop_count in {1..4}
   do
     if [ $loop_count == 1 ];
     then
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
+
     elif [ $loop_count == 2 ];
     then
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
+
     elif [ $loop_count == 3 ];
     then
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
+
     else
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
     fi
+
+    echo "[$NOW] [INFO] ${dockerImageName} Docker Image 생성 작업 시작할게요."
+    echo "[$NOW] [INFO] ${dockerImageName} Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
     if ! docker build -t $dockerImageName $APPLICATION_DOCKER_FILE_PATH;
 
@@ -138,6 +144,22 @@ applicationDockerImageBackUp() {
   sleep 5
 
   local dockerImageName=$1
+  
+  if [ $dockerImageName == $APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME ];
+  then
+    dockerBackupArchiveName="giggal-total-back-office-api-blue-a"
+
+  elif [ $dockerImageName == $APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME ];
+  then
+    dockerBackupArchiveName="giggal-total-back-office-api-blue-b"
+
+  elif [ $dockerImageName == $APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME ];
+  then
+    dockerBackupArchiveName="giggal-total-back-office-api-green-a"
+
+  else
+    dockerBackupArchiveName="giggal-total-back-office-api-green-b"
+  fi
 
   echo "[$NOW] [INFO] ${dockerImageName} Docker Image Back Up 작업 시작할게요."
   echo "[$NOW] [INFO] ${dockerImageName} Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
@@ -145,7 +167,9 @@ applicationDockerImageBackUp() {
   checkBackupDirectory "$APPLICATION_DOCKER_BACKUP_DIR"
   cd $APPLICATION_DOCKER_BACKUP_DIR
 
-  if ! docker save -o "$NOW"-"$dockerImageName".tar "$dockerImageName";
+  SAVE_DATE=$(date +"%y-%m-%d")
+
+  if ! docker save -o "$SAVE_DATE"-"$dockerBackupArchiveName".tar "$dockerImageName";
   then
     echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 백업 작업 실패하였어요."
     echo "[$NOW] [ERROR] ${dockerImageName} Docker Image 백업 작업 실패하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
