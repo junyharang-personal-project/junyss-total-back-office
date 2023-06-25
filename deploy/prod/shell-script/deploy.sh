@@ -379,7 +379,7 @@ applicationDockerContainerRun() {
                     $APPLICATION_DOCKER_IMAGE_NAME \
                     /usr/sbin/init)
 
-  if ! $dockerRunCommand;
+  if ! eval $dockerRunCommand;
   then
     failedCommand "${dockerRunCommand}"
   else
@@ -435,7 +435,7 @@ nginxHealthCheck() {
 
   command=$(docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload)
 
-  if ! $command;
+  if ! eval $command;
   then
     failedCommand "${command}"
   else
@@ -480,7 +480,7 @@ nginxDockerContainerRun() {
                     --restart unless-stopped \
                     $dockerImageName)
 
-  if ! $dockerRunCommand;
+  if ! eval $dockerRunCommand;
   then
     failedCommand "${dockerRunCommand}"
   else
