@@ -81,18 +81,18 @@ checkContainerStatus() {
   echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다."
   echo "[$NOW] [INFO] 컨테이너 스위칭 작업 시작합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if [ "$APPLICATION_BLUE_A_STATUS" != "running" ] || [ "$APPLICATION_BLUE_B_STATUS" != "running" ];
+  if [[ $APPLICATION_BLUE_A_STATUS == "Error: No such object:"* ]] || [[ $APPLICATION_BLUE_B_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_BLUE_A_STATUS" ] || [ -z "$APPLICATION_BLUE_B_STATUS" ];
   then
     echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
     echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if [ "$APPLICATION_BLUE_A_STATUS" != "running" ];
+    if [[ $APPLICATION_BLUE_A_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_BLUE_A_STATUS" ];
     then
       echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
       echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
-    elif [ "$APPLICATION_BLUE_B_STATUS" != "running" ];
+    elif [[ $APPLICATION_BLUE_B_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_BLUE_B_STATUS" ];
     then
       echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
       echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -111,19 +111,19 @@ checkContainerStatus() {
     APPLICATION_GREEN_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME | grep running)
     APPLICATION_GREEN_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME | grep running)
 
-   if [ "$APPLICATION_GREEN_A_STATUS" != "running" ] || [ "$APPLICATION_GREEN_B_STATUS"  != "running" ];
+   if [[ $APPLICATION_GREEN_A_STATUS == "Error: No such object:"* ]] || [[ $APPLICATION_GRREN_B_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_GREEN_A_STATUS" ] || [ -z "$APPLICATION_GRREN_B_STATUS" ];
    then
     echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
     echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if [ "$APPLICATION_GREEN_A_STATUS" != "running" ];
+    if [[ $APPLICATION_GREEN_A_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_GRREN_A_STATUS" ];
     then
       echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
       echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
 
-    elif [ "$APPLICATION_GREEN_B_STATUS" != "running" ];
+    elif [[ $APPLICATION_GREEN_B_STATUS == "Error: No such object:"* ]] || [ -z "$APPLICATION_GREEN_B_STATUS" ];
     then
       echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요."
       echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -260,7 +260,7 @@ applicationContainerHealthCheck() {
 
           nginxHealthCheck "${containerColor}"
 
-          shutdownBeforeContainer
+          #shutdownBeforeContainer
           break
 
         else
