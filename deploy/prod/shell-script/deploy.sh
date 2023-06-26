@@ -159,29 +159,25 @@ applicationContainerHealthCheck
 applicationContainerHealthCheck() {
   sleep 5
 
-  echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
-  echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-#  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_A_CONTAINER_NAME" 2>/dev/null)
-#  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_B_CONTAINER_NAME" 2>/dev/null)
-#  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_A_CONTAINER_NAME" 2>/dev/null)
-#  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_B_CONTAINER_NAME" 2>/dev/null)
-
-  BLUE_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_A_CONTAINER_NAME" --format "{{.Status}}")
-  BLUE_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_B_CONTAINER_NAME" --format "{{.Status}}")
-  GREEN_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_A_CONTAINER_NAME" --format "{{.Status}}")
-  GREEN_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_B_CONTAINER_NAME" --format "{{.Status}}")
-
-  echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS"
-  echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS"
-  echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS"
-  echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS"
-  echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
   for loopCount in {1..4}
   do
+    echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
+    echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    BLUE_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_A_CONTAINER_NAME" --format "{{.Status}}")
+    BLUE_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_B_CONTAINER_NAME" --format "{{.Status}}")
+    GREEN_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_A_CONTAINER_NAME" --format "{{.Status}}")
+    GREEN_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_B_CONTAINER_NAME" --format "{{.Status}}")
+
+    echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS"
+    echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS"
+    echo "[$NOW] [INFO] Application Container BLUE B 기동 상태 정보 : $BLUE_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS"
+    echo "[$NOW] [INFO] Application Container GREEN A 기동 상태 정보 : $GREEN_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS"
+    echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
     echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인"
     echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]];
@@ -195,32 +191,38 @@ applicationContainerHealthCheck() {
     echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER"
     echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if [ $loopCount == 1 ];
+    if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [ $loopCount == 1 ];
     then
       applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
       containerColor="green"
       nginxConfUpdateLine=12
 
-    elif [ $loopCount == 2 ];
+    elif [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 2 ];
     then
       applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
       containerColor="green"
       nginxConfUpdateLine=14
 
-    elif [ $loopCount == 3 ];
+    elif [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [ $loopCount == 3 ];
     then
       applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
       containerColor="blue"
       nginxConfUpdateLine=12
 
-    else
+    elif [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 4 ];
+    then
       applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
       containerColor="blue"
       nginxConfUpdateLine=14
+
+    else
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다."
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      exit 1
     fi
 
     echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
@@ -279,7 +281,33 @@ applicationContainerHealthCheck() {
     done
 
   else
-    if [[ $BLUE_CONTAINER_A_STATUS != "Up"* ]];
+    if [[ $BLUE_CONTAINER_A_STATUS != "Up"* ]] && [[ $BLUE_CONTAINER_B_STATUS != "Up"* ]] && [[ $GREEN_CONTAINER_A_STATUS != "Up"* ]] && [[ $GREEN_CONTAINER_B_STATUS != "Up"* ]];
+    then
+
+      echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요."
+      echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+      containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+      containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+      containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+    elif [[ $BLUE_CONTAINER_A_STATUS != "Up"* ]];
     then
       containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
       echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
@@ -321,28 +349,9 @@ applicationContainerHealthCheck() {
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       else
-        echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요."
-        echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-        containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
-
-        containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
-
-        containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
-
-        containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
+        echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다."
+        echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        exit 1
       fi
     fi
   done
@@ -528,9 +537,13 @@ unknownNameImageDelete() {
       echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다."
       echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
+      checkDockerImage
+
     else
       echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요."
       echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+      checkDockerImage
     fi
   fi
 }
@@ -557,23 +570,28 @@ applicationDockerContainerRun() {
     variableName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
+    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
     variableName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
+    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
     variableName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
+    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
 
   else
     variableName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
+    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
+
   fi
 
   echo "[$NOW] [INFO] 설정된 변수 정보: "
@@ -590,6 +608,23 @@ applicationDockerContainerRun() {
     failedCommand "${dockerRunCommand}"
   else
     successCommand "${dockerRunCommand}"
+  fi
+
+  echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
+  echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  checkDockerLogCommand=$(docker logs $containerId)
+
+  if ! $checkDockerLogCommand;
+  then
+    failedCommand "docker logs $containerId"
+  else
+      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
+      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${checkDockerLogCommand}"
+      echo "[$NOW] [INFO] ${checkDockerLogCommand}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    successCommand "docker logs $containerId"
   fi
 }
 
