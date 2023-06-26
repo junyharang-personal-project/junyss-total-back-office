@@ -613,14 +613,15 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  checkDockerLogCommand=$(docker logs $containerId)
-
-  if ! $checkDockerLogCommand;
+  if ! docker logs $containerId;
   then
     failedCommand "docker logs $containerId"
   else
       echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
       echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      checkDockerLogCommand=$(docker logs $containerId)
+
       echo "[$NOW] [INFO] ${checkDockerLogCommand}"
       echo "[$NOW] [INFO] ${checkDockerLogCommand}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
