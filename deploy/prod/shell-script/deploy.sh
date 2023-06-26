@@ -250,7 +250,7 @@ applicationContainerHealthCheck() {
       fi
 
       # up_count >= 1
-      if [ ${upCount} -ge 1 ];
+      if [ ${responseCount} -ge 1 ];
       then
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
