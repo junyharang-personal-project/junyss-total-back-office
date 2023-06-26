@@ -161,10 +161,10 @@ applicationContainerHealthCheck() {
 
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_A_CONTAINER_NAME 2>/dev/null)
-  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_BLUE_B_CONTAINER_NAME 2>/dev/null)
-  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_A_CONTAINER_NAME 2>/dev/null)
-  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' $APPLICATION_GREEN_B_CONTAINER_NAME 2>/dev/null)
+  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_A_CONTAINER_NAME" 2>/dev/null)
+  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_B_CONTAINER_NAME" 2>/dev/null)
+  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_A_CONTAINER_NAME" 2>/dev/null)
+  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_B_CONTAINER_NAME" 2>/dev/null)
 
   echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS"
   echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -377,9 +377,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sysfs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init"
+  dockerRunCommand="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init"
 
-  if ! docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sysfs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init;
+  if ! docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init;
   then
     failedCommand "${dockerRunCommand}"
   else

@@ -35,6 +35,6 @@ RUN apt-get update && apt-get upgrade -y \
     && rm -rf /var/lib/{apt,dpkg,cache,log}
 
 VOLUME ["/sys/fs/cgroup"]
-#CMD ["/usr/sbin/init"]
+CMD ["/usr/sbin/init"]
 
-ENTRYPOINT ["/usr/sbin/init", "java", "-jar", "-Dspring.profiles.active=prod", "/application.jar", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=Asia/Seoul"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "/application.jar", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=Asia/Seoul"]
