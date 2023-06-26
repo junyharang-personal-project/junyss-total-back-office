@@ -598,6 +598,8 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 설정된 변수 정보: " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} "
   echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Container ID : ${containerId} "
+  echo "[$NOW] [INFO] Container ID : ${containerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
@@ -613,14 +615,14 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if ! docker logs $containerId;
+  if ! docker logs "$containerId";
   then
     failedCommand "docker logs $containerId"
   else
       echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
       echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      checkDockerLogCommand=$(docker logs $containerId)
+      checkDockerLogCommand=$(docker logs "$containerId")
 
       echo "[$NOW] [INFO] ${checkDockerLogCommand}"
       echo "[$NOW] [INFO] ${checkDockerLogCommand}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
