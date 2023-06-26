@@ -78,7 +78,7 @@ checkContainerExistenceStatus() {
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  for loop_count in {1..4}  # Application 기동할 컨테이너 개수가 총 4개이기 때문에 4번 반복하여 컨테이너 존재 여부 확인.
+  for loopCount in {1..4}  # Application 기동할 컨테이너 개수가 총 4개이기 때문에 4번 반복하여 컨테이너 존재 여부 확인.
   do
     APPLICATION_DOCKER_BLUE_A_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_A_CONTAINER_NAME")
     APPLICATION_DOCKER_BLUE_B_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_B_CONTAINER_NAME")
@@ -232,11 +232,40 @@ applicationContainerHealthCheck() {
 
     for retryCount in {1..10}
     do
-      RESPONSE=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber})
-      UP_COUNT=$(echo "${RESPONSE}" | grep "HTTP" | wc -l)
+      response=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber})
+      command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber}"
+
+      if ! $response;
+      then
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+        else
+          successCommand "${command}"
+      fi
+
+      upCount=$(echo "${response}" | grep "HTTP" | wc -l)
+      command="echo "${response}" | grep "HTTP" | wc -l"
+
+      if ! $upCount;
+      then
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+        else
+          successCommand "${command}"
+      fi
 
       # up_count >= 1
-      if [ ${UP_COUNT} -ge 1 ];
+      if [ ${upCount} -ge 1 ];
       then
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
