@@ -180,6 +180,10 @@ applicationContainerHealthCheck() {
   echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS"
   echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
+  for loopCount in {1..4}
+  do
+    echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인"
+    echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]];
   then
     echo "[$NOW] [INFO] Application Container BLUE A PORT 번호 : $APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER"
@@ -191,91 +195,87 @@ applicationContainerHealthCheck() {
     echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER"
     echo "[$NOW] [INFO] Application Container GREEN B PORT 번호 : $APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    for loop_count in {1..4}
+    if [ $loopCount == 1 ];
+    then
+      applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+      containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
+      containerColor="green"
+      nginxConfUpdateLine=12
+
+    elif [ $loopCount == 2 ];
+    then
+      applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
+      containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
+      containerColor="green"
+      nginxConfUpdateLine=14
+
+    elif [ $loopCount == 3 ];
+    then
+      applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+      containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
+      containerColor="blue"
+      nginxConfUpdateLine=12
+
+    else
+      applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+      containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
+      containerColor="blue"
+      nginxConfUpdateLine=14
+    fi
+
+    echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
+    echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} "
+    echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    for retryCount in {1..10}
     do
+      RESPONSE=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber})
+      UP_COUNT=$(echo "${RESPONSE}" | grep "HTTP" | wc -l)
 
-      if [ $loop_count == 1 ];
+      # up_count >= 1
+      if [ ${UP_COUNT} -ge 1 ];
       then
-        applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
-        containerColor="green"
-        nginxConfUpdateLine=12
+        echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
+        echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      elif [ $loop_count == 2 ];
-      then
-        applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
-        containerColor="green"
-        nginxConfUpdateLine=14
+        applicationOldDockerContainerSwitchingRemove "${containerName}"
 
-      elif [ $loop_count == 3 ];
-      then
-        applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
-        containerColor="blue"
-        nginxConfUpdateLine=12
+        nginxHealthCheck "${containerColor}"
+
+        #shutdownBeforeContainer
+        break
 
       else
-        applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
-        containerColor="blue"
-        nginxConfUpdateLine=14
+        echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요."
+        echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}"
+        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        applicationDockerContainerChangeOldErrorRemove "${containerName}"
       fi
 
-      echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
-      echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} "
-      echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      for RETRY_COUNT in {1..10}
-      do
-        RESPONSE=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber})
-        UP_COUNT=$(echo "${RESPONSE}" | grep "HTTP" | wc -l)
-
-        # up_count >= 1
-        if [ ${UP_COUNT} -ge 1 ];
+      # retryCount == 10
+      if [ "${retryCount}" -eq 10 ];
         then
-          echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
-          echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-          applicationOldDockerContainerSwitchingRemove "${containerName}"
-
-          nginxHealthCheck "${containerColor}"
-
-          #shutdownBeforeContainer
-          break
-
-        else
-          echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요."
-          echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-          echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}"
-          echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+          echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
+          echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
           echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
           echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
           applicationDockerContainerChangeOldErrorRemove "${containerName}"
-        fi
+      fi
 
-        # RETRY_COUNT == 10
-        if [ "${RETRY_COUNT}" -eq 10 ];
-          then
-            echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
-            echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
+      echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-            echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-            echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-            applicationDockerContainerChangeOldErrorRemove "${containerName}"
-        fi
-
-        echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
-        echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-        echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
-        echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        exit 1
-      done
+      echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
+      echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      exit 1
     done
 
   else
@@ -295,8 +295,8 @@ applicationContainerHealthCheck() {
       echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
       echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-      echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       elif [[ $GREEN_CONTAINER_A_STATUS != "Up"* ]];
@@ -305,9 +305,10 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       elif [[ $GREEN_CONTAINER_B_STATUS == "Up"* ]];
       then
@@ -315,8 +316,8 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       else
@@ -324,26 +325,27 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [ERROR] 모든 Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
         containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
         containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
         containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
         containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
-        echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${containerName} 문제 있는 Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
+      fi
     fi
-  fi
+  done
 }
 
 applicationOldDockerContainerSwitchingRemove() {
@@ -499,9 +501,47 @@ applicationDockerContainerChangeOldErrorRemove() {
     else
       successCommand "${command}"
 
+      unknownNameImageDelete
+
       applicationDockerContainerRun "${containerName}"
     fi
   fi
+}
+
+unknownNameImageDelete() {
+  sleep 5
+  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요."
+  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+  checkDockerImage
+
+  if ! docker images | grep "^<none>";
+  then
+    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요."
+    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+    checkDockerImage
+
+  else
+    if ! docker rmi $(docker images -f "dangling=true" -q);
+    then
+      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다."
+      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+    else
+      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요."
+      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+    fi
+  fi
+}
+
+checkDockerImage() {
+  DOCKER_IMAGES_LIST=$(docker images)
+
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} "
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 }
 
 applicationDockerContainerRun() {
