@@ -570,27 +570,27 @@ applicationDockerContainerRun() {
     variableName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
+    containerId=$(docker ps --filter "name=$APPLICATION_BLUE_A_CONTAINER_NAME" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
     variableName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
+    containerId=$(docker ps --filter "name=$APPLICATION_BLUE_B_CONTAINER_NAME" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
     variableName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
+    containerId=$(docker ps --filter "name=$APPLICATION_GREEN_A_CONTAINER_NAME" --format "{{.ID}}")
 
   else
     variableName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$containerName" --format "{{.ID}}")
+    containerId=$(docker ps --filter "name=$APPLICATION_GREEN_B_CONTAINER_NAME" --format "{{.ID}}")
 
   fi
 
