@@ -1,5 +1,6 @@
 package com.giggalpeople.backoffice.api.webhook.test;
 
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(APIUriInfo.API_PREFIX_URN + APIUriInfo.TEST)
 @RestController
 public class WebHookTestController {
+
+	private final Environment environment;
 
 	@ExecutionTimeCheck
 	@GetMapping(value = APIUriInfo.WEB_HOOK, produces = "text/plain;charset=UTF-8")
@@ -42,5 +45,14 @@ public class WebHookTestController {
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.badRequest().build();
+	}
+
+	/**
+	 * <b>무중단 배포 시 Docker 정상 기동 여부 확인을 위한 Profile Method</b>
+	 * @return 현재 기동중인 Application Profile 환경 이름
+	 */
+	@GetMapping(value = "/profile")
+	public String profile() {
+		return System.getProperty("spring.profiles.active");
 	}
 }
