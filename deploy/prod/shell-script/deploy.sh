@@ -567,30 +567,26 @@ applicationDockerContainerRun() {
 
   if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-blue-a"
+    containerAndHostName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$variableName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-blue-b"
+    containerAndHostName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$variableName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-green-a"
+    containerAndHostName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$variableName" --format "{{.ID}}")
 
   else
-    variableName="giggal-total-back-office-api-green-b"
+    containerAndHostName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
     dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
-    containerId=$(docker ps --filter "name=$variableName" --format "{{.ID}}")
 
   fi
 
@@ -598,18 +594,21 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 설정된 변수 정보: " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} "
   echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] Container ID : ${containerId} "
-  echo "[$NOW] [INFO] Container ID : ${containerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init"
+  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init"
 
-  if ! docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init;
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init;
   then
     failedCommand "${dockerRunCommand}"
   else
     successCommand "${dockerRunCommand}"
+
+    containerId=$(docker ps --filter "name=$containerAndHostName" --format "{{.ID}}")
+
+    echo "[$NOW] [INFO] Container ID : ${containerId} "
+    echo "[$NOW] [INFO] Container ID : ${containerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   fi
 
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
