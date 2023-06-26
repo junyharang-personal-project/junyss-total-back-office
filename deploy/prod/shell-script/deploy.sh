@@ -161,10 +161,15 @@ applicationContainerHealthCheck() {
 
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요."
   echo "[$NOW] [INFO] Application Container 기동 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_A_CONTAINER_NAME" 2>/dev/null)
-  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_B_CONTAINER_NAME" 2>/dev/null)
-  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_A_CONTAINER_NAME" 2>/dev/null)
-  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_B_CONTAINER_NAME" 2>/dev/null)
+#  BLUE_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_A_CONTAINER_NAME" 2>/dev/null)
+#  BLUE_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_BLUE_B_CONTAINER_NAME" 2>/dev/null)
+#  GREEN_CONTAINER_A_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_A_CONTAINER_NAME" 2>/dev/null)
+#  GREEN_CONTAINER_B_STATUS=$(docker inspect -f '{{.State.Status}}' "$APPLICATION_GREEN_B_CONTAINER_NAME" 2>/dev/null)
+
+  BLUE_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_A_CONTAINER_NAME" --format "{{.Status}}")
+  BLUE_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_BLUE_B_CONTAINER_NAME" --format "{{.Status}}")
+  GREEN_CONTAINER_A_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_A_CONTAINER_NAME" --format "{{.Status}}")
+  GREEN_CONTAINER_B_STATUS=$(docker ps --filter "name=$APPLICATION_GREEN_B_CONTAINER_NAME" --format "{{.Status}}")
 
   echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS"
   echo "[$NOW] [INFO] Application Container BLUE A 기동 상태 정보 : $BLUE_CONTAINER_A_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -175,7 +180,7 @@ applicationContainerHealthCheck() {
   echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS"
   echo "[$NOW] [INFO] Application Container GREEN B 기동 상태 정보 : $GREEN_CONTAINER_B_STATUS" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if [ "$BLUE_CONTAINER_A_STATUS" == "running" ] && [ "$BLUE_CONTAINER_B_STATUS" == "running" ] && [ "$GREEN_CONTAINER_A_STATUS" == "running" ] && [ "$GREEN_CONTAINER_B_STATUS" == "running" ];
+  if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]];
   then
     echo "[$NOW] [INFO] Application Container BLUE A PORT 번호 : $APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER"
     echo "[$NOW] [INFO] Application Container BLUE A PORT 번호 : $APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
