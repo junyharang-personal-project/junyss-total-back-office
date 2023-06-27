@@ -258,8 +258,11 @@ pipeline {
 //                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/docker/",
+                                                            remoteDirectory: "deploy/prod/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
+                                                    sshTransfer(
+                                                            remoteDirectory: "deploy/prod/nginx/docker/",
+                                                            sourceFiles: "deploy/prod/nginx/docker/conf.d/*.conf"),
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/dev/**",
