@@ -12,8 +12,8 @@ echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 SERVER_IP=192.168.20.12
 
 #Nginx File path
-NGINX_DIR="/data/deploy/giggal-total-back-office/deploy/nginx"
-NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/nginx/docker/conf.d"
+NGINX_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx"
+NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d"
 
 NGINX_CONTAINER_CONFIG_DIR="/etc/nginx"
 
@@ -578,9 +578,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init"
+  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v /tmp/$(mktemp -d):/run --restart unless-stopped $dockerImageName /usr/sbin/init;
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName;
   then
     failedCommand "${dockerRunCommand}"
   else
@@ -889,9 +889,10 @@ nginxDockerContainerRun() {
                     --hostname $variableName \
                     -e container=docker \
                     -p $portNumber:80 \
-                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
                     --restart unless-stopped \
                     $dockerImageName)
+
+#                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
 
   command="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:80 -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} --restart unless-stopped $dockerImageName"
 
