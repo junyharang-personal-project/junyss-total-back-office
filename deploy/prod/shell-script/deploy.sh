@@ -393,71 +393,67 @@ applicationOldDockerContainerSwitchingRemove() {
 
     if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
     then
-      variableName="giggal-total-back-office-api-blue-a"
-      portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
-      stopContainerName=$APPLICATION_GREEN_A_CONTAINER_NAME
-      stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
+      stopContainerAndHostName=$APPLICATION_BLUE_A_CONTAINER_NAME
+      portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+      stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
     then
-      variableName="giggal-total-back-office-api-blue-b"
-      portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
-      stopContainerName=$APPLICATION_GREEN_B_CONTAINER_NAME
-      stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
+      stopContainerAndHostName=$APPLICATION_BLUE_B_CONTAINER_NAME
+      portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
+      stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
     then
-      variableName="giggal-total-back-office-api-green-a"
-      portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-      dockerImageName=$APPLICATION_BLUE_A_CONTAINER_NAME
-      stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
+      stopContainerAndHostName=$APPLICATION_GREEN_A_CONTAINER_NAME
+      portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
+      stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     else
-      variableName="giggal-total-back-office-api-green-b"
-      portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-      dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
-      stopContainerName=$APPLICATION_BLUE_B_CONTAINER_NAME
-      stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
+      stopContainerAndHostName=$APPLICATION_GREEN_B_CONTAINER_NAME
+      portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
+      stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
     fi
 
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${variableName} "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${variableName} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Port Number : ${portNumber} "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${dockerImageName} "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} "
-    echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} "
-    echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "
+    echo "[$NOW] [INFO] 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerAndHostName} "
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerAndHostName}  : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Port Number : ${portNumber} "
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} "
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} "
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} "
+    echo "[$NOW] [INFO] ${stopContainerAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    if ! docker stop $stopContainerId;
+    if ! docker stop $stopContainerAndHostName;
     then
-      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다."
-      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다."
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       exit 1
 
     else
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요."
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요."
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요."
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요."
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! docker rm $stopContainerId;
+      if ! docker rm $stopContainerAndHostName;
       then
-        echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다."
-        echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다."
+        echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         exit 1
 
       else
-        echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요."
-        echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요."
+        echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${stopContainerAndHostName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        applicationDockerContainerRun "${containerName}"
+        applicationDockerContainerRun "${stopContainerAndHostName}"
       fi
     fi
 }
@@ -635,26 +631,27 @@ applicationDockerContainerRun() {
     echo "[$NOW] [INFO] Container ID : ${containerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   fi
 
-  echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
-  echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] 기동 시킨 Container ${containerAndHostName} (ID: ${containerId}) 동작 상태 확인할게요."
+  echo "[$NOW] [INFO] 기동 시킨 Container ${containerAndHostName} (ID: ${containerId}) 동작 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  checkDockerLogCommand=$(docker logs "$containerId")
+  checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
+  containerLogs=$(docker logs $containerId)
 
-  if [ "$checkDockerLogCommand" ];
+  if [[ $checkContainerStatus == "Up"* ]];
   then
     echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
     echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] $checkDockerLogCommand"
-    echo "[$NOW] [INFO] $checkDockerLogCommand" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] $containerLogs"
+    echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  successCommand "docker logs $containerId"
+  successCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
 
   else
     echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : "
     echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [ERROR] $checkDockerLogCommand"
-    echo "[$NOW] [ERROR] $checkDockerLogCommand" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    failedCommand "docker logs $containerId"
+    echo "[$NOW] [ERROR] $containerLogs"
+    echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
   fi
 }
 
