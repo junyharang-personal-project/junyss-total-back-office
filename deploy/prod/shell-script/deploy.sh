@@ -193,6 +193,8 @@ applicationContainerHealthCheck() {
 
     if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [ $loopCount == 1 ];
     then
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상이므로 ${APPLICATION_GREEN_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상이므로 ${APPLICATION_GREEN_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
       containerColor="green"
@@ -200,6 +202,8 @@ applicationContainerHealthCheck() {
 
     elif [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 2 ];
     then
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상이므로 ${APPLICATION_GREEN_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상이므로 ${APPLICATION_GREEN_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
       containerColor="green"
@@ -207,6 +211,8 @@ applicationContainerHealthCheck() {
 
     elif [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [ $loopCount == 3 ];
     then
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상이므로 ${APPLICATION_BLUE_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상이므로 ${APPLICATION_BLUE_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
       containerColor="blue"
@@ -214,15 +220,18 @@ applicationContainerHealthCheck() {
 
     elif [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 4 ];
     then
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상이므로 ${APPLICATION_BLUE_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상이므로 ${APPLICATION_BLUE_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
       containerColor="blue"
       nginxConfUpdateLine=14
 
     else
-      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다."
-      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      exit 1
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 상태를 다시 확인할게요."
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 상태를 다시 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      checkContainerExistenceStatus
     fi
 
     echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
@@ -232,20 +241,22 @@ applicationContainerHealthCheck() {
 
     for retryCount in {1..10}
     do
-
+      echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요."
+      echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
-      command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber} | grep "prod" | wc -l"
+      command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
       if [ "$responseCount" ];
       then
         successCommand "${command}"
-        else
-          echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
-          echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-          echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
-          echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-          applicationDockerContainerChangeOldErrorRemove "${containerName}"
+      else
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
+        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        applicationDockerContainerChangeOldErrorRemove "${containerName}"
       fi
 
       # up_count >= 1
@@ -605,8 +616,8 @@ applicationDockerContainerRun() {
 
   echo "[$NOW] [INFO] 설정된 변수 정보: "
   echo "[$NOW] [INFO] 설정된 변수 정보: " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} "
-  echo "[$NOW] [INFO] Container Name And Container Host Name : ${variableName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Container Name And Container Host Name : ${containerAndHostName} "
+  echo "[$NOW] [INFO] Container Name And Container Host Name : ${containerAndHostName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
@@ -627,19 +638,23 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요."
   echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  if ! docker logs "$containerId";
+  checkDockerLogCommand=$(docker logs "$containerId")
+
+  if [ "$checkDockerLogCommand" ];
   then
-    failedCommand "docker logs $containerId"
+    echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
+    echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] $checkDockerLogCommand"
+    echo "[$NOW] [INFO] $checkDockerLogCommand" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  successCommand "docker logs $containerId"
+
   else
-      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
-      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-      checkDockerLogCommand=$(docker logs "$containerId")
-
-      echo "[$NOW] [INFO] ${checkDockerLogCommand}"
-      echo "[$NOW] [INFO] ${checkDockerLogCommand}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    successCommand "docker logs $containerId"
+    echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : "
+    echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [ERROR] $checkDockerLogCommand"
+    echo "[$NOW] [ERROR] $checkDockerLogCommand" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    failedCommand "docker logs $containerId"
   fi
 }
 
