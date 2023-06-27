@@ -233,20 +233,19 @@ applicationContainerHealthCheck() {
     for retryCount in {1..10}
     do
 
-      responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep "prod" | wc -l)
+      responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
       command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber} | grep "prod" | wc -l"
 
-      if ! $responseCount;
+      if [ "$responseCount" ];
       then
-        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
-        echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
-        echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-        applicationDockerContainerChangeOldErrorRemove "${containerName}"
-
+        successCommand "${command}"
         else
-          successCommand "${command}"
+          echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+          echo "[$NOW] [WARN] ${containerName}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+          echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다."
+          echo "[$NOW] [WARN] ${containerName} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+          applicationDockerContainerChangeOldErrorRemove "${containerName}"
       fi
 
       # up_count >= 1
