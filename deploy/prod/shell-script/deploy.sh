@@ -198,7 +198,6 @@ applicationContainerHealthCheck() {
       applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
       containerColor="green"
-      nginxConfUpdateLine=12
 
     elif [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 2 ];
     then
@@ -216,7 +215,6 @@ applicationContainerHealthCheck() {
       applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
       containerColor="blue"
-      nginxConfUpdateLine=12
 
     elif [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 4 ];
     then
@@ -225,7 +223,6 @@ applicationContainerHealthCheck() {
       applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
       containerColor="blue"
-      nginxConfUpdateLine=14
 
     else
       echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 상태를 다시 확인할게요."
@@ -241,12 +238,13 @@ applicationContainerHealthCheck() {
 
     for retryCount in {1..10}
     do
+      sleep 5
       echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요."
       echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
+      responseCode=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
       command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
-      if [ "$responseCount" == "200" ];
+      if [ "$responseCode" == "200" ];
       then
         successCommand "${command}"
 
