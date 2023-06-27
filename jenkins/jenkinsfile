@@ -7,7 +7,6 @@ def APPLICATION_NAME = "total-back-office"
 def get_commit_message() {  // git Commit Message 가져오기
     script {
         return sh(script: "git show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim()
-//        return sh(script: "git show -s --format=%B ${env.GIT_COMMIT}", returnStdout: true).trim().replace(' ', '-spc-')
     }
 }
 

@@ -246,7 +246,7 @@ applicationContainerHealthCheck() {
       responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
       command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
-      if [ "$responseCount" ];
+      if [ "$responseCount" == "200" ];
       then
         successCommand "${command}"
 
