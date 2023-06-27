@@ -207,7 +207,7 @@ applicationContainerHealthCheck() {
       applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
       containerColor="green"
-      nginxConfUpdateLine=14
+
 
     elif [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [ $loopCount == 3 ];
     then
@@ -267,7 +267,7 @@ applicationContainerHealthCheck() {
 
         applicationOldDockerContainerSwitchingRemove "${containerName}"
 
-        nginxHealthCheck "${containerColor}"
+        nginxHealthCheck "${containerName}" "${containerColor}"
 
         #shutdownBeforeContainer
         break
@@ -659,10 +659,12 @@ applicationDockerContainerRun() {
 nginxHealthCheck() {
   sleep 5
 
-  local nginxColor=$1
+  local containerName=$1
+  local nginxColor=$2
 
-  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요."
-  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+nginxConfUpdateLine=14
+  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} 기동 상태를 확인할게요."
+  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} 기동 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   if [ "$nginxColor" == "blue" ];
   then
@@ -686,6 +688,23 @@ nginxHealthCheck() {
 
   echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요."
   echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
+  then
+    nginxConfUpdateLine=15
+    applicationExternalPortNumber=1001
+  elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
+  then
+    nginxConfUpdateLine=17
+    applicationExternalPortNumber=1002
+  elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
+  then
+    nginxConfUpdateLine=15
+    applicationExternalPortNumber=1011
+  else
+    nginxConfUpdateLine=17
+    applicationExternalPortNumber=1012
+  fi
 
   command="sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf"
 
