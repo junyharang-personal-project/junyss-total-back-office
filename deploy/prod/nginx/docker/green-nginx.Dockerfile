@@ -2,7 +2,7 @@
 FROM nginx:latest
 
 # nginx 컨테이너에 기본적으로 탑재되어 있는 Config File 제거
-#RUN rm -rf /etc/nginx/conf.d/default.conf
+RUN rm -rf /etc/nginx/conf.d/default.conf
 
 # 컨테이너 안의 /app 디렉터리를 활용 디렉터리(Work Dircetory)로 설정
 WORKDIR /etc/nginx
