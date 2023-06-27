@@ -267,7 +267,7 @@ applicationContainerHealthCheck() {
 
         applicationOldDockerContainerSwitchingRemove "${containerName}"
 
-        nginxHealthCheck "${containerName}" "${containerColor}"
+        checkNginxContainerExistenceStatus "${containerName}" "${containerColor}"
 
         #shutdownBeforeContainer
         break
@@ -538,46 +538,6 @@ applicationDockerContainerChangeOldErrorRemove() {
   fi
 }
 
-unknownNameImageDelete() {
-  sleep 5
-  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요."
-  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  checkDockerImage
-
-  if ! docker images | grep "^<none>";
-  then
-    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요."
-    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-    checkDockerImage
-
-  else
-    if ! docker rmi $(docker images -f "dangling=true" -q);
-    then
-      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다."
-      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-      checkDockerImage
-
-    else
-      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요."
-      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-      checkDockerImage
-    fi
-  fi
-}
-
-checkDockerImage() {
-  DOCKER_IMAGES_LIST=$(docker images)
-
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
-  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} "
-  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-}
-
 applicationDockerContainerRun() {
   sleep 5
   local containerName=$1
@@ -656,6 +616,99 @@ applicationDockerContainerRun() {
   fi
 }
 
+checkNginxContainerExistenceStatus() {
+    local containerName=$1
+    local nginxColor=$2
+
+    echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor} 환경 기준 컨테이너 존재 여부 확인할게요."
+    echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor} 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    if [ "$nginxColor" == "blue" ];
+    then
+      NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_BLUE_CONTAINER_NAME")
+    else
+      NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_GREEN_CONTAINER_NAME")
+    fi
+
+    APPLICATION_DOCKER_BLUE_B_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_B_CONTAINER_NAME")
+
+    if [[ -z "$NGINX_DOCKER_STATUS" ]];
+    then
+      echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor}가 존재하지 않아요."
+      echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor}가 존재하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      nginxDockerContainerRun "$nginxColor"
+
+    else
+      echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor}가 존재합니다."
+      echo "[$NOW] [INFO] ${containerName}의 Nginx ${nginxColor}가 존재합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    fi
+}
+
+nginxDockerContainerOldRemove() {
+  sleep 5
+  local containerName=$1
+
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  if [ "$containerName" == "$NGINX_BLUE_CONTAINER_NAME" ];
+  then
+    portNumber=$NGINX_BLUE_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_BLUE_IMAGE_NAME
+    stopContainerNameAndHostName=$NGINX_BLUE_CONTAINER_NAME
+    stopContainerId=$(docker ps --filter "name=$stopContainerNameAndHostName" --format "{{.ID}}")
+    nginxColor="blue"
+
+  else
+    portNumber=$NGINX_GREEN_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_GREEN_IMAGE_NAME
+    stopContainerNameAndHostName=$NGINX_GREEN_CONTAINER_NAME
+    stopContainerId=$(docker ps --filter "name=$stopContainerNameAndHostName" --format "{{.ID}}")
+    nginxColor="green"
+  fi
+
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerNameAndHostName} "
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerNameAndHostName} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Port Number : ${portNumber} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerNameAndHostName} "
+    echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerNameAndHostName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${stopContainerNameAndHostName} 컨테이너 종료 작업을 시작할게요."
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${stopContainerNameAndHostName} 컨테이너 종료 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  dockerRunCommand="docker stop ${stopContainerId}"
+
+  command="docker stop $stopContainerId"
+
+  if ! docker stop $stopContainerId;
+    then
+      failedCommand "${command}"
+    else
+      successCommand "${command}"
+
+    command="docker rm $stopContainerId"
+
+    if ! docker rm $stopContainerId;
+    then
+      failedCommand "${command}"
+    else
+      successCommand "${command}"
+
+      unknownNameImageDelete
+
+      nginxDockerContainerRun "${nginxColor}"
+    fi
+  fi
+}
+
 nginxHealthCheck() {
   sleep 5
 
@@ -663,23 +716,25 @@ nginxHealthCheck() {
   local nginxColor=$2
 
 nginxConfUpdateLine=14
-  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} 기동 상태를 확인할게요."
-  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} 기동 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} Container 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Application ${containerName}의 nginx ${nginxColor} Container 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   if [ "$nginxColor" == "blue" ];
   then
     NGINX_STATUS=$(docker ps --filter "name=$NGINX_BLUE_CONTAINER_NAME" --format "{{.Status}}")
+    NGINX_CONTAINER_NAME=$NGINX_BLUE_CONTAINER_NAME
   else
     NGINX_STATUS=$(docker ps --filter "name=$NGINX_GREEN_CONTAINER_NAME" --format "{{.Status}}")
+    NGINX_CONTAINER_NAME=$NGINX_GREEN_CONTAINER_NAME
   fi
 
 #  NGINX_STATUS=$(docker inspect -f '{{.State.Status}}' $NGINX_BLUE_CONTAINER_NAME | grep running)
   if [[ $NGINX_STATUS != "Up"* ]];
   then
-    echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요."
-    echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] nginx ${nginxColor} Container가 정상 작동 중이지 않아요."
+    echo "[$NOW] [INFO] nginx ${nginxColor} Container가 정상 작동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    nginxDockerContainerRun "${nginxColor}"
+    nginxDockerContainerChangeOldErrorRemove "${NGINX_CONTAINER_NAME}"
 
   else
     echo "[$NOW] [INFO] nginx ${nginxColor} 정상 기동 중이에요."
@@ -734,6 +789,70 @@ nginxConfUpdateLine=14
     failedCommand "${command}"
   else
     successCommand "${command}"
+  fi
+}
+
+nginxDockerContainerChangeOldErrorRemove() {
+  sleep 5
+  local containerName=$1
+
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  if [ "$containerName" == "$NGINX_BLUE_CONTAINER_NAME" ];
+  then
+    portNumber=$NGINX_BLUE_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_BLUE_IMAGE_NAME
+    stopContainerNameAndHostName=$NGINX_BLUE_CONTAINER_NAME
+    stopContainerId=$(docker ps --filter "name=$stopContainerNameAndHostName" --format "{{.ID}}")
+    nginxColor="blue"
+
+  else
+    portNumber=$NGINX_GREEN_EXTERNAL_PORT_NUMBER
+    dockerImageName=$NGINX_DOCKER_GREEN_IMAGE_NAME
+    stopContainerNameAndHostName=$NGINX_GREEN_CONTAINER_NAME
+    stopContainerId=$(docker ps --filter "name=$stopContainerNameAndHostName" --format "{{.ID}}")
+    nginxColor="green"
+  fi
+
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerNameAndHostName} "
+    echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerNameAndHostName} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Port Number : ${portNumber} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerNameAndHostName} "
+    echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerNameAndHostName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} "
+    echo "[$NOW] [INFO] ${stopContainerNameAndHostName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${stopContainerNameAndHostName} 컨테이너 종료 작업을 시작할게요."
+  echo "[$NOW] [INFO] 기존에 동작하던 정상 구동 중이지 않은 ${stopContainerNameAndHostName} 컨테이너 종료 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  dockerRunCommand="docker stop ${stopContainerId}"
+
+  command="docker stop $stopContainerId"
+
+  if ! docker stop $stopContainerId;
+    then
+      failedCommand "${command}"
+    else
+      successCommand "${command}"
+
+    command="docker rm $stopContainerId"
+
+    if ! docker rm $stopContainerId;
+    then
+      failedCommand "${command}"
+    else
+      successCommand "${command}"
+
+      unknownNameImageDelete
+
+      nginxDockerContainerRun "${nginxColor}"
+    fi
   fi
 }
 
@@ -804,14 +923,18 @@ checkNginxStatus() {
 
       if [ "$dockerContainerName" == "$NGINX_BLUE_CONTAINER_NAME" ];
       then
-        nginxDockerContainerRun "blue"
+        nginxColor="blue"
+        nginxDockerContainerRun "${nginxColor}"
       else
-        nginxDockerContainerRun "green"
+        nginxColor="green"
+        nginxDockerContainerRun "${nginxColor}"
       fi
 
     else
       echo "[$NOW] [INFO] ${dockerContainerName} NGINX Container 기동 중이에요."
       echo "[$NOW] [INFO] ${dockerContainerName} NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      nginxHealthCheck "${dockerContainerName}" "${nginxColor}"
   fi
 }
 
@@ -867,6 +990,46 @@ shutdownBeforeContainer() {
   removeOldContainerImage "${DOCKER_CONTAINER_IMAGE_NAME}" "${BEFORE_COMPOSE_COLOR}"
 }
 
+unknownNameImageDelete() {
+  sleep 5
+  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요."
+  echo "[$NOW] [INFO] createDockerImageAndBackup.sh에서 제거하지 못한 이름 없는 (고아) Docker Image 삭제 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+  checkDockerImage
+
+  if ! docker images | grep "^<none>";
+  then
+    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요."
+    echo "[$NOW] [INFO] 이름 없는 (고아) Docker Image가 존재 하지 않아요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+    checkDockerImage
+
+  else
+    if ! docker rmi $(docker images -f "dangling=true" -q);
+    then
+      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다."
+      echo "[$NOW] [WARN] 이름 없는 Docker Image 삭제 작업 실패하였어요. Server에 접속하여 직접 삭제 작업이 필요해요. 스크립트는 종료되지 않습니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+      checkDockerImage
+
+    else
+      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요."
+      echo "[$NOW] [INFO] 이름 없는 Docker Image 삭제 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+      checkDockerImage
+    fi
+  fi
+}
+
+checkDockerImage() {
+  DOCKER_IMAGES_LIST=$(docker images)
+
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : "
+  echo "[$NOW] [INFO] 현재 존재하는 Docker Image 내역 : " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} "
+  echo "[$NOW] [INFO] ${DOCKER_IMAGES_LIST} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+}
+
 failedCommand() {
   local command=$1
 
@@ -895,3 +1058,4 @@ echo "[$NOW] [INFO] ${operationDockerStatus} "
 echo "[$NOW] [INFO] ${operationDockerStatus} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 echo "====================================================================================================="
 echo "=====================================================================================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+}
