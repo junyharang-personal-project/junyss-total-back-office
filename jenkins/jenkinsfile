@@ -34,7 +34,7 @@ pipeline {
                     // credential id는 prod-was, dev-was여아 한다.
 
                     // 도커 관련 설정
-                    DOCKER_FILE_PATH = "./deploy/docker/Dockerfile"
+                    DOCKER_FILE_PATH = "./deploy/docker/bak-Dockerfile"
                     DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
 
                     // gitea 환경 설정

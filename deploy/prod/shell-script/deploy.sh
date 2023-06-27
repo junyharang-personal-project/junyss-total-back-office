@@ -32,10 +32,10 @@ APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME="giggal-people/giggal-total-back-
 APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-a"
 APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-b"
 
-APPLICATION_BLUE_A_CONTAINER_NAME="total-back-office-api-blue-a"
-APPLICATION_BLUE_B_CONTAINER_NAME="total-back-office-api-blue-b"
-APPLICATION_GREEN_A_CONTAINER_NAME="total-back-office-api-green-a"
-APPLICATION_GREEN_B_CONTAINER_NAME="total-back-office-api-green-b"
+APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
+APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
+APPLICATION_GREEN_A_CONTAINER_NAME="giggal-total-back-office-api-green-a"
+APPLICATION_GREEN_B_CONTAINER_NAME="giggal-total-back-office-api-green-b"
 
 APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
 APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
@@ -387,32 +387,33 @@ applicationOldDockerContainerSwitchingRemove() {
 
     echo "[$NOW] [INFO] 배포 전 컨테이너가 모두 정상 작동 중 입니다. Switching 작업으로 새로운 컨테이너 기동 작업을 시작할게요."
     echo "[$NOW] [INFO] 배포 전 컨테이너가 모두 정상 작동 중 입니다. Switching 작업으로 새로운 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 Switching 대상 docker 기동 명령어 변수를 설정할게요."
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 Switching 대상 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Switching 대상 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
     if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
     then
-      stopContainerAndHostName=$APPLICATION_BLUE_A_CONTAINER_NAME
+      stopContainerAndHostName=$APPLICATION_GREEN_A_CONTAINER_NAME
       portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+      dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
       stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
     then
-      stopContainerAndHostName=$APPLICATION_BLUE_B_CONTAINER_NAME
+      stopContainerAndHostName=$APPLICATION_GREEN_B_CONTAINER_NAME
       portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
       stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
     then
-      stopContainerAndHostName=$APPLICATION_GREEN_A_CONTAINER_NAME
+      stopContainerAndHostName=$APPLICATION_BLUE_A_CONTAINER_NAME
       portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
       stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
     else
-      stopContainerAndHostName=$APPLICATION_GREEN_B_CONTAINER_NAME
+      stopContainerAndHostName=$APPLICATION_BLUE_B_CONTAINER_NAME
       portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
       dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
       stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
@@ -635,7 +636,7 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container ${containerAndHostName} (ID: ${containerId}) 동작 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
-  containerLogs=$(docker logs $containerId)
+  containerLogs=$(docker logs "$containerId")
 
   if [[ $checkContainerStatus == "Up"* ]];
   then
@@ -663,9 +664,15 @@ nginxHealthCheck() {
   echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요."
   echo "[$NOW] [INFO] nginx ${nginxColor} 기동 상태를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  NGINX_STATUS=$(docker inspect -f '{{.State.Status}}' $NGINX_BLUE_CONTAINER_NAME | grep running)
+  if [ "$nginxColor" == "blue" ];
+  then
+    NGINX_STATUS=$(docker ps --filter "name=$NGINX_BLUE_CONTAINER_NAME" --format "{{.Status}}")
+  else
+    NGINX_STATUS=$(docker ps --filter "name=$NGINX_GREEN_CONTAINER_NAME" --format "{{.Status}}")
+  fi
 
-  if [ "$NGINX_STATUS" != "running" ];
+#  NGINX_STATUS=$(docker inspect -f '{{.State.Status}}' $NGINX_BLUE_CONTAINER_NAME | grep running)
+  if [[ $NGINX_STATUS != "Up"* ]];
   then
     echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요."
     echo "[$NOW] [INFO] nginx ${nginxColor} 기동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
@@ -680,18 +687,18 @@ nginxHealthCheck() {
   echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요."
   echo "[$NOW] [INFO] Health check가 정상적으로 성공 되었어요. nginx 설정값을 변경하여 서버가 다운타임 없이 배포 가능하도록 작업할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  command=$(sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf)
+  command="sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf"
 
-  if ! $command;
+  if ! sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf;
   then
     failedCommand "${command}"
   else
     successCommand "${command}"
   fi
 
-  command=$(cp ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf ${NGINX_CONFIG_DIR}/nginx.conf)
+  command="cp ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf ${NGINX_CONFIG_DIR}/nginx.conf"
 
-  if ! $command;
+  if ! cp ${NGINX_CONFIG_DIR}/nginx.${containerColor}.conf ${NGINX_CONFIG_DIR}/nginx.conf;
   then
     failedCommand "${command}"
   else
@@ -701,9 +708,9 @@ nginxHealthCheck() {
   echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
   echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  command=$(docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload)
+  command="docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload"
 
-  if ! eval $command;
+  if ! docker exec ${DOCKER_CONTAINER_NGINX_NAME} nginx -s reload;
   then
     failedCommand "${command}"
   else
@@ -748,11 +755,13 @@ nginxDockerContainerRun() {
                     --restart unless-stopped \
                     $dockerImageName)
 
-  if ! eval $dockerRunCommand;
+  command="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:80 -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} --restart unless-stopped $dockerImageName"
+
+  if [ -z "$dockerRunCommand" ];
   then
-    failedCommand "${dockerRunCommand}"
+    failedCommand "${command}"
   else
-    successCommand "${dockerRunCommand}"
+    successCommand "${command}"
 
     checkNginxStatus "${dockerContainerName}"
   fi
@@ -856,8 +865,14 @@ successCommand() {
 
 checkLogDirectory
 
+operationDockerStatus=$(docker ps -a)
+
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : /var/log/deploy/giggal-total-back-office/api"
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업이 끝났어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : "
+echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+echo "[$NOW] [INFO] ${operationDockerStatus} "
+echo "[$NOW] [INFO] ${operationDockerStatus} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 echo "====================================================================================================="
 echo "=====================================================================================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
