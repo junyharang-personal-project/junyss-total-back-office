@@ -23,6 +23,8 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
+APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
+
 checkLogDirectory() {
   sleep 5
 
@@ -227,6 +229,13 @@ successCommand() {
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
+
+if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh;
+then
+  successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh"
+else
+  failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh"
+fi
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 새로운 Application Docker Container 기동 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
