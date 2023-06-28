@@ -23,6 +23,8 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
+APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
+
 checkLogDirectory() {
   sleep 5
 
@@ -116,11 +118,11 @@ applicationContainerHealthCheck() {
       echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요."
       echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! ./applicationCheckContainerExistenceStatus.sh
+      if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationCheckContainerExistenceStatus.sh
       then
-        successCommand "./checkNginxContainerExistenceStatus.sh"
+        successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/checkNginxContainerExistenceStatus.sh"
       else
-        failedCommand "./checkNginxContainerExistenceStatus.sh"
+        failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/checkNginxContainerExistenceStatus.sh"
       fi
     fi
 
@@ -483,11 +485,16 @@ successCommand() {
   echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 }
 
-chmod +x ./applicationCheckContainerExistenceStatus.sh
-
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
+
+if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
+then
+  successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+else
+  failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+fi
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Health Check 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
@@ -498,5 +505,3 @@ echo "[$NOW] [INFO] ${operationDockerStatus} "
 echo "[$NOW] [INFO] ${operationDockerStatus} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 echo "====================================================================================================="
 echo "=====================================================================================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-./applicationContainerNewRun.sh

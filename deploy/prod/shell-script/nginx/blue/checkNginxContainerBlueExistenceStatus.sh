@@ -12,6 +12,8 @@ NGINX_DOCKER_BLUE_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-b
 NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
 NGINX_BLUE_EXTERNAL_PORT_NUMBER=1000
 
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+
 checkLogDirectory() {
   sleep 5
 
@@ -44,7 +46,7 @@ checkContainerExistenceStatus() {
       echo "[$NOW] [INFO] Nginx Blue가 존재하지 않아요."
       echo "[$NOW] [INFO] Nginx Blue가 존재하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      nginxDockerContainerRun "$nginxColor"
+      nginxDockerContainerRun
 
     else
       echo "[$NOW] [INFO] Nginx Blue가 존재합니다."
@@ -97,7 +99,12 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] NGINX BLUE Container 기동 중이에요."
       echo "[$NOW] [INFO] NGINX BLUE NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      ./nginxBlueHealthCheck.sh
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/blue/nginxBlueHealthCheck.sh;
+      then
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueHealthCheck.sh"
+      else
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueHealthCheck.sh"
+      fi
   fi
 }
 

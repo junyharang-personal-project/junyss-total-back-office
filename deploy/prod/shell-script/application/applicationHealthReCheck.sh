@@ -25,6 +25,8 @@ APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
 SERVER_IP=192.168.20.12
 
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+
 checkLogDirectory() {
   sleep 5
 
@@ -119,9 +121,9 @@ applicationContainerHealthCheck() {
 
         if [ "${loopCount}" == 2 ];
         then
-          ../nginx/blue/checkNginxContainerBlueExistenceStatus.sh
+          $NGINX_SHELL_SCRIPT_DIRECTORY/blue/checkNginxContainerBlueExistenceStatus.sh
         elif [ "${loopCount}" == 4 ]; then
-          ../nginx/green/checkNginxContainerGreenExistenceStatus.sh
+          $NGINX_SHELL_SCRIPT_DIRECTORY/green/checkNginxContainerGreenExistenceStatus.sh
         fi
 
         break

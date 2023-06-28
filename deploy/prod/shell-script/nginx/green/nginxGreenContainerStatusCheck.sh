@@ -12,6 +12,8 @@ NGINX_DOCKER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
 NGINX_CONTAINER_NAME="nginx-total-back-office-blue"
 NGINX_EXTERNAL_PORT_NUMBER=1000
 
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+
 checkLogDirectory() {
   sleep 5
 
@@ -55,7 +57,7 @@ nginxContainerStatusCheck() {
   echo "[$NOW] [INFO] Nginx Blue Container 구동 상태 정상적으로 성공 되었어요."
   echo "[$NOW] [INFO] Nginx Blue Container 구동 상태 정상적으로 성공 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  ./reSettingNginxGreenService.sh
+  $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
 }
 
 nginxDockerContainerChangeOldErrorRemove() {

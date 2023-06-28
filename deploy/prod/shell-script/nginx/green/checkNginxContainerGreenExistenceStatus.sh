@@ -12,6 +12,8 @@ NGINX_DOCKER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-green"
 NGINX_CONTAINER_NAME="nginx-total-back-office-green"
 NGINX_EXTERNAL_PORT_NUMBER=1000
 
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+
 checkLogDirectory() {
   sleep 5
 
@@ -97,7 +99,7 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] NGINX Green Container 기동 중이에요."
       echo "[$NOW] [INFO] NGINX Green NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      ./nginxGreenContainerStatusCheck.sh
+      $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh
   fi
 }
 

@@ -24,7 +24,7 @@ APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
 APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
-NGINX_SHEEL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
 checkLogDirectory() {
   sleep 5
 
@@ -84,11 +84,11 @@ checkContainerExistenceStatus() {
         applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
       fi
 
-      if ! $NGINX_SHEEL_SCRIPT_DIRECTORY/checkNginxContainerBlueExistenceStatus.sh;
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/checkNginxContainerBlueExistenceStatus.sh;
       then
-        successCommand "../nginx/blue/checkNginxContainerExistenceStatus.sh"
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/checkNginxContainerExistenceStatus.sh"
       else
-        failedCommand "../nginx/blue/checkNginxContainerExistenceStatus.sh"
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/checkNginxContainerExistenceStatus.sh"
       fi
 
     else
@@ -128,11 +128,11 @@ checkContainerExistenceStatus() {
           applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
         fi
 
-        if ! $NGINX_SHEEL_SCRIPT_DIRECTORY/checkNginxContainerGreenExistenceStatus.sh;
+        if ! $NGINX_SHELL_SCRIPT_DIRECTORY/checkNginxContainerGreenExistenceStatus.sh;
         then
-          successCommand "../nginx/green/checkNginxContainerGreenExistenceStatus.sh"
+          successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/checkNginxContainerGreenExistenceStatus.sh"
         else
-          failedCommand "../nginx/green/checkNginxContainerGreenExistenceStatus.sh"
+          failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/checkNginxContainerGreenExistenceStatus.sh"
         fi
 
       else
@@ -141,9 +141,9 @@ checkContainerExistenceStatus() {
 
         if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
         then
-          successCommand "./applicationHealthCheck.sh"
+          successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
         else
-          failedCommand "./applicationHealthCheck.sh"
+          failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
         fi
       fi
     fi
