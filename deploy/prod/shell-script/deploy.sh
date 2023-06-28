@@ -257,11 +257,16 @@ applicationContainerHealthCheck() {
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
       fi
 
+      responseCount=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep "HTTP" | wc -l)
+      command="curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep "HTTP" | wc -l"
+
       # up_count >= 1
       if [ ${responseCount} -ge 1 ];
       then
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요."
         echo "[$NOW] [INFO] ${containerName} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        successCommand "${command}"
 
         applicationOldDockerContainerSwitchingRemove "${containerName}"
 
@@ -271,10 +276,12 @@ applicationContainerHealthCheck() {
         break
 
       else
+        errorResponse=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile)
+
         echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요."
         echo "[$NOW] [ERROR] ${containerName} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}"
-        echo "[$NOW] [ERROR] 문제 내용 : ${RESPONSE}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}"
+        echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
         echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요."
         echo "[$NOW] [ERROR] ${containerName} Container 재 기동 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
