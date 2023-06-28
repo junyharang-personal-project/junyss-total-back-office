@@ -91,7 +91,7 @@ applicationContainerHealthCheck() {
 
     for retryCount in {1..10}
     do
-      sleep 5
+      sleep 10
       echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요."
       echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       responseCode=$(curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
