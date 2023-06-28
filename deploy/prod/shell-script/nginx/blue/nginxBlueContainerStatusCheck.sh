@@ -151,13 +151,13 @@ nginxDockerContainerRun() {
                     --name $NGINX_CONTAINER_NAME \
                     --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
-                    -p $NGINX_EXTERNAL_PORT_NUMBER:80 \
+                    -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER \
                     --restart unless-stopped \
                     $NGINX_DOCKER_IMAGE_NAME)
 
 #                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
 
-  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:80 --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
+  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
 
   if [ -z "$dockerRunCommand" ];
   then

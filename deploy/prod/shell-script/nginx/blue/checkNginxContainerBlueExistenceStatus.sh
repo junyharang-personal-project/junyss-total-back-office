@@ -8,9 +8,9 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 api Application 배포======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-NGINX_DOCKER_BLUE_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
-NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
-NGINX_BLUE_EXTERNAL_PORT_NUMBER=1000
+NGINX_DOCKER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
+NGINX_CONTAINER_NAME="nginx-total-back-office-blue"
+NGINX_EXTERNAL_PORT_NUMBER=1000
 
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
 
@@ -61,16 +61,16 @@ nginxDockerContainerRun() {
   echo "[$NOW] [INFO] Nginx Blue 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   dockerRunCommand=$(docker run -itd --privileged \
-                    --name $NGINX_BLUE_CONTAINER_NAME \
-                    --hostname $NGINX_BLUE_CONTAINER_NAME \
+                    --name $NGINX_CONTAINER_NAME \
+                    --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
-                    -p $NGINX_BLUE_EXTERNAL_PORT_NUMBER:80 \
+                    -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER \
                     --restart unless-stopped \
-                    $NGINX_DOCKER_BLUE_IMAGE_NAME)
+                    $NGINX_DOCKER_IMAGE_NAME)
 
 #                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
 
-  command="docker run -itd --privileged --name $NGINX_BLUE_CONTAINER_NAME --hostname $NGINX_BLUE_CONTAINER_NAME -e container=docker -p $NGINX_BLUE_EXTERNAL_PORT_NUMBER:80 --restart unless-stopped $NGINX_DOCKER_BLUE_IMAGE_NAME"
+  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
 
   if [ -z "$dockerRunCommand" ];
   then
