@@ -430,9 +430,8 @@ sshTransfer(
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationHealthReCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/checkNginxContainerBlueExistenceStatus.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/nginxBlueContainerStatusCheck.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/nginxBlueContainerStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/reSettingNginxBlueService.sh \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/nginxGreenContainerStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/checkNginxContainerGreenExistenceStatus.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/nginxGreenContainerStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/reSettingNginxGreenService.sh"),
 //                                                    sshTransfer(

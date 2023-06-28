@@ -51,6 +51,8 @@ checkContainerExistenceStatus() {
     else
       echo "[$NOW] [INFO] Nginx Green 존재합니다."
       echo "[$NOW] [INFO] Nginx Green 존재합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      checkNginxStatus
     fi
 }
 
