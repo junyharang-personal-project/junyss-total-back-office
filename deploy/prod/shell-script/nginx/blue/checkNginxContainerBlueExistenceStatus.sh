@@ -101,7 +101,7 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] NGINX BLUE Container 기동 중이에요."
       echo "[$NOW] [INFO] NGINX BLUE NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/blue/nginxBlueHealthCheck.sh;
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/blue/nginxBlueContainerStatusCheck.sh;
       then
         successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueHealthCheck.sh"
       else

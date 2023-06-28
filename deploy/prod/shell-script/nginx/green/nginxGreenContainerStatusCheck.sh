@@ -47,11 +47,13 @@ nginxContainerStatusCheck() {
     echo "[$NOW] [INFO] Nginx Blue Container 정상 작동 중이지 않아요."
     echo "[$NOW] [INFO] Nginx Blue Container 정상 작동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    nginxDockerContainerChangeOldErrorRemove
+    nginxDockerContainerChangeOldRemove
 
   else
     echo "[$NOW] [INFO] Nginx Blue Container 정상 기동 중이에요."
     echo "[$NOW] [INFO] Nginx Blue Container 정상 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    nginxGreenContainerHttpHealthCheck
   fi
 
   echo "[$NOW] [INFO] Nginx Blue Container 구동 상태 정상적으로 성공 되었어요."
@@ -60,7 +62,83 @@ nginxContainerStatusCheck() {
   $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
 }
 
-nginxDockerContainerChangeOldErrorRemove() {
+nginxGreenContainerHttpHealthCheck() {
+  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요."
+  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
+  echo "[$NOW] [INFO] curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  for retryCount in {1..10}
+  do
+    sleep 5
+    echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요."
+    echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    responseCode=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
+    command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
+
+    if [ "$responseCode" == "200" ];
+    then
+      successCommand "${command}"
+
+    else
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다."
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      applicationDockerContainerChangeOldErrorRemove
+    fi
+
+    responseCount=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l)
+    command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l"
+
+    # up_count >= 1
+    if [ ${responseCount} -ge 1 ];
+    then
+      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요."
+      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      successCommand "${command}"
+
+      nginxDockerContainerChangeOldRemove
+      break
+
+    else
+      errorResponse=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile)
+
+      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요."
+      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}"
+      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요."
+      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      nginxDockerContainerChangeOldRemove
+    fi
+
+    # retryCount == 10
+    if [ "${retryCount}" -eq 10 ];
+      then
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요."
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요."
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+        nginxDockerContainerChangeOldRemove
+    fi
+
+    echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
+    echo "[$NOW] [WARN] Health Check 작업에 실패하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
+    echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    exit 1
+  done
+}
+
+nginxDockerContainerChangeOldRemove() {
     stopContainerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
 
     echo "[$NOW] [INFO] Nginx Blue 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "

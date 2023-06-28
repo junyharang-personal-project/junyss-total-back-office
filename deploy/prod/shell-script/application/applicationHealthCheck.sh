@@ -85,16 +85,16 @@ applicationContainerHealthCheck() {
 
     if [[ $BLUE_CONTAINER_A_STATUS == "Up"* ]] && [ $loopCount == 1 ];
     then
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상이므로 ${APPLICATION_GREEN_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상이므로 ${APPLICATION_GREEN_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상입니다."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE A 기동 상태가 정상입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_A_CONTAINER_NAME
       containerColor="green"
 
     elif [[ "$BLUE_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 2 ];
     then
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상이므로 ${APPLICATION_GREEN_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상이므로 ${APPLICATION_GREEN_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상입니다."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container BLUE B 기동 상태가 정상입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_GREEN_B_CONTAINER_NAME
       containerColor="green"
@@ -102,16 +102,16 @@ applicationContainerHealthCheck() {
 
     elif [[ "$GREEN_CONTAINER_A_STATUS" == "Up"* ]] && [ $loopCount == 3 ];
     then
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상이므로 ${APPLICATION_BLUE_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상이므로 ${APPLICATION_BLUE_A_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상입니다."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN A 기동 상태가 정상입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_A_CONTAINER_NAME
       containerColor="blue"
 
     elif [[ "$GREEN_CONTAINER_B_STATUS" == "Up"* ]] && [ $loopCount == 4 ];
     then
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상이므로 ${APPLICATION_BLUE_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요."
-      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상이므로 ${APPLICATION_BLUE_B_CONTAINER_NAME} 에 새로 배포 작업을 실시 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상입니다."
+      echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container GREEN B 기동 상태가 정상입니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
       containerName=$APPLICATION_BLUE_B_CONTAINER_NAME
       containerColor="blue"
@@ -128,8 +128,8 @@ applicationContainerHealthCheck() {
       fi
     fi
 
-    echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요."
-    echo "[$NOW] [INFO] ${containerName} Health Check를 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${containerName} Health Check 시작할게요."
+    echo "[$NOW] [INFO] ${containerName} Health Check 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
     echo "[$NOW] [INFO] curl -I http://${SERVER_IP}:${applicationExternalPortNumber}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
