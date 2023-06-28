@@ -242,10 +242,6 @@ successCommand() {
   echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 }
 
-chmod +x ../nginx/blue/checkNginxContainerBlueExistenceStatus.sh
-chmod +x ../nginx/green/checkNginxContainerGreenExistenceStatus.sh
-chmod +x ./applicationHealthCheck.sh
-
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)

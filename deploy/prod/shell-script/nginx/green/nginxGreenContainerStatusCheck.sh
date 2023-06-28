@@ -182,8 +182,6 @@ successCommand() {
   echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 }
 
-chmod +x ./reSettingNginxGreenService.sh
-
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)

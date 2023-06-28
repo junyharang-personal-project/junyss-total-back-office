@@ -499,5 +499,4 @@ echo "[$NOW] [INFO] ${operationDockerStatus} " >> $LOG_DIR/"$NOW"-deploy.log 2>&
 echo "====================================================================================================="
 echo "=====================================================================================================" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-chmod +x ./applicationContainerNewRun.sh
 ./applicationContainerNewRun.sh
