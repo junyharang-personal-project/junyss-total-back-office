@@ -23,6 +23,8 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
+APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
+NGINX_SHEEL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
 checkLogDirectory() {
   sleep 5
 
@@ -82,7 +84,7 @@ checkContainerExistenceStatus() {
         applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
       fi
 
-      if ! ../nginx/blue/checkNginxContainerBlueExistenceStatus.sh;
+      if ! $NGINX_SHEEL_SCRIPT_DIRECTORY/checkNginxContainerBlueExistenceStatus.sh;
       then
         successCommand "../nginx/blue/checkNginxContainerExistenceStatus.sh"
       else
@@ -126,7 +128,7 @@ checkContainerExistenceStatus() {
           applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
         fi
 
-        if ! ../nginx/green/checkNginxContainerGreenExistenceStatus.sh;
+        if ! $NGINX_SHEEL_SCRIPT_DIRECTORY/checkNginxContainerGreenExistenceStatus.sh;
         then
           successCommand "../nginx/green/checkNginxContainerGreenExistenceStatus.sh"
         else
@@ -137,7 +139,7 @@ checkContainerExistenceStatus() {
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        if ! ./applicationHealthCheck.sh;
+        if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
         then
           successCommand "./applicationHealthCheck.sh"
         else
