@@ -75,11 +75,14 @@ checkLogDirectory() {
 checkContainerExistenceStatus() {
   sleep 5
 
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   for loopCount in {1..4}  # Application 기동할 컨테이너 개수가 총 4개이기 때문에 4번 반복하여 컨테이너 존재 여부 확인.
   do
+    echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
+    echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
     APPLICATION_DOCKER_BLUE_A_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_A_CONTAINER_NAME")
     APPLICATION_DOCKER_BLUE_B_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_B_CONTAINER_NAME")
 
@@ -225,8 +228,8 @@ applicationContainerHealthCheck() {
       containerColor="blue"
 
     else
-      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 상태를 다시 확인할게요."
-      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 상태를 다시 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요."
+      echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       checkContainerExistenceStatus
     fi
@@ -385,6 +388,7 @@ applicationContainerHealthCheck() {
     fi
   done
 }
+
 
 applicationOldDockerContainerSwitchingRemove() {
   sleep 5
@@ -861,55 +865,7 @@ nginxDockerContainerChangeOldErrorRemove() {
   fi
 }
 
-nginxDockerContainerRun() {
-  sleep 5
-  local nginxColor=$1
 
-  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 할게요."
-  echo "[$NOW] [INFO] nginx ${nginxColor} 기동 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
-  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-
-  if [ "$nginxColor" == "blue" ];
-  then
-    variableName=$NGINX_BLUE_CONTAINER_NAME
-    portNumber=$NGINX_BLUE_EXTERNAL_PORT_NUMBER
-    dockerImageName=$NGINX_DOCKER_BLUE_IMAGE_NAME
-    dockerContainerName=$NGINX_BLUE_CONTAINER_NAME
-
-  else
-    variableName=$NGINX_GREEN_CONTAINER_NAME
-    portNumber=$NGINX_GREEN_EXTERNAL_PORT_NUMBER
-    dockerImageName=$NGINX_DOCKER_GREEN_IMAGE_NAME
-    dockerContainerName=$NGINX_GREEN_CONTAINER_NAME
-  fi
-
-  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요."
-  echo "[$NOW] [INFO] NGINX-${nginxColor} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  dockerRunCommand=$(docker run -itd --privileged \
-                    --name $variableName \
-                    --hostname $variableName \
-                    -e container=docker \
-                    -p $portNumber:80 \
-                    --restart unless-stopped \
-                    $dockerImageName)
-
-#                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
-
-  command="docker run -itd --privileged --name $variableName --hostname $variableName -e container=docker -p $portNumber:80 -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} --restart unless-stopped $dockerImageName"
-
-  if [ -z "$dockerRunCommand" ];
-  then
-    failedCommand "${command}"
-  else
-    successCommand "${command}"
-
-    checkNginxStatus "${dockerContainerName}"
-  fi
-}
 
 # NGINX 기동 여부 확인 함수
 checkNginxStatus() {

@@ -265,7 +265,9 @@ pipeline {
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/dev/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/deploy.sh; \
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/applicationCheckContainerExistenceStatus.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/applicationHealthCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/applicationContainerSwitchingRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh"),
 //                                                    sshTransfer(
 //                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
@@ -422,8 +424,17 @@ sshTransfer(
                                                     sshTransfer(
 //                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/prod/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/deploy.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh"),
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationCheckContainerExistenceStatus.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationContainerNewRun.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationHealthCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationHealthReCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/checkNginxContainerBlueExistenceStatus.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/nginxBlueContainerStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/nginxBlueContainerStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/blue/reSettingNginxBlueService.sh \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/nginxGreenContainerStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/nginxGreenContainerStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/green/reSettingNginxGreenService.sh"),
 //                                                    sshTransfer(
 //                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
 //                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
@@ -521,10 +532,10 @@ sshTransfer(
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-//                                            sshTransfer(
-//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
-sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/deploy.sh")
+                                                    //                                            sshTransfer(
+                                                    //                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
+                                                    sshTransfer(
+                                                            execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationCheckContainerExistenceStatus.sh")
                                             ]
                                     )
                             ]
