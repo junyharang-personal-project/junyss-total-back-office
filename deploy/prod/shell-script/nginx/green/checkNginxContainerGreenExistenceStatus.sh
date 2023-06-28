@@ -88,20 +88,42 @@ checkNginxStatus() {
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요."
   echo "[$NOW] [INFO] NGINX 기동 여부를 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 #  EXIST_NGINX=$(docker ps | grep ${DOCKER_CONTAINER_NGINX_NAME})
-  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${NGINX_CONTAINER_NAME}\$")
+#  EXIST_NGINX=$(docker ps --format '{{.Names}}' | grep "^${NGINX_CONTAINER_NAME}\$")
 
-  if [ -z "$EXIST_NGINX" ];
+  containerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
+  checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
+
+  sleep 5
+
+  containerLogs=$(docker logs "$containerId")
+
+#  if [ -z "$EXIST_NGINX" ];
+  if [[ $checkContainerStatus != "Up"* ]];
     then
       echo "[$NOW] [INFO] NGINX Green Container 기동 중이지 않아 기동 합니다."
       echo "[$NOW] [INFO] NGINX Green Container 기동 중이지 않아 기동 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : "
+      echo "[$NOW] [ERROR] 문제 발생한 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] $containerLogs"
+      echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
 
       nginxDockerContainerRun
 
     else
       echo "[$NOW] [INFO] NGINX Green Container 기동 중이에요."
       echo "[$NOW] [INFO] NGINX Green NGINX Container 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : "
+      echo "[$NOW] [INFO] 기동 시킨 Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] $containerLogs"
+      echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh;
+      then
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh"
+      else
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh"
+      fi
   fi
 }
 
