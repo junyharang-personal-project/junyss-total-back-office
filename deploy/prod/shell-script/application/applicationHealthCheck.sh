@@ -23,7 +23,7 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
-SERVER_IP=192.168.20.12
+SERVER_IP=127.0.0.1
 
 APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
 
@@ -410,6 +410,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container ${containerAndHostName} (ID: ${containerId}) 동작 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
+
+  sleep 5
+
   containerLogs=$(docker logs "$containerId")
 
   if [[ $checkContainerStatus == "Up"* ]];

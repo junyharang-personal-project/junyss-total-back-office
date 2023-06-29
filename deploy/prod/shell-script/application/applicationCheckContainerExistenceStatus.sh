@@ -209,6 +209,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] 기동 시킨 Container ${containerAndHostName} (ID: ${containerId}) 동작 상태 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
+
+  sleep 5
+
   containerLogs=$(docker logs "$containerId")
 
   if [[ $checkContainerStatus == "Up"* ]];
