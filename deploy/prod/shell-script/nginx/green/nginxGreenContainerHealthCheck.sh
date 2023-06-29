@@ -41,22 +41,31 @@ checkLogDirectory() {
 nginxGreenContainerHttpHealthCheck() {
   echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요."
   echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  echo "[$NOW] [INFO] curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
-  echo "[$NOW] [INFO] curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
   for retryCount in {1..10}
   do
     sleep 10
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    responseCode=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
-    command="curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
+    echo "[$NOW] [INFO] 사용할 명령어 : curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
+    echo "[$NOW] [INFO] 사용할 명령어 : curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    response=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile 2>&1)
+    responseCode=$(echo "$response" | grep -oP 'HTTP/1.1 \K\d+')
+    command="curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile 2>&1"
 
-    if [ "$responseCode" == "200" ];
+    if [[ $response == *"curl: (52) "* ]] || [[ $response == *"curl: (56) "* ]] || [ "$responseCode" != "200" ];
+    then
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다."
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+     applicationDockerContainerChangeOldErrorRemove
+    fi
+
+    if [[ $response == *"HTTP/1.1"* ]] || [ "$responseCode" == "200" ];
     then
       successCommand "${command}"
-
-      $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
 
     else
       echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
@@ -77,15 +86,16 @@ nginxGreenContainerHttpHealthCheck() {
       echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       successCommand "${command}"
+      $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
       break
 
     else
-      errorResponse=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile)
+      errorResponseCode=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP")
 
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요."
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}"
-      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponseCode}"
+      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponseCode}" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요."
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1

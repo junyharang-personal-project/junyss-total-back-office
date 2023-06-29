@@ -49,14 +49,25 @@ nginxContainerStatusCheck() {
     sleep 10
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    responseCode=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
-    command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
+    echo "[$NOW] [INFO] 사용할 명령어 : curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
+    echo "[$NOW] [INFO] 사용할 명령어 : curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    response=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile 2>&1)
+    responseCode=$(echo "$response" | grep -oP 'HTTP/1.1 \K\d+')
+    command="curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile 2>&1"
 
-    if [ "$responseCode" == "200" ];
+    if [[ $response == *"curl: (52) "* ]] || [[ $response == *"curl: (56) "* ]] || [ "$responseCode" != "200" ];
+    then
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다."
+     echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+     applicationDockerContainerChangeOldErrorRemove
+    fi
+
+    if [[ $response == *"HTTP/1.1"* ]] || [ "$responseCode" == "200" ];
     then
       successCommand "${command}"
-
-      $NGINX_SHELL_SCRIPT_DIRECTORY/blue/reSettingNginxBlueService.sh
 
     else
       echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
@@ -77,6 +88,7 @@ nginxContainerStatusCheck() {
       echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       successCommand "${command}"
+      $NGINX_SHELL_SCRIPT_DIRECTORY/blue/reSettingNginxBlueService.sh
       break
 
     else
