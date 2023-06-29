@@ -14,6 +14,9 @@ NGINX_EXTERNAL_PORT_NUMBER=1010
 
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
 
+SERVER_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d/green"
+NGINX_CONTAINER_CONFIG_DIR="/etc/nginx/conf.d"
+
 checkLogDirectory() {
   sleep 5
 
@@ -32,34 +35,7 @@ checkLogDirectory() {
       exit 1
   fi
 
-  nginxContainerStatusCheck
-}
-
-nginxContainerStatusCheck() {
-  echo "[$NOW] [INFO] Nginx Blue Container 구동 확인 작업 시작할게요."
-  echo "[$NOW] [INFO] Nginx Blue Container 구동 확인 작업 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  nginxStatus=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.Status}}")
-
-#  NGINX_STATUS=$(docker inspect -f '{{.State.Status}}' $NGINX_BLUE_CONTAINER_NAME | grep running)
-  if [[ $nginxStatus != "Up"* ]];
-  then
-    echo "[$NOW] [INFO] Nginx Blue Container 정상 작동 중이지 않아요."
-    echo "[$NOW] [INFO] Nginx Blue Container 정상 작동 중이지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    nginxDockerContainerChangeOldRemove
-
-  else
-    echo "[$NOW] [INFO] Nginx Blue Container 정상 기동 중이에요."
-    echo "[$NOW] [INFO] Nginx Blue Container 정상 기동 중이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-    nginxGreenContainerHttpHealthCheck
-  fi
-
-  echo "[$NOW] [INFO] Nginx Blue Container 구동 상태 정상적으로 성공 되었어요."
-  echo "[$NOW] [INFO] Nginx Blue Container 구동 상태 정상적으로 성공 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-
-  $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
+  nginxGreenContainerHttpHealthCheck
 }
 
 nginxGreenContainerHttpHealthCheck() {
@@ -70,15 +46,17 @@ nginxGreenContainerHttpHealthCheck() {
 
   for retryCount in {1..10}
   do
-    sleep 5
-    echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요."
-    echo "[$NOW] [INFO] ${loopCount} 번째 및 http 정상 연결 확인 ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    sleep 10
+    echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
+    echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     responseCode=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
     command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
     if [ "$responseCode" == "200" ];
     then
       successCommand "${command}"
+
+      $NGINX_SHELL_SCRIPT_DIRECTORY/green/reSettingNginxGreenService.sh
 
     else
       echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
@@ -99,8 +77,6 @@ nginxGreenContainerHttpHealthCheck() {
       echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
       successCommand "${command}"
-
-      nginxDockerContainerChangeOldRemove
       break
 
     else
@@ -230,12 +206,11 @@ nginxDockerContainerRun() {
                     --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
                     -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER \
+                    -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR \
                     --restart unless-stopped \
                     $NGINX_DOCKER_IMAGE_NAME)
 
-#                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
-
-  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
+  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
 
   if [ -z "$dockerRunCommand" ];
   then

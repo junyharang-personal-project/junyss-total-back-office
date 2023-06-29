@@ -14,6 +14,9 @@ NGINX_EXTERNAL_PORT_NUMBER=1010
 
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
 
+SERVER_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d/green"
+NGINX_CONTAINER_CONFIG_DIR="/etc/nginx/conf.d"
+
 checkLogDirectory() {
   sleep 5
 
@@ -67,12 +70,13 @@ nginxDockerContainerRun() {
                     --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
                     -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER \
+                    -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR \
                     --restart unless-stopped \
                     $NGINX_DOCKER_IMAGE_NAME)
 
 #                    -v ${NGINX_CONFIG_DIR}:${NGINX_CONTAINER_CONFIG_DIR} \
 
-  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:80 --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
+  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
 
   if [ -z "$dockerRunCommand" ];
   then
@@ -118,7 +122,7 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] $containerLogs"
       echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh;
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerHealthCheck.sh;
       then
         successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh"
       else

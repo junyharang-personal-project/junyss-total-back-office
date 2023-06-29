@@ -8,7 +8,7 @@ FROM nginx:latest
 WORKDIR /etc/nginx
 
 # 임의로 생성한 설정 파일 컨테이너 내부에 복사
-COPY ./conf.d/nginx.green.conf /etc/nginx/nginx.conf
+COPY conf.d/green/nginx.conf /etc/nginx/nginx.conf
 
 # Port 설정
 EXPOSE 1010

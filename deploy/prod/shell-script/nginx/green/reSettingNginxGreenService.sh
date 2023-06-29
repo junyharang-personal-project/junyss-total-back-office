@@ -51,7 +51,7 @@ nginxContainerReSetting() {
     
     command="sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.blue.conf"
   
-    if ! sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.blue.conf;
+    if ! sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.conf;
     then
       failedCommand "${command}"
     else
@@ -60,7 +60,7 @@ nginxContainerReSetting() {
   
     command="cp ${NGINX_CONFIG_DIR}/nginx.blue.conf ${NGINX_CONFIG_DIR}/nginx.conf"
   
-    if ! cp ${NGINX_CONFIG_DIR}/nginx.blue.conf ${NGINX_CONFIG_DIR}/nginx.conf;
+    if ! cp ${NGINX_CONFIG_DIR}/nginx.conf ${NGINX_CONFIG_DIR}/nginx.conf;
     then
       failedCommand "${command}"
     else
