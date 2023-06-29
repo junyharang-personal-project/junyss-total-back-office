@@ -49,8 +49,8 @@ nginxGreenContainerHttpHealthCheck() {
     sleep 10
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
     echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    responseCode=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
-    command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
+    responseCode=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
+    command="curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
     if [ "$responseCode" == "200" ];
     then
@@ -67,8 +67,8 @@ nginxGreenContainerHttpHealthCheck() {
       applicationDockerContainerChangeOldErrorRemove
     fi
 
-    responseCount=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l)
-    command="curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l"
+    responseCount=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l)
+    command="curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile | grep "HTTP" | wc -l"
 
     # up_count >= 1
     if [ ${responseCount} -ge 1 ];
@@ -80,7 +80,7 @@ nginxGreenContainerHttpHealthCheck() {
       break
 
     else
-      errorResponse=$(curl -I http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile)
+      errorResponse=$(curl -I --fail http://127.0.0.1:${NGINX_EXTERNAL_PORT_NUMBER}/api/test/profile)
 
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요."
       echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
