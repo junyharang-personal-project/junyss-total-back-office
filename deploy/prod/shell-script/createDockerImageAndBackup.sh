@@ -126,8 +126,10 @@ applicationDockerImageBackUp() {
 
     DIRECTORY_OWNER_CHECK=$(ls -al ./)
 
-    echo "[$NOW] [ERROR] ${DIRECTORY_OWNER_CHECK} 경로의 소유자와 그룹이 cicd-admin이 아닌 경우 권한 문제로 실패 합니다. 관리자 혹은 DMSO에게 ${APPLICATION_DOCKER_BACKUP_DIR} 경로의 소유자와 그룹을 cicd-admin으로 변경 요청해 주세요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] ${DIRECTORY_OWNER_CHECK} 경로의 소유자와 그룹이 cicd-admin이 아닌 경우 권한 문제로 실패 합니다. 관리자 혹은 DMSO에게 ${APPLICATION_DOCKER_BACKUP_DIR} 경로의 소유자와 그룹을 cicd-admin으로 변경 요청해 주세요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+    echo "[$NOW] [ERROR] ${DIRECTORY_OWNER_CHECK} "
+    echo "[$NOW] [ERROR] ${DIRECTORY_OWNER_CHECK} " >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+    echo "[$NOW] [ERROR] 경로의 소유자와 그룹이 cicd-admin이 아닌 경우 권한 문제로 실패 합니다. 관리자 혹은 DMSO에게 ${APPLICATION_DOCKER_BACKUP_DIR} 경로의 소유자와 그룹을 cicd-admin으로 변경 요청해 주세요. 스크립트를 종료 합니다."
+    echo "[$NOW] [ERROR] 경로의 소유자와 그룹이 cicd-admin이 아닌 경우 권한 문제로 실패 합니다. 관리자 혹은 DMSO에게 ${APPLICATION_DOCKER_BACKUP_DIR} 경로의 소유자와 그룹을 cicd-admin으로 변경 요청해 주세요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
     exit 1
 
   else
