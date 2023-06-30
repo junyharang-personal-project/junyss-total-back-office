@@ -42,7 +42,7 @@ checkContainerExistenceStatus() {
     echo "[$NOW] [INFO] Nginx Blue 환경 기준 컨테이너 존재 여부 확인할게요."
     echo "[$NOW] [INFO] Nginx Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-    NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_BLUE_CONTAINER_NAME")
+    NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_CONTAINER_NAME")
 
     if [[ -z "$NGINX_DOCKER_STATUS" ]];
     then
@@ -123,11 +123,11 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] $containerLogs"
       echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/blue/nginxBlueContainerStatusCheck.sh;
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/blue/reNginxBlueService.sh;
       then
-        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueHealthCheck.sh"
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/reNginxBlueService.sh"
       else
-        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueHealthCheck.sh"
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/reNginxBlueService.sh"
       fi
   fi
 }

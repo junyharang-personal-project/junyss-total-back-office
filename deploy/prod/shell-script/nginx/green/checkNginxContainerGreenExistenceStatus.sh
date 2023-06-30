@@ -122,11 +122,11 @@ checkNginxStatus() {
       echo "[$NOW] [INFO] $containerLogs"
       echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerHealthCheck.sh;
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/green/reNginxGreenService.sh;
       then
-        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh"
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/reNginxGreenService.sh"
       else
-        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/nginxGreenContainerStatusCheck.sh"
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/reNginxGreenService.sh"
       fi
   fi
 }
