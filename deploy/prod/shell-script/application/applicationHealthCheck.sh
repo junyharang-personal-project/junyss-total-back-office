@@ -27,7 +27,7 @@ APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy
 checkLogDirectory() {
   sleep 5
 
-  LOG_DIR="/var/log/deploy/giggal-total-back-office/api"
+  LOG_DIR="/var/log/deploy/giggal-total-back-office"
 
   if [ -d "$LOG_DIR" ];
   then

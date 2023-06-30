@@ -20,12 +20,10 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
-APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
-
 checkLogDirectory() {
   sleep 5
 
-  LOG_DIR="/var/log/deploy/giggal-total-back-office/api"
+  LOG_DIR="/var/log/deploy/giggal-total-back-office"
 
   if [ -d "$LOG_DIR" ];
   then

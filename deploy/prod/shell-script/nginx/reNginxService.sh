@@ -19,7 +19,7 @@ SERVER_IP=127.0.0.1
 checkLogDirectory() {
   sleep 5
 
-  LOG_DIR="/var/log/deploy/giggal-total-back-office/nginx"
+  LOG_DIR="/var/log/deploy/giggal-total-back-office"
 
   if [ -d "$LOG_DIR" ];
   then

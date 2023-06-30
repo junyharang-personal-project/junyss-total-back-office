@@ -18,7 +18,7 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 checkLogDirectory() {
   sleep 5
 
-  LOG_DIR="/var/log/docker/giggal-total-back-office/api"
+  LOG_DIR="/var/log/deploy/giggal-total-back-office"
 
   if [ -d "$LOG_DIR" ];
   then
