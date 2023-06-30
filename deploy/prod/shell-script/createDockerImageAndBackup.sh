@@ -277,24 +277,24 @@ applicationDockerImageBackUp() {
 #  fi
 #}
 #
-#checkBackupDirectory() {
-#  sleep 5
-#  local backupDirectoryPath=$1
-#
-#  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요."
-#  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-#
-#  if [ -d "$backupDirectoryPath" ];
-#  then
-#    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다."
-#    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-#
-#  else
-#      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
-#      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-#      exit 1
-#  fi
-#}
+checkBackupDirectory() {
+  sleep 5
+  local backupDirectoryPath=$1
+
+  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요."
+  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+  if [ -d "$backupDirectoryPath" ];
+  then
+    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다."
+    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+
+  else
+      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
+      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+      exit 1
+  fi
+}
 
 checkLogDirectory
 
