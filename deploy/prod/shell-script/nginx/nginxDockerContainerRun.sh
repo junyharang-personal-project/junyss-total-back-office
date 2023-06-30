@@ -14,6 +14,7 @@ SERVER_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx
 NGINX_CONTAINER_CONFIG_DIR="/etc/nginx/conf.d"
 
 SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script"
+
 checkLogDirectory() {
   sleep 5
 
@@ -103,6 +104,8 @@ checkNginxStatus() {
     fi
   fi
 }
+
+checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
 
