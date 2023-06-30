@@ -40,7 +40,7 @@ checkLogDirectory() {
       exit 1
   fi
 
-  checkApplicationContainerExistenceStatus
+  checkNginxContainerExistenceStatus
 }
 
 checkNginxContainerExistenceStatus() {
@@ -97,7 +97,49 @@ checkNginxStatus() {
       echo "[$NOW] [ERROR] $containerLogs"
       echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
+
+      nginxDockerContainerRemove
     fi
+}
+
+nginxDockerContainerRemove() {
+  echo "[$NOW] [INFO] 기존 Docker Container 중지 및 삭제 작업을 시작할게요."
+  echo "[$NOW] [INFO] 기존 Docker Container 포함한 중지 및 삭제 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  stopContainerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
+
+  if ! docker stop $NGINX_CONTAINER_NAME;
+  then
+    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다."
+    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    exit 1
+
+  else
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요."
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 진행할게요."
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 진행할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    if ! docker rm $NGINX_CONTAINER_NAME;
+    then
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다."
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      exit 1
+
+    else
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요."
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
+      then
+        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh"
+
+        checkApplicationContainerExistenceStatus
+      else
+        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh"
+      fi
+    fi
+  fi
 }
 
 checkApplicationContainerExistenceStatus() {
