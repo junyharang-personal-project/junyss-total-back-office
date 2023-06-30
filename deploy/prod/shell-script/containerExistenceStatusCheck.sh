@@ -54,6 +54,8 @@ checkNginxContainerExistenceStatus() {
     echo "[$NOW] [INFO] Nginx Container 존재하지 않아요."
     echo "[$NOW] [INFO] Nginx Container 존재하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
+    checkApplicationContainerExistenceStatus
+
     if ! $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
     then
       successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh"
