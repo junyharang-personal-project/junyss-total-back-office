@@ -119,7 +119,7 @@ applicationDockerImageBackUp() {
 
   SAVE_DATE=$(date +"%y-%m-%d")
 
-  if ! docker save -o "$SAVE_DATE"-"$APPLICATION_DOCKER_IMAGE_NAME".tar "$APPLICATION_DOCKER_IMAGE_NAME";
+  if ! docker save -o "$SAVE_DATE"-giggal-total-back-office-api.tar "$APPLICATION_DOCKER_IMAGE_NAME";
   then
     echo "[$NOW] [ERROR] ${APPLICATION_DOCKER_IMAGE_NAME} Docker Image 백업 작업 실패하였어요."
     echo "[$NOW] [ERROR] ${APPLICATION_DOCKER_IMAGE_NAME} Docker Image 백업 작업 실패하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
