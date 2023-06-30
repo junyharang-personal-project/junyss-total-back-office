@@ -8,10 +8,7 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 api Application Health Check======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-a"
-APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-b"
-APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-a"
-APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-b"
+APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
 APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
 APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
@@ -285,43 +282,35 @@ applicationDockerContainerChangeOldErrorRemove() {
 
   if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
     stopContainerName=$APPLICATION_BLUE_A_CONTAINER_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
     stopContainerName=$APPLICATION_BLUE_B_CONTAINER_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
-    variableName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_GREEN_A_CONTAINER_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
 
   else
-    variableName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
     stopContainerName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
   fi
 
     echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : "
     echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${variableName} "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${variableName} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${containerName} "
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 이름 및 Host Name : ${containerName} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] ${containerName} 컨테이너 Port Number : ${portNumber} "
     echo "[$NOW] [INFO] ${containerName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${dockerImageName} "
-    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${APPLICATION_DOCKER_IMAGE_NAME} "
+    echo "[$NOW] [INFO] ${containerName} 컨테이너 Docker Image Name : ${APPLICATION_DOCKER_IMAGE_NAME} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} "
     echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
     echo "[$NOW] [INFO] ${containerName} 종료 및 제거할 기존 컨테이너 ID : ${stopContainerId} "
@@ -364,24 +353,20 @@ applicationDockerContainerRun() {
   then
     containerAndHostName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
 
   else
     containerAndHostName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
 
   fi
 
@@ -392,9 +377,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName"
+  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName;
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
   then
     failedCommand "${dockerRunCommand}"
   else
@@ -493,13 +478,6 @@ successCommand() {
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
-
-if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
-then
-  successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
-else
-  failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
-fi
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Health Check 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"

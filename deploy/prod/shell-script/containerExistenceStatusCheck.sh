@@ -4,14 +4,11 @@ set -e
 
 NOW=$(date +"%y-%m-%d_%H:%M:%S")
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Application Docker Container 존재 여부 확인 작업이 시작 되었어요."
-echo "======================================[$NOW] 통합 백 오피스 api Application Docker Container 존재 여부 확인======================================"
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Docker Container 존재 여부 확인 작업이 시작 되었어요."
+echo "======================================[$NOW] 통합 백 오피스 api Docker Container 존재 여부 확인======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-a"
-APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-b"
-APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-a"
-APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-b"
+APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
 APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
 APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
@@ -28,7 +25,7 @@ NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/
 checkLogDirectory() {
   sleep 5
 
-  LOG_DIR="/var/log/deploy/giggal-total-back-office/api"
+  LOG_DIR="/var/log/deploy/giggal-total-back-office"
 
   if [ -d "$LOG_DIR" ];
   then
@@ -43,10 +40,67 @@ checkLogDirectory() {
       exit 1
   fi
 
-  checkContainerExistenceStatus
+  checkApplicationContainerExistenceStatus
 }
 
-checkContainerExistenceStatus() {
+checkNginxContainerExistenceStatus() {
+  echo "[$NOW] [INFO] Nginx 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Nginx 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_CONTAINER_NAME")
+
+  if [[ -z "$NGINX_DOCKER_STATUS" ]];
+  then
+    echo "[$NOW] [INFO] Nginx Container 존재하지 않아요."
+    echo "[$NOW] [INFO] Nginx Container 존재하지 않아요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    if ! $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
+    then
+      successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh"
+    else
+      failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh"
+    fi
+
+  else
+    echo "[$NOW] [INFO] Nginx Container 존재합니다."
+    echo "[$NOW] [INFO] Nginx Container 존재합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    checkNginxStatus
+  fi
+}
+
+checkNginxStatus() {
+    echo "[$NOW] [INFO] Nginx 컨테이너 동작 여부 확인할게요."
+    echo "[$NOW] [INFO] Nginx 컨테이너 동작 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    containerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
+    checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
+
+    sleep 5
+
+    containerLogs=$(docker logs "$containerId")
+
+    if [[ $checkContainerStatus == "Up"* ]];
+    then
+      echo "[$NOW] [INFO] 기동 시킨 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : "
+      echo "[$NOW] [INFO] 기동 시킨 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] $containerLogs"
+      echo "[$NOW] [INFO] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+    successCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
+
+    checkApplicationContainerExistenceStatus
+
+    else
+      echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : "
+      echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] $containerLogs"
+      echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
+    fi
+}
+
+checkApplicationContainerExistenceStatus() {
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
@@ -82,13 +136,6 @@ checkContainerExistenceStatus() {
 
         applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
         applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
-      fi
-
-      if ! $NGINX_SHELL_SCRIPT_DIRECTORY/checkNginxContainerBlueExistenceStatus.sh;
-      then
-        successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/checkNginxContainerExistenceStatus.sh"
-      else
-        failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/blue/checkNginxContainerExistenceStatus.sh"
       fi
 
     else
@@ -128,22 +175,25 @@ checkContainerExistenceStatus() {
           applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
         fi
 
-        if ! $NGINX_SHELL_SCRIPT_DIRECTORY/checkNginxContainerGreenExistenceStatus.sh;
-        then
-          successCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/checkNginxContainerGreenExistenceStatus.sh"
-        else
-          failedCommand "$NGINX_SHELL_SCRIPT_DIRECTORY/green/checkNginxContainerGreenExistenceStatus.sh"
-        fi
-
       else
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+        if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
         then
-          successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+          successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+
+          if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+          then
+            successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+          else
+            failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+          fi
+
+          break
+
         else
-          failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+          failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
         fi
       fi
     fi
@@ -161,24 +211,20 @@ applicationDockerContainerRun() {
   then
     containerAndHostName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
 
   else
     containerAndHostName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
 
   fi
 
@@ -191,9 +237,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요."
   echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName"
+  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName;
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
   then
     failedCommand "${dockerRunCommand}"
   else
@@ -251,9 +297,9 @@ checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Docker Container 존재 여부 확인 작업이 끝났어요."
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Docker Container 존재 여부 확인 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Docker Container 존재 여부 확인 작업이 끝났어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Docker Container 존재 여부 확인 작업이 끝났어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : "
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 echo "[$NOW] [INFO] ${operationDockerStatus} "

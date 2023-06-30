@@ -8,10 +8,7 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-a"
-APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-blue-b"
-APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-a"
-APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME="giggal-people/giggal-total-back-office-api-green-b"
+APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
 APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
 APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
@@ -89,7 +86,6 @@ applicationOldDockerContainerRemove() {
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Blue A의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
         stopContainerAndHostName=$APPLICATION_BLUE_A_CONTAINER_NAME
         portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-        dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
       fi
 
@@ -99,8 +95,8 @@ applicationOldDockerContainerRemove() {
       echo "[$NOW] [INFO] 컨테이너 이름 및 Host Name : ${stopContainerAndHostName}  : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Port Number : ${portNumber} "
       echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Port Number : ${portNumber} : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} "
-      echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${dockerImageName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${APPLICATION_DOCKER_IMAGE_NAME} "
+      echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 Docker Image Name : ${APPLICATION_DOCKER_IMAGE_NAME} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerAndHostName} "
       echo "[$NOW] [INFO] 종료 및 제거할 기존 컨테이너 이름 : ${stopContainerAndHostName} " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       echo "[$NOW] [INFO] ${stopContainerAndHostName} 컨테이너 ID : ${stopContainerId} "
@@ -145,24 +141,20 @@ applicationDockerContainerRun() {
   then
     containerAndHostName="giggal-total-back-office-api-blue-a"
     portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_A_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-blue-b"
     portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_BLUE_B_IMAGE_NAME
 
   elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
   then
     containerAndHostName="giggal-total-back-office-api-green-a"
     portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_A_IMAGE_NAME
 
   else
     containerAndHostName="giggal-total-back-office-api-green-b"
     portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-    dockerImageName=$APPLICATION_DOCKER_CONTAINER_GREEN_B_IMAGE_NAME
 
   fi
 
@@ -173,9 +165,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "  >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName"
+  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $dockerImageName;
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
   then
     failedCommand "${dockerRunCommand}"
   else
@@ -232,13 +224,6 @@ successCommand() {
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
-
-if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh;
-then
-  successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh"
-else
-  failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthReCheck.sh"
-fi
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 새로운 Application Docker Container 기동 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
