@@ -105,6 +105,21 @@ checkNginxStatus() {
   fi
 }
 
+failedCommand() {
+  local command=$1
+
+  echo "[$NOW] [ERROR] ${command} 명령어 작업 실패하였어요. 스크립트를 종료합니다."
+  echo "[$NOW] [ERROR] ${command} 명령어 작업 실패하였어요. 스크립트를 종료합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+  exit 1
+}
+
+successCommand() {
+  local command=$1
+
+  echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요."
+  echo "[$NOW] [INFO] ${command} 명령어 작업 성공하였어요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+}
+
 checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
