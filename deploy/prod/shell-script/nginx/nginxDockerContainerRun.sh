@@ -10,7 +10,7 @@ echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
 NGINX_CONTAINER_NAME="nginx-total-back-office-api"
 
-SERVER_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d/blue"
+SERVER_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d"
 NGINX_CONTAINER_CONFIG_DIR="/etc/nginx/conf.d"
 
 SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script"
