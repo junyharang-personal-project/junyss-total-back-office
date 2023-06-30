@@ -8,7 +8,7 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 api Application 배포 서버 작업 중 Nginx Green 구동 확인 작업======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-NGINX_DOCKER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
+#NGINX_DOCKER_IMAGE_NAME="giggal-people/nginx-giggal-total-back-office-api-blue"
 NGINX_CONTAINER_NAME="nginx-total-back-office-blue"
 NGINX_EXTERNAL_PORT_NUMBER=1010
 
@@ -218,9 +218,9 @@ nginxDockerContainerRun() {
                     -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER \
                     -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR \
                     --restart unless-stopped \
-                    $NGINX_DOCKER_IMAGE_NAME)
+                    nginx:latest)
 
-  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR --restart unless-stopped $NGINX_DOCKER_IMAGE_NAME"
+  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT_NUMBER:$NGINX_EXTERNAL_PORT_NUMBER -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR --restart unless-stopped nginx:latest"
 
   if [ -z "$dockerRunCommand" ];
   then

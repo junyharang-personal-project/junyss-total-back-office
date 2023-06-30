@@ -184,117 +184,117 @@ applicationDockerImageBackUp() {
     echo "[$NOW] [INFO] ${dockerImageName} Docker Image 백업 작업 성공하였어요."
     echo "[$NOW] [INFO] ${dockerImageName} Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
 
-    createdNginxDockerImage
+#    createdNginxDockerImage
   fi
 }
 
-createdNginxDockerImage() {
-  sleep 5
-  echo "[$NOW] [INFO] Nginx Docker Image 생성 작업 시작할게요."
-  echo "[$NOW] [INFO] Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
-  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  if ! docker build -f $NGINX_DOCKER_FILE_PATH/green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_FILE_PATH;
-  then
-    echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    exit 1
-
-  else
-
-    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green;
-    then
-      echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-      echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-      exit 1
-
-    else
-      echo "[$NOW] [INFO] Nginx Green Docker Image 생성 작업 성공하였어요."
-      echo "[$NOW] [INFO] Nginx Green Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    fi
-  fi
-
-  echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
-  echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  if ! docker build -f $NGINX_DOCKER_FILE_PATH/blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_FILE_PATH;
-  then
-    echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    exit 1
-
-  else
-
-    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue;
-    then
-      echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
-      echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-      exit 1
-
-    else
-      echo "[$NOW] [INFO] Nginx Blue Docker Image 생성 작업 성공하였어요."
-      echo "[$NOW] [INFO] Nginx Blue Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-      nginxDockerImageBackUp
-    fi
-  fi
-}
-
-nginxDockerImageBackUp() {
-  sleep 5
-  echo "[$NOW] [INFO] Nginx Docker Image Back Up 작업 시작할게요."
-  echo "[$NOW] [INFO] Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  checkBackupDirectory "$NGINX_DOCKER_BACKUP_DIR"
-  cd $NGINX_DOCKER_BACKUP_DIR
-
-  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요."
-  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  if ! docker save -o "$NOW"-giggal-nginx-green-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-green;
-  then
-    echo "[$NOW] [ERROR] Green Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    exit 1
-
-  else
-    echo "[$NOW] [INFO] Green Nginx Docker Image 백업 작업 성공하였어요."
-    echo "[$NOW] [INFO] Green Nginx Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  fi
-
-  echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요."
-  echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  if ! docker save -o "$NOW"-giggal-nginx-blue-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-blue;
-  then
-    echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-    exit 1
-
-  else
-    echo "[$NOW] [INFO] Blue Nginx Docker Image 백업 작업 성공하였어요."
-    echo "[$NOW] [INFO] Blue Nginx Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-  fi
-}
-
-checkBackupDirectory() {
-  sleep 5
-  local backupDirectoryPath=$1
-
-  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요."
-  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  if [ -d "$backupDirectoryPath" ];
-  then
-    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다."
-    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-
-  else
-      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
-      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
-      exit 1
-  fi
-}
+#createdNginxDockerImage() {
+#  sleep 5
+#  echo "[$NOW] [INFO] Nginx Docker Image 생성 작업 시작할게요."
+#  echo "[$NOW] [INFO] Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요."
+#  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  if ! docker build -f $NGINX_DOCKER_FILE_PATH/green-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green $NGINX_DOCKER_FILE_PATH;
+#  then
+#    echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+#    echo "[$NOW] [ERROR]  Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#    exit 1
+#
+#  else
+#
+#    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-green;
+#    then
+#      echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+#      echo "[$NOW] [ERROR] Nginx Green Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#      exit 1
+#
+#    else
+#      echo "[$NOW] [INFO] Nginx Green Docker Image 생성 작업 성공하였어요."
+#      echo "[$NOW] [INFO] Nginx Green Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#    fi
+#  fi
+#
+#  echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요."
+#  echo "[$NOW] [INFO] Blue Nginx Docker Image 생성 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  if ! docker build -f $NGINX_DOCKER_FILE_PATH/blue-nginx.Dockerfile -t $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue $NGINX_DOCKER_FILE_PATH;
+#  then
+#    echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+#    echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#    exit 1
+#
+#  else
+#
+#    if ! docker images | grep $NGINX_DOCKER_CONTAINER_IMAGE_NAME-blue;
+#    then
+#      echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다."
+#      echo "[$NOW] [ERROR] Nginx Blue Docker Image 생성 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#      exit 1
+#
+#    else
+#      echo "[$NOW] [INFO] Nginx Blue Docker Image 생성 작업 성공하였어요."
+#      echo "[$NOW] [INFO] Nginx Blue Docker Image 생성 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#      nginxDockerImageBackUp
+#    fi
+#  fi
+#}
+#
+#nginxDockerImageBackUp() {
+#  sleep 5
+#  echo "[$NOW] [INFO] Nginx Docker Image Back Up 작업 시작할게요."
+#  echo "[$NOW] [INFO] Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  checkBackupDirectory "$NGINX_DOCKER_BACKUP_DIR"
+#  cd $NGINX_DOCKER_BACKUP_DIR
+#
+#  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요."
+#  echo "[$NOW] [INFO] 최초 Green Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  if ! docker save -o "$NOW"-giggal-nginx-green-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-green;
+#  then
+#    echo "[$NOW] [ERROR] Green Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#    exit 1
+#
+#  else
+#    echo "[$NOW] [INFO] Green Nginx Docker Image 백업 작업 성공하였어요."
+#    echo "[$NOW] [INFO] Green Nginx Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#  fi
+#
+#  echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요."
+#  echo "[$NOW] [INFO] Blue Nginx Docker Image Back Up 작업 시작할게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  if ! docker save -o "$NOW"-giggal-nginx-blue-total-back-office.tar "$NGINX_DOCKER_CONTAINER_IMAGE_NAME"-blue;
+#  then
+#    echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다."
+#    echo "[$NOW] [ERROR] Blue Nginx Docker Image 백업 작업 실패하였어요. 스크립트를 종료 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#    exit 1
+#
+#  else
+#    echo "[$NOW] [INFO] Blue Nginx Docker Image 백업 작업 성공하였어요."
+#    echo "[$NOW] [INFO] Blue Nginx Docker Image 백업 작업 성공하였어요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#  fi
+#}
+#
+#checkBackupDirectory() {
+#  sleep 5
+#  local backupDirectoryPath=$1
+#
+#  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요."
+#  echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  if [ -d "$backupDirectoryPath" ];
+#  then
+#    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다."
+#    echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#
+#  else
+#      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
+#      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$NOW"-createImageAndBackup.log 2>&1
+#      exit 1
+#  fi
+#}
 
 checkLogDirectory
 
