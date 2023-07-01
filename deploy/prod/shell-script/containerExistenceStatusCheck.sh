@@ -98,7 +98,7 @@ checkNginxStatus() {
       echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$NOW"-deploy.log 2>&1
       echo "[$NOW] [ERROR] $containerLogs"
       echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-      failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
+#      failedCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
 
       nginxDockerContainerRemove
     fi
