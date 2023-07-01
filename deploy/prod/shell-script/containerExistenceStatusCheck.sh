@@ -6,7 +6,7 @@ NOW=$(date +"%y-%m-%d_%H:%M:%S")
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Docker Container 존재 여부 확인 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 api Docker Container 존재 여부 확인======================================"
-echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
+echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
@@ -22,6 +22,9 @@ APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
 APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+
+NGINX_CONTAINER_NAME="nginx-total-back-office-api"
+
 checkLogDirectory() {
   sleep 5
 
