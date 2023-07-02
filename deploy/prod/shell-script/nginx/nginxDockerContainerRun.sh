@@ -46,9 +46,10 @@ nginxDockerContainerRun() {
                     --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
                     -p 8084:80 \
-                    -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR \
                     --restart unless-stopped \
                     nginx:latest)
+
+#                    -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR \
 
   command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p 8084:80 -v $SERVER_NGINX_CONFIG_DIR:$NGINX_CONTAINER_CONFIG_DIR --restart unless-stopped nginx:latest"
 

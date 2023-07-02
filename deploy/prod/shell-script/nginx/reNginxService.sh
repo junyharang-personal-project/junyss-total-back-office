@@ -8,8 +8,9 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 api Nginx Blue 설정 작업======================================"
 echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)"
 
-NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d"
-NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
+HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/docker/conf.d"
+NGINX_CONFIG_DIR="/etc/nginx"
+NGINX_CONTAINER_NAME="nginx-total-back-office-api"
 
 APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
 APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
@@ -38,47 +39,84 @@ checkLogDirectory() {
 }
 
 nginxContainerReSetting() {
-  for loopCount in {1..2}
-  do
-    if [ "$loopCount" == 1 ];
-    then
-      nginxConfUpdateLine=15
-      applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-    else
-      nginxConfUpdateLine=17
-      applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-    fi 
-    
-    command="sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.blue.conf"
-  
-    if ! sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.conf;
-    then
-      failedCommand "${command}"
-    else
-      successCommand "${command}"
-    fi
-  
-    command="cp ${NGINX_CONFIG_DIR}/nginx.blue.conf ${NGINX_CONFIG_DIR}/nginx.conf"
-  
-    if ! cp ${NGINX_CONFIG_DIR}/nginx.conf ${NGINX_CONFIG_DIR}/nginx.conf;
-    then
-      failedCommand "${command}"
-    else
-      successCommand "${command}"
-    fi
-  
-    echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
-    echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
-  
-    command="docker exec ${NGINX_BLUE_CONTAINER_NAME} nginx -s reload"
-  
-    if ! docker exec ${NGINX_BLUE_CONTAINER_NAME} nginx -s reload;
-    then
-      failedCommand "${command}"
-    else
-      successCommand "${command}"
-    fi
-  done
+  echo "[$NOW] [INFO] 기존 Nginx Container 기본 nginx.conf File 제거 할게요."
+  echo "[$NOW] [INFO] 기존 Nginx Container 기본 nginx.conf File 제거 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  command="docker exec ${NGINX_CONTAINER_NAME} rm -rf /etc/nginx/nginx.conf"
+
+  if ! docker exec ${NGINX_CONTAINER_NAME} rm -rf /etc/nginx/nginx.conf;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  echo "[$NOW] [INFO] 새롭게 작성된 nginx.conf File 복사 할게요."
+  echo "[$NOW] [INFO] 새롭게 작성된 nginx.conf File 복사 할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  command="docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}"
+
+  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR};
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+
+  command="docker exec ${NGINX_CONTAINER_NAME} nginx -s reload"
+
+  if ! docker exec ${NGINX_CONTAINER_NAME} nginx -s reload;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+
+#  for loopCount in {1..2}
+#  do
+#    if [ "$loopCount" == 1 ];
+#    then
+#      nginxConfUpdateLine=15
+#      applicationExternalPortNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
+#    else
+#      nginxConfUpdateLine=17
+#      applicationExternalPortNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
+#    fi
+#
+#    command="sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.blue.conf"
+#
+#    if ! sed -i "${nginxConfUpdateLine}s/.*/server ${SERVER_IP}:${applicationExternalPortNumber};\g" ${NGINX_CONFIG_DIR}/nginx.conf;
+#    then
+#      failedCommand "${command}"
+#    else
+#      successCommand "${command}"
+#    fi
+#
+#    command="cp ${NGINX_CONFIG_DIR}/nginx.blue.conf ${NGINX_CONFIG_DIR}/nginx.conf"
+#
+#    if ! cp ${NGINX_CONFIG_DIR}/nginx.conf ${NGINX_CONFIG_DIR}/nginx.conf;
+#    then
+#      failedCommand "${command}"
+#    else
+#      successCommand "${command}"
+#    fi
+#
+#    echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
+#    echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
+#
+#    command="docker exec ${NGINX_BLUE_CONTAINER_NAME} nginx -s reload"
+#
+#    if ! docker exec ${NGINX_BLUE_CONTAINER_NAME} nginx -s reload;
+#    then
+#      failedCommand "${command}"
+#    else
+#      successCommand "${command}"
+#    fi
+#  done
 }
 
 checkLogDirectory

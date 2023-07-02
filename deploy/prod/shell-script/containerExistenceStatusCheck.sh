@@ -226,22 +226,28 @@ checkApplicationContainerExistenceStatus() {
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
         echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$NOW"-deploy.log 2>&1
 
-        if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
-        then
-          successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+        $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
 
-          if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
-          then
-            successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
-          else
-            failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
-          fi
+        $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
 
-          break
+        break
 
-        else
-          failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
-        fi
+#        if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
+#        then
+#          successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+#
+#          if ! $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+#          then
+#            successCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+#          else
+#            failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh"
+#          fi
+
+#          break
+
+#        else
+#          failedCommand "$APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh"
+#        fi
       fi
     fi
   done
