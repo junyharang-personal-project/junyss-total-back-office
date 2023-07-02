@@ -144,7 +144,7 @@ pipeline {
                 }
 
                 failure {
-                    sendBuildFailedAlarmToDiscord('Project Build 그리고 Test 작업')
+                    sendFailedAlarmToDiscord('Project Build 그리고 Test 작업')
                 }
             } // Discord Send Post 끝
         } // stage('Project Build 작업') 끝
