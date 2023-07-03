@@ -10,8 +10,8 @@ echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 �
 echo "======================================[$NOW] 통합 백 오피스 api Nginx Blue Container 서비스 설정 작업======================================"
 echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
-HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/conf.d"
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/dev/nginx/conf.d"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/dev/shell-script/nginx"
 NGINX_CONFIG_DIR="/etc/nginx"
 NGINX_CONTAINER_NAME="nginx-total-back-office-blue"
 

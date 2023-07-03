@@ -21,8 +21,8 @@ APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
 APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
 APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
-APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/dev/shell-script/application"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/dev/shell-script/nginx"
 
 NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
 NGINX_GREEN_CONTAINER_NAME="nginx-total-back-office-green"

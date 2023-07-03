@@ -8,9 +8,9 @@ SAVE_LOG_DATE=$(date +"%y-%m-%d")
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
 #Application Docker File 경로
-APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/docker"
+APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/dev/docker"
 
-APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/prod/backup/application"
+APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/dev/backup/application"
 
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 도커 이미지 생성 및 도커 백업 작업이 시작 되었어요."
 echo "======================================[$NOW] 통합 백 오피스 도커 이미지 생성 및 도커 백업======================================"

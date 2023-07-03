@@ -19,9 +19,9 @@ NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
 NGINX_BLUE_EXTERNAL_PORT=1000
 NGINX_GREEN_EXTERNAL_PORT=1010
 
-SERVER_IP=192.168.20.12
+SERVER_IP=192.168.20.6
 
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/dev/shell-script/nginx"
 
 checkLogDirectory() {
   sleep 5

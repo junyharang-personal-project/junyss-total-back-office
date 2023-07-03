@@ -16,7 +16,7 @@ NGINX_GREEN_CONTAINER_NAME="nginx-total-back-office-green"
 NGINX_BLUE_EXTERNAL_PORT=1000
 NGINX_GREEN_EXTERNAL_PORT=1010
 
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/dev/shell-script/nginx"
 
 
 checkLogDirectory() {
