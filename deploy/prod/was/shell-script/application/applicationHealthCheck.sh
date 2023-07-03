@@ -24,7 +24,7 @@ APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
 
 SERVER_IP=192.168.20.12
 
-APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/application"
+APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/was/shell-script/application"
 
 checkLogDirectory() {
   sleep 5

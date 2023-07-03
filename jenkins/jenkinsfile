@@ -351,7 +351,7 @@ pipeline {
             } // Discord Send Post 끝
         } // stage("개발 환경 Docker 관련 작업") 끝
 
-        stage('운영 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여') {
+        stage('운영 환경 WAS 서버에 File 전달 및 스크립트 실행 권한 부여') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
             }
@@ -372,10 +372,10 @@ pipeline {
                                                             remoteDirectory: "deploy/",
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/prod/docker/",
+                                                            remoteDirectory: "deploy/prod/was/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
-                                                            sourceFiles: "deploy/prod/**",
+                                                            sourceFiles: "deploy/prod/was/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/containerExistenceStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationContainerNewRun.sh; \
@@ -492,7 +492,7 @@ pipeline {
                 }
             } // Discord Send Post 끝
         } // stage("운영 환경 Docker 관련 작업") 끝
-
+        
         stage('Jenkins CI/CD 작업 완료') {
             steps {
                 sh 'echo "Jenkins CI/CD 작업이 완료 되었어요. 😎"'

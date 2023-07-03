@@ -8,7 +8,7 @@ SAVE_LOG_DATE=$(date +"%y-%m-%d")
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
 #Application Docker File 경로
-APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/docker"
+APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/was/docker"
 
 APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/prod/backup/application"
 

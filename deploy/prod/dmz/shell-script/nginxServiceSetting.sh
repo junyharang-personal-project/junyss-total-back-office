@@ -6,14 +6,16 @@ NOW=$(date +"%y-%m-%d_%H:%M:%S")
 SAVE_LOG_DATE=$(date +"%y-%m-%d")
 
 echo "====================================================================================================="
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Green Container 서비스 설정 작업이 시작 되었어요."
-echo "======================================[$NOW] 통합 백 오피스 api Nginx Green Container 서비스 설정 작업======================================"
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 DMZ Nginx Container 서비스 설정 작업이 시작 되었어요."
+echo "======================================[$NOW] 통합 백 오피스 api DMZ Blue Container 서비스 설정 작업======================================"
 echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
-HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/conf.d"
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/shell-script/nginx"
+HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/dmz/nginx"
+HOST_NGINX_DEFAULT_CONFIG_PATH_DIR="/data/deploy/giggal-total-back-office/deploy/prod/dmz/nginx/conf.d"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/dmz/shell-script"
 NGINX_CONFIG_DIR="/etc/nginx"
-NGINX_CONTAINER_NAME="nginx-total-back-office-green"
+DEFAULT_CONFIG_DIR="/etc/nginx/conf.d"
+NGINX_CONTAINER_NAME="nginx-total-back-office-dmz"
 
 checkLogDirectory() {
   sleep 5
@@ -34,10 +36,50 @@ checkLogDirectory() {
       exit 1
   fi
 
-  nginxContainerSetting
+  nginxContainerDefaultConfigSetting
 }
 
-nginxContainerSetting() {
+nginxContainerDefaultConfigSetting() {
+  echo "[$NOW] [INFO] 기존 Nginx Container 기본 default.conf File 보안 설정 내용 추가를 위해 제거 할게요."
+  echo "[$NOW] [INFO] 기존 Nginx Container 기본 default.conf File 보안 설정 내용 추가를 위해 제거 할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+  command="docker exec ${NGINX_CONTAINER_NAME} rm -rf /etc/nginx/con.f/default.conf"
+
+  if ! docker exec ${NGINX_CONTAINER_NAME} rm -rf /etc/nginx/con.f/default.conf;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  echo "[$NOW] [INFO] 보안 설정이 추가되어 새롭게 작성된 default.conf File 복사 할게요."
+  echo "[$NOW] [INFO] 보안 설정이 추가되어 새롭게 작성된 default.conf File 복사 할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+  command="docker cp ${HOST_NGINX_DEFAULT_CONFIG_PATH_DIR}/default.conf $NGINX_CONTAINER_NAME:${DEFAULT_CONFIG_DIR}/default.conf"
+
+  if ! docker cp ${HOST_NGINX_DEFAULT_CONFIG_PATH_DIR}/default.conf $NGINX_CONTAINER_NAME:${DEFAULT_CONFIG_DIR}/default.conf;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+  fi
+
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요."
+  echo "[$NOW] [INFO] Application 중단 없이 변경 사항 Nginx 적용 작업 실시할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+  command="docker exec ${NGINX_CONTAINER_NAME} nginx -s reload"
+
+  if ! docker exec ${NGINX_CONTAINER_NAME} nginx -s reload;
+  then
+    failedCommand "${command}"
+  else
+    successCommand "${command}"
+
+    nginxContainerNginxConfigSetting
+  fi
+}
+
+nginxContainerNginxConfigSetting() {
   echo "[$NOW] [INFO] 기존 Nginx Container 기본 nginx.conf File 제거 할게요."
   echo "[$NOW] [INFO] 기존 Nginx Container 기본 nginx.conf File 제거 할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
@@ -53,9 +95,9 @@ nginxContainerSetting() {
   echo "[$NOW] [INFO] 새롭게 작성된 nginx.conf File 복사 할게요."
   echo "[$NOW] [INFO] 새롭게 작성된 nginx.conf File 복사 할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  command="docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.green.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf"
+  command="docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf"
 
-  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.green.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
+  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
   then
     failedCommand "${command}"
   else
@@ -96,9 +138,9 @@ checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Green Container 서비스 설정 작업이 끝났어요."
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 DMZ Blue Container 서비스 제 설정 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Green Container 서비스 설정 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 DMZ Blue Container 서비스 제 설정 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : "
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] ${operationDockerStatus} "
