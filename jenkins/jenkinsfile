@@ -31,11 +31,6 @@ pipeline {
                     env.DRIVE_ENV = DRIVE_ENV
 
                     APPLICATON_CREDENTIAL_NAME = DRIVE_ENV + APPLICATION_NAME + "-was"
-                    // credential id는 prod-was, dev-was여아 한다.
-
-                    // 도커 관련 설정
-                    DOCKER_FILE_PATH = "./deploy/docker/bak-Dockerfile"
-                    DOCKER_IMAGE_NAME = "giggal-people/" + DRIVE_ENV + "-" + APPLICATON_CREDENTIAL_NAME
 
                     // gitea 환경 설정
                     GITEA_CREDENTIAL_ID = "[기깔나는 사람들]gitea-backend"
@@ -94,26 +89,6 @@ pipeline {
                 }
             } // Discord Send Post 끝
         } // stage('GITEA CHECKOUT') 끝
-
-        stage('내부 Port 번호 추출 및 원격 서버 Port 설정을 위한 작업') {
-            steps {
-                script {
-                    INTERNAL_PORT = sh(script: "yq e '.server.port' ./src/main/resources/application-${DRIVE_ENV}-port.yml", returnStdout: true).trim()
-                }
-            }
-
-            post {
-                success {
-                    script {
-                        sendSuccessAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
-                    }
-                }
-
-                failure {
-                    sendFailedAlarmToDiscord('내부 Port 번호 추출 및 원격 서버 전달 작업')
-                }
-            } // Discord Send Post 끝
-        } // stage('내부 Port 번호 추출 및 원격 서버 전달 작업') 끝
 
         stage('Project Build 그리고 Test 작업') {
             steps {
@@ -234,10 +209,9 @@ pipeline {
             } // Discord Send Post 끝
         } // stage(SONARQUBE_QUALITY_GATE) 끝
 
-        stage('개발 환경 Application 서버에 File 전달') {
+        stage('개발 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여') {
             when {
                 expression { env.GIT_BRANCH == 'develop' }
-//                branch pattern: "(develop)", comparator: "REGEXP"
             }
 
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
@@ -254,30 +228,19 @@ pipeline {
                                             transfers: [
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/",
-//                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/prod/docker/",
+                                                            remoteDirectory: "deploy/dev/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
-                                                            remoteDirectory: "deploy/prod/nginx/docker/",
-                                                            sourceFiles: "deploy/prod/nginx/docker/conf.d/*.conf"),
-                                                    sshTransfer(
-//                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/dev/**",
-                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/containerExistenceStatusCheck.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/applicationHealthCheck.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/applicationContainerSwitchingRun.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh"),
-//                                                    sshTransfer(
-//                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
-//                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
-//                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
-//                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
-//                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
-//                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
-//                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh")
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/containerExistenceStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationContainerNewRun.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationHealthCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxDockerContainerRun.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxBlueServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxHealthCheck.sh"),
                                             ]
                                     )
                             ]
@@ -294,20 +257,19 @@ pipeline {
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('개발 환경 Application 서버에 File 전달')
+                        sendSuccessAlarmToDiscord('개발 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('개발 환경 Application 서버에 File 전달')
+                    sendFailedAlarmToDiscord('개발 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여')
                 }
             } // Discord Send Post 끝
-        } // stage('개발 환경 Application 서버에 File 전달') 끝
+        } // stage('개발 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여') 끝
 
         stage('개발 환경 Docker Image 생성 및 Backup 작업') {
             when {
                 expression { env.GIT_BRANCH == 'develop' }
-//                branch pattern: "(develop)", comparator: "REGEXP"
             }
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
@@ -320,10 +282,7 @@ pipeline {
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-//                                            sshTransfer(
-//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
-sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh")
                                             ]
                                     )
                             ]
@@ -350,10 +309,9 @@ sshTransfer(
             } // Discord Send Post 끝
         } // stage("개발 환경 Docker Image 생성 및 Backup 작업") 끝
 
-        stage('개발 환경 Docker 기동 작업') {
+        stage('개발 환경 Docker 관련 작업') {
             when {
                 expression { env.GIT_BRANCH == 'develop' }
-//                branch pattern: "(develop)", comparator: "REGEXP"
             }
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
@@ -366,10 +324,7 @@ sshTransfer(
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-//                                            sshTransfer(
-//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
-sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/deploy.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/containerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]
@@ -379,27 +334,26 @@ sshTransfer(
                     def requiredTimeMillis = endTimeMillis - startTimeMillis
                     def requiredTimeSecond = requiredTimeMillis / 1000
 
-                    echo '개발 환경 Docker 기동 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                    echo '개발 환경 Docker 관련 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('개발 환경 Docker 기동 작업')
+                        sendSuccessAlarmToDiscord('개발 환경 Docker 관련 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('개발 환경 Docker 기동 작업')
+                    sendFailedAlarmToDiscord('개발 환경 Docker 관련 작업')
                 }
             } // Discord Send Post 끝
-        } // stage("개발 환경 Docker 기동 작업") 끝
+        } // stage("개발 환경 Docker 관련 작업") 끝
 
-        stage('운영 환경 Application 서버에 File 전달') {
+        stage('운영 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
-//                branch pattern: "(master|main)", comparator: "REGEXP"
             }
 
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
@@ -416,29 +370,19 @@ sshTransfer(
                                             transfers: [
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/",
-//                                                            execCommand: "cd $DOCKER_SERVER_BASE_DIRECTORY; rm -rf *;"
                                                             execCommand: "rm -rf *;"),
                                                     sshTransfer(
                                                             remoteDirectory: "deploy/prod/docker/",
                                                             sourceFiles: "build/libs/*.jar"),
                                                     sshTransfer(
-//                                                            remoteDirectory:"/data/deploy/giggal-total-back-office",
                                                             sourceFiles: "deploy/prod/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/containerExistenceStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/nginxDockerContainerRun.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/reNginxService.sh"),
-//                                                    sshTransfer(
-//                                                            execCommand: "export INTERNAL_PORT=${INTERNAL_PORT}; \
-//                                                                          export DOCKER_IMAGE_NAME=${DOCKER_IMAGE_NAME}; \
-//                                                                          export OPERATION_ENV=${DRIVE_ENV}; \
-//                                                                          export EXTERNAL_BLUE_A_PORT=${env.EXTERNAL_BLUE_A_PORT}; \
-//                                                                          export EXTERNAL_BLUE_B_PORT=${env.EXTERNAL_BLUE_B_PORT}; \
-//                                                                          export EXTERNAL_GREEN_A_PORT=${env.EXTERNAL_GREEN_A_PORT}; \
-//                                                                          export EXTERNAL_GREEN_B_PORT=${env.EXTERNAL_GREEN_B_PORT}; \
-//                                                                          $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/deploy.sh")
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/nginxBlueServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/nginx/nginxHealthCheck.sh"),
                                             ]
                                     )
                             ]
@@ -448,27 +392,26 @@ sshTransfer(
                     def requiredTimeMillis = endTimeMillis - startTimeMillis
                     def requiredTimeSecond = requiredTimeMillis / 1000
 
-                    echo '운영 환경 Application 서버에 File 전달 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                    echo '운영 환경 Application 서버에 File 전달 및 스크립트 쓰기 권한 설정 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('운영 환경 Application 서버에 File 전달')
+                        sendSuccessAlarmToDiscord('운영 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('운영 환경 Application 서버에 File 전달')
+                    sendFailedAlarmToDiscord('운영 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여')
                 }
             } // Discord Send Post 끝
-        } // stage('운영 환경 Application 서버에 File 전달') 끝
+        } // stage('운영 환경 Application 서버에 File 전달 및 스크립트 실행 권한 부여') 끝
 
         stage('운영 환경 Docker Image 생성 및 Backup 작업') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
-//                branch pattern: "(master|main)", comparator: "REGEXP"
             }
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
@@ -481,10 +424,7 @@ sshTransfer(
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-//                                            sshTransfer(
-//                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
-sshTransfer(
-        execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh")
                                             ]
                                     )
                             ]
@@ -511,10 +451,9 @@ sshTransfer(
             } // Discord Send Post 끝
         } // stage("운영 환경 Application 서버 배포 작업") 끝
 
-        stage('운영 환경 Docker 기동 작업') {
+        stage('운영 환경 Docker 관련 작업') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
-//                branch pattern: "(master|main)", comparator: "REGEXP"
             }
             steps([$class: 'BapSshPromotionPublisherPlugin']) {
                 script {
@@ -527,10 +466,7 @@ sshTransfer(
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-                                                    //                                            sshTransfer(
-                                                    //                                                    execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/shell-script/createDockerImageAndBackup.sh"),
-                                                    sshTransfer(
-                                                            execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/containerExistenceStatusCheck.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/containerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]
@@ -547,15 +483,15 @@ sshTransfer(
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('운영 환경 Docker 기동 작업')
+                        sendSuccessAlarmToDiscord('운영 환경 Docker 관련 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('운영 환경 Docker 기동 작업')
+                    sendFailedAlarmToDiscord('운영 환경 Docker 관련 작업')
                 }
             } // Discord Send Post 끝
-        } // stage("운영 환경 Docker 기동 작업") 끝
+        } // stage("운영 환경 Docker 관련 작업") 끝
 
         stage('Jenkins CI/CD 작업 완료') {
             steps {

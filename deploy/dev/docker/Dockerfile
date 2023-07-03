@@ -1,5 +1,5 @@
 # 우분투 최신 버전 베이스 이미지 내려 받기
-FROM ubuntu:latest
+FROM openjdk:11
 
 #작성자
 MAINTAINER 주니 <junyharang8592@gmail.com>
@@ -22,18 +22,4 @@ COPY ${JAR_FILE} /app/application.jar
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 필요 패키지 설치
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y init systemd \
-    && apt-get install -y build-essential \
-    && apt-get install -y vim curl \
-    && apt-get install -y net-tools iputils-ping \
-    && apt-get install -y openjdk-11-jdk \
-    && apt-get clean autoclean \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/{apt,dpkg,cache,log}
-
-VOLUME ["/sys/fs/cgroup"]
-#CMD ["/usr/sbin/init"]
-
-ENTRYPOINT ["/usr/sbin/init", "java", "-jar", "-Dspring.profiles.active=dev", "/application.jar", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=Asia/Seoul"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "/app/application.jar", "-Djava.net.preferIPv4Stack=true", "-Duser.timezone=Asia/Seoul"]
