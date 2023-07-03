@@ -425,7 +425,7 @@ pipeline {
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/createDockerImageAndBackup.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/createDockerImageAndBackup.sh")
                                             ]
                                     )
                             ]
@@ -467,7 +467,7 @@ pipeline {
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/shell-script/containerExistenceStatusCheck.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/containerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]
