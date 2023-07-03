@@ -217,7 +217,8 @@ checkApplicationContainerExistenceStatus() {
 
         $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
 
-        $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
+        $NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueServiceSetting.sh;
+        $NGINX_SHELL_SCRIPT_DIRECTORY/nginxGreenServiceSetting.sh;
 
         break
       fi
