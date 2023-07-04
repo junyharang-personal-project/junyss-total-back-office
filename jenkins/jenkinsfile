@@ -96,7 +96,7 @@ pipeline {
                     def startTimeMillis = System.currentTimeMillis()
 
                     echo 'Project Build 그리고 Test 작업을 시작합니다!'
-                    sh './gradlew clean build --stacktrace --warning-mode all --console=verbose'
+                    sh './gradlew clean build --stacktrace --warning-mode all --info --console=verbose'
 
                     def endTimeMillis = System.currentTimeMillis()
                     def requiredTimeMillis = endTimeMillis - startTimeMillis

@@ -43,8 +43,6 @@ checkLogDirectory() {
 applicationOldDockerContainerRemove() {
     echo "[$NOW] [INFO] 기존 Docker Container 중지 및 삭제 작업을 시작할게요."
     echo "[$NOW] [INFO] 기존 Docker Container 중지 및 삭제 작업을 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Green B, Green A, Blue B, Blue A 순서로 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
-    echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Green B, Green A, Blue B, Blue A 순서로 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
     for loopCount in {1..2}
     do

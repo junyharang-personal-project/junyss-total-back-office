@@ -5,8 +5,8 @@ set -e
 NOW=$(date +"%y-%m-%d_%H:%M:%S")
 SAVE_LOG_DATE=$(date +"%y-%m-%d")
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Docker Container 존재 여부 확인 작업이 시작 되었어요."
-echo "======================================[$NOW] 통합 백 오피스 api Docker Container 존재 여부 확인======================================"
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Application Docker Container 존재 여부 확인 작업이 시작 되었어요."
+echo "======================================[$NOW] 통합 백 오피스 api Application Docker Container 존재 여부 확인======================================"
 echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
@@ -186,9 +186,9 @@ checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Docker Container 존재 여부 확인 작업이 끝났어요."
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Docker Container 존재 여부 확인 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Docker Container 존재 여부 확인 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 작업 중 Application Docker Container 존재 여부 확인 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : "
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] ${operationDockerStatus} "
