@@ -235,7 +235,7 @@ pipeline {
                                                     sshTransfer(
                                                             sourceFiles: "deploy/dev/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/createDockerImageAndBackup.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/containerExistenceStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginxContainerExistenceStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxDockerContainerRun.sh; \
@@ -324,7 +324,7 @@ pipeline {
                                             configName: "op-management-api",
                                             verbose: true,
                                             transfers: [
-                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/containerExistenceStatusCheck.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginxContainerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]
@@ -365,7 +365,7 @@ pipeline {
 
                             publishers: [
                                     sshPublisherDesc(
-                                            configName: "op-management-api",
+                                            configName: "op-total-back-office-was",
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(
@@ -377,12 +377,11 @@ pipeline {
                                                     sshTransfer(
                                                             sourceFiles: "deploy/prod/was/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/createDockerImageAndBackup.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/containerExistenceStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/applicationContainerExistenceStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxDockerContainerRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxServiceSetting.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxGreenServiceSetting.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxHealthCheck.sh"),
                                             ]
                                     )
@@ -422,7 +421,7 @@ pipeline {
                             continueOnError: false, failOnError: true,
                             publishers: [
                                     sshPublisherDesc(
-                                            configName: "op-management-api",
+                                            configName: "op-total-back-office-was",
                                             verbose: true,
                                             transfers: [
                                                     sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/createDockerImageAndBackup.sh")
@@ -452,7 +451,7 @@ pipeline {
             } // Discord Send Post 끝
         } // stage("운영 환경 Application 서버 배포 작업") 끝
 
-        stage('운영 환경 Docker 관련 작업') {
+        stage('운영 환경 Application Docker 관련 작업') {
             when {
                 expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
             }
@@ -464,10 +463,10 @@ pipeline {
                             continueOnError: false, failOnError: true,
                             publishers: [
                                     sshPublisherDesc(
-                                            configName: "op-management-api",
+                                            configName: "op-total-back-office-was",
                                             verbose: true,
                                             transfers: [
-                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/containerExistenceStatusCheck.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/applicationContainerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]
@@ -477,19 +476,113 @@ pipeline {
                     def requiredTimeMillis = endTimeMillis - startTimeMillis
                     def requiredTimeSecond = requiredTimeMillis / 1000
 
-                    echo '운영 환경 Docker 기동 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                    echo '운영 환경 Application Docker 관련 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
                 }
             }
 
             post {
                 success {
                     script {
-                        sendSuccessAlarmToDiscord('운영 환경 Docker 관련 작업')
+                        sendSuccessAlarmToDiscord('운영 환경 Application Docker 관련 작업')
                     }
                 }
 
                 failure {
-                    sendFailedAlarmToDiscord('운영 환경 Docker 관련 작업')
+                    sendFailedAlarmToDiscord('운영 환경 Application Docker 관련 작업')
+                }
+            } // Discord Send Post 끝
+        } // stage("운영 환경 Docker 관련 작업") 끝
+
+        stage('운영 환경 DMZ 서버 NGINX 관련 File 전달 및 스크립트 실행 권한 부여') {
+            when {
+                expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
+            }
+
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
+                script {
+                    def startTimeMillis = System.currentTimeMillis()
+
+                    sshPublisher(
+                            continueOnError: false, failOnError: true,
+
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-total-back-office-nginx",
+                                            verbose: true,
+                                            transfers: [
+                                                    sshTransfer(
+                                                            remoteDirectory: "deploy/",
+                                                            execCommand: "rm -rf *;"),
+                                                    sshTransfer(
+                                                            sourceFiles: "deploy/prod/nginx/**",
+                                                            execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxContainerExistenceStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxDockerContainerRun.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxHealthCheck.sh"),
+                                            ]
+                                    )
+                            ]
+                    )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo '운영 환경 DMZ 서버 NGINX 관련 File 전달 및 스크립트 실행 권한 부여 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                }
+            }
+
+            post {
+                success {
+                    script {
+                        sendSuccessAlarmToDiscord('운영 환경 DMZ 서버 NGINX 관련 File 전달 및 스크립트 실행 권한 부여')
+                    }
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('운영 환경 DMZ 서버 NGINX 관련 File 전달 및 스크립트 실행 권한 부여')
+                }
+            } // Discord Send Post 끝
+        } // stage('운영 환경 DMZ 서버 NGINX 관련 File 전달 및 스크립트 실행 권한 부여') 끝
+
+        stage('운영 환경 DMZ 서버 NGINX Docker 관련 작업') {
+            when {
+                expression { env.GIT_BRANCH == 'master' | env.GIT_BRANCH == 'main' }
+            }
+            steps([$class: 'BapSshPromotionPublisherPlugin']) {
+                script {
+                    def startTimeMillis = System.currentTimeMillis()
+
+                    sshPublisher(
+                            continueOnError: false, failOnError: true,
+                            publishers: [
+                                    sshPublisherDesc(
+                                            configName: "op-total-back-office-nginx",
+                                            verbose: true,
+                                            transfers: [
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxContainerExistenceStatusCheck.sh")
+                                            ]
+                                    )
+                            ]
+                    )
+
+                    def endTimeMillis = System.currentTimeMillis()
+                    def requiredTimeMillis = endTimeMillis - startTimeMillis
+                    def requiredTimeSecond = requiredTimeMillis / 1000
+
+                    echo '운영 환경 DMZ 서버 NGINX Docker 관련 작업 소요 시간 : ' + requiredTimeSecond + ' 초'
+                }
+            }
+
+            post {
+                success {
+                    script {
+                        sendSuccessAlarmToDiscord('운영 환경 DMZ 서버 NGINX Docker 관련 작업')
+                    }
+                }
+
+                failure {
+                    sendFailedAlarmToDiscord('운영 환경 DMZ 서버 NGINX Docker 관련 작업')
                 }
             } // Discord Send Post 끝
         } // stage("운영 환경 Docker 관련 작업") 끝

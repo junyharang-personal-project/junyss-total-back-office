@@ -55,7 +55,7 @@ nginxContainerSetting() {
 
   command="docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.blue.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf"
 
-  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.blue.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
+  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
   then
     failedCommand "${command}"
   else

@@ -12,8 +12,8 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
-APPLICATION_BLUE_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
-APPLICATION_GREEN_CONTAINER_NAME="giggal-total-back-office-api-green-a"
+APPLICATION_BLUE_CONTAINER_NAME="giggal-total-back-office-api-blue"
+APPLICATION_GREEN_CONTAINER_NAME="giggal-total-back-office-api-green"
 
 APPLICATION_BLUE_EXTERNAL_PORT_NUMBER=1001
 APPLICATION_GREEN_EXTERNAL_PORT_NUMBER=1011
@@ -115,11 +115,11 @@ applicationDockerContainerRun() {
 
   if [ "$containerName" == "$APPLICATION_BLUE_CONTAINER_NAME" ];
   then
-    containerAndHostName="giggal-total-back-office-api-blue"
+    containerAndHostName=$APPLICATION_BLUE_CONTAINER_NAME
     portNumber=$APPLICATION_BLUE_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName="giggal-total-back-office-api-green"
+    containerAndHostName=$APPLICATION_GREEN_CONTAINER_NAME
     portNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
   fi
 

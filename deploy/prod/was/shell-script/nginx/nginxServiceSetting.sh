@@ -6,8 +6,8 @@ NOW=$(date +"%y-%m-%d_%H:%M:%S")
 SAVE_LOG_DATE=$(date +"%y-%m-%d")
 
 echo "====================================================================================================="
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Blue Container 서비스 설정 작업이 시작 되었어요."
-echo "======================================[$NOW] 통합 백 오피스 api Nginx Blue Container 서비스 설정 작업======================================"
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Container 서비스 설정 작업이 시작 되었어요."
+echo "======================================[$NOW] 통합 백 오피스 api Nginx Container 서비스 설정 작업======================================"
 echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/was/nginx"
@@ -114,7 +114,7 @@ nginxContainerNginxConfigSetting() {
 
   command="docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.blue.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf"
 
-  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.blue.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
+  if ! docker cp ${HOST_NGINX_CONFIG_DIR}/nginx.conf $NGINX_CONTAINER_NAME:${NGINX_CONFIG_DIR}/nginx.conf;
   then
     failedCommand "${command}"
   else
@@ -155,9 +155,9 @@ checkLogDirectory
 
 operationDockerStatus=$(docker ps -a)
 
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Blue Container 서비스 제 설정 작업이 끝났어요."
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Container 서비스 제 설정 작업이 끝났어요."
 echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 LOG 위치 : ${LOG_DIR}"
-echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Blue Container 서비스 제 설정 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 Nginx Container 서비스 제 설정 작업이 끝났어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : "
 echo "[$NOW] [INFO] 현재 운영 중인 Docker Container 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 echo "[$NOW] [INFO] ${operationDockerStatus} "
