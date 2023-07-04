@@ -14,7 +14,8 @@ NGINX_CONTAINER_NAME="nginx-total-back-office"
 
 NGINX_EXTERNAL_PORT=1000
 
-SERVER_IP=192.168.30.3
+INTERNAL_SERVER_IP=192.168.30.3
+EXTERNAL_SERVER_IP=211.109.165.163
 
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/nginx/shell-script"
 
@@ -42,75 +43,84 @@ checkLogDirectory() {
 }
 
 nginxHealthCheck() {
-  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요."
-  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Health Check 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-  echo "[$NOW] [INFO] 사용 명령어: curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
-  echo "[$NOW] [INFO] 사용 명령어: curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  for retryCount in {1..10}
+  for loopCount in {1..2}
   do
-    sleep 5
-    echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
-    echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    responseCode=$(curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
-    command="curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
-    if [ "$responseCode" == "200" ];
+    if [ $loopCount == 1 ];
     then
-      successCommand "${command}"
-
+      echo "[$NOW] [INFO] 최초 ${NGINX_CONTAINER_NAME} 내부망 Health Check 시작할게요."
+      echo "[$NOW] [INFO] 최초 ${NGINX_CONTAINER_NAME} 내부망 Health Check 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      serverIp=$INTERNAL_SERVER_IP
     else
-      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
-      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다."
-      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-      nginxDockerContainerErrorRemove
+      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 외부망 Health Check 시작할게요."
+      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 외부망 Health Check 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      serverIp=$EXTERNAL_SERVER_IP
     fi
 
-    responseCount=$(curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep "HTTP" | wc -l)
-    command="curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep "HTTP" | wc -l"
+    echo "[$NOW] [INFO] 사용 명령어: curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' "
+    echo "[$NOW] [INFO] 사용 명령어: curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+' " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-    # up_count >= 1
-    if [ ${responseCount} -ge 1 ];
-    then
-      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요."
-      echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    for retryCount in {1..10}
+    do
+      sleep 5
+      echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요."
+      echo "[$NOW] [INFO] ${retryCount} 번째 Health Check가 시작 되었어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      responseCode=$(curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+')
+      command="curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep -oP 'HTTP/1.1 \K\d+'"
 
-      successCommand "${command}"
-      break
-
-    else
-      errorResponse=$(curl -I http://${SERVER_IP}:${NGINX_EXTERNAL_PORT}/api/test/profile)
-
-      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요."
-      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}"
-      echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요."
-      echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-      nginxDockerContainerErrorRemove
-    fi
-
-    if [ "${retryCount}" -eq 10 ];
+      if [ "$responseCode" == "200" ];
       then
-        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요."
-        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        successCommand "${command}"
+
+      else
+        echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요."
+        echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME}가 기동 중이지만, 내부 서비스에 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다."
+        echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} 삭제 및 재 기동 실시합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+        nginxDockerContainerErrorRemove
+      fi
+
+      responseCount=$(curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep "HTTP" | wc -l)
+      command="curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile | grep "HTTP" | wc -l"
+
+      # up_count >= 1
+      if [ ${responseCount} -ge 1 ];
+      then
+        echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요."
+        echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 상태가 정상이에요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+        successCommand "${command}"
+        break
+
+      else
+        errorResponse=$(curl -I http://${serverIp}:${NGINX_EXTERNAL_PORT}/api/test/profile)
+
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요."
+        echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 상태에 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}"
+        echo "[$NOW] [ERROR] 문제 내용 : ${errorResponse}" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
         echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요."
         echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container 종료 및 삭제 시도할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
         nginxDockerContainerErrorRemove
-    fi
+      fi
 
-    echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} Health Check 작업에 실패하였어요."
-    echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} Health Check 작업에 실패하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      if [ "${retryCount}" -eq 10 ];
+        then
+          echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요."
+          echo "[$NOW] [ERROR] ${NGINX_CONTAINER_NAME} Container Health 상태 문제가 있어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      fi
 
-    echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
-    echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    exit 1
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} Health Check 작업에 실패하였어요."
+      echo "[$NOW] [WARN] ${NGINX_CONTAINER_NAME} Health Check 작업에 실패하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+      echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
+      echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      exit 1
+    done
   done
 }
 
