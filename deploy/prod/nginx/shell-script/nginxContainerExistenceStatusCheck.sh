@@ -78,6 +78,8 @@ checkNginxStatus() {
 
     successCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
 
+    $NGINX_SHELL_SCRIPT_DIRECTORY/nginxServiceSetting.sh;
+
     else
       echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : "
       echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
