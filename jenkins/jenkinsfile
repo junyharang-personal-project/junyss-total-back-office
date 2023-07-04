@@ -516,9 +516,9 @@ pipeline {
                                                     sshTransfer(
                                                             sourceFiles: "deploy/prod/nginx/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxContainerExistenceStatusCheck.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxDockerContainerRun.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxServiceSetting.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginx/nginxHealthCheck.sh"),
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxDockerContainerRun.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/nginx/shell-script/nginxHealthCheck.sh"),
                                             ]
                                     )
                             ]
