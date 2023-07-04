@@ -239,7 +239,7 @@ pipeline {
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxDockerContainerRun.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxBlueServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxServiceSetting.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/dev/shell-script/nginx/nginxHealthCheck.sh"),
                                             ]
                                     )
@@ -381,7 +381,7 @@ pipeline {
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxDockerContainerRun.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxBlueServiceSetting.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxServiceSetting.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxGreenServiceSetting.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxHealthCheck.sh"),
                                             ]

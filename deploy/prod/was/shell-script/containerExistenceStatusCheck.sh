@@ -11,21 +11,26 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
-APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
-APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
-APPLICATION_GREEN_A_CONTAINER_NAME="giggal-total-back-office-api-green-a"
-APPLICATION_GREEN_B_CONTAINER_NAME="giggal-total-back-office-api-green-b"
+#APPLICATION_BLUE_A_CONTAINER_NAME="giggal-total-back-office-api-blue-a"
+#APPLICATION_BLUE_B_CONTAINER_NAME="giggal-total-back-office-api-blue-b"
+#APPLICATION_GREEN_A_CONTAINER_NAME="giggal-total-back-office-api-green-a"
+#APPLICATION_GREEN_B_CONTAINER_NAME="giggal-total-back-office-api-green-b"
 
-APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
-APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
-APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
-APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
+APPLICATION_BLUE_CONTAINER_NAME="giggal-total-back-office-api-blue"
+APPLICATION_GREEN_CONTAINER_NAME="giggal-total-back-office-api-green"
+
+#APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER=1001
+#APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER=1002
+#APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER=1011
+#APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER=1012
+
+APPLICATION_BLUE_EXTERNAL_PORT_NUMBER=1001
+APPLICATION_GREEN_EXTERNAL_PORT_NUMBER=1011
 
 APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/was/shell-script/application"
 NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/was/shell-script/nginx"
 
-NGINX_BLUE_CONTAINER_NAME="nginx-total-back-office-blue"
-NGINX_GREEN_CONTAINER_NAME="nginx-total-back-office-green"
+NGINX_CONTAINER_NAME="nginx-total-back-office"
 
 checkLogDirectory() {
   sleep 5
@@ -49,37 +54,24 @@ checkLogDirectory() {
 }
 
 checkNginxContainerExistenceStatus() {
-  echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} 컨테이너 존재 여부 확인할게요."
-  echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  NGINX_BLUE_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_BLUE_CONTAINER_NAME")
-  NGINX_GREEN_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_GREEN_CONTAINER_NAME")
+  NGINX_DOCKER_STATUS=$(docker ps -aqf "name=$NGINX_CONTAINER_NAME")
 
-  if [[ -z "$NGINX_BLUE_DOCKER_STATUS" ]] || [[ -z "$NGINX_GREEN_DOCKER_STATUS" ]];
+  if [[ -z "$NGINX_DOCKER_STATUS" ]];
   then
 
-    if [[ -z "$NGINX_BLUE_DOCKER_STATUS" ]];
-    then
-      echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME} Container 존재하지 않아요."
-      echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME} Container 존재하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-    elif [[ -z "$NGINX_GREEN_DOCKER_STATUS" ]];
-    then
-      echo "[$NOW] [INFO] ${NGINX_GREEN_CONTAINER_NAME} Container 존재하지 않아요."
-      echo "[$NOW] [INFO] ${NGINX_GREEN_CONTAINER_NAME} Container 존재하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-    else
-      echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} Container 존재하지 않아요."
-      echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} Container 존재하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    fi
+    echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 존재하지 않아요."
+    echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} Container 존재하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
     checkApplicationContainerExistenceStatus
 
     $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
 
   else
-    echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} 컨테이너 존재합니다."
-    echo "[$NOW] [INFO] ${NGINX_BLUE_CONTAINER_NAME}, ${NGINX_GREEN_CONTAINER_NAME} 컨테이너 존재합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 컨테이너 존재합니다."
+    echo "[$NOW] [INFO] ${NGINX_CONTAINER_NAME} 컨테이너 존재합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
     checkNginxStatus
   fi
@@ -89,109 +81,64 @@ checkNginxStatus() {
     echo "[$NOW] [INFO] Nginx 컨테이너 동작 여부 확인할게요."
     echo "[$NOW] [INFO] Nginx 컨테이너 동작 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-    blueContainerId=$(docker ps --filter "name=$NGINX_BLUE_CONTAINER_NAME" --format "{{.ID}}")
-    checkBlueContainerStatus=$(docker ps --filter "id=$blueContainerId" --format "{{.Status}}")
-
-    greenContainerId=$(docker ps --filter "name=$NGINX_GREEN_CONTAINER_NAME" --format "{{.ID}}")
-    checkGreenContainerStatus=$(docker ps --filter "id=$greenContainerId" --format "{{.Status}}")
+    containerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
+    checkContainerStatus=$(docker ps --filter "id=$containerId" --format "{{.Status}}")
 
     sleep 5
 
-    blueContainerLogs=$(docker logs "$blueContainerId")
-    greenContainerLogs=$(docker logs "$greenContainerId")
+    containerLogs=$(docker logs "$containerId")
 
-    if [[ $checkBlueContainerStatus == "Up"* ]] && [[ $checkGreenContainerStatus == "Up"* ]];
+    if [[ $checkContainerStatus == "Up"* ]];
     then
-      echo "[$NOW] [INFO] 기동 중인 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : "
-      echo "[$NOW] [INFO] 기동 중인 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-      echo -e "[$NOW] [INFO] $blueContainerLogs \n"
-      echo -e "[$NOW] [INFO] $blueContainerLogs \n" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] 기동 중인 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : "
+      echo "[$NOW] [INFO] 기동 중인 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo -e "[$NOW] [INFO] $containerLogs \n"
+      echo -e "[$NOW] [INFO] $containerLogs \n" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-      echo "[$NOW] [INFO] 기동 중인 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : "
-      echo "[$NOW] [INFO] 기동 중인 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-      echo -e "[$NOW] [INFO] $greenContainerLogs \n"
-      echo -e "[$NOW] [INFO] $greenContainerLogs \n" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-    successCommand "docker ps --filter "id=$blueContainerId" --format "{{.Status}}" "
-    successCommand "docker ps --filter "id=$greenContainerId" --format "{{.Status}}" "
+    successCommand "docker ps --filter "id=$containerId" --format "{{.Status}}" "
 
     checkApplicationContainerExistenceStatus
 
     else
-      if [[ $checkBlueContainerStatus != "Up"* ]];
-      then
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : "
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] $blueContainerLogs"
-        echo "[$NOW] [ERROR] $blueContainerLogs" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : "
+      echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] $containerLogs"
+      echo "[$NOW] [ERROR] $containerLogs" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-        nginxDockerContainerRemove "${NGINX_BLUE_CONTAINER_NAME}"
-
-      elif [[ $checkGreenContainerStatus != "Up"* ]];
-      then
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : "
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] $greenContainerLogs"
-        echo "[$NOW] [ERROR] $greenContainerLogs" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        nginxDockerContainerRemove "${NGINX_GREEN_CONTAINER_NAME}"
-
-      else
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : "
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_BLUE_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        echo -e "[$NOW] [ERROR] $blueContainerLogs \n"
-        echo -e "[$NOW] [ERROR] $blueContainerLogs \n" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : "
-        echo "[$NOW] [ERROR] 문제 발생한 ${NGINX_GREEN_CONTAINER_NAME} Container 내부 Log 정보 : " >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        echo "[$NOW] [ERROR] $greenContainerLogs"
-        echo "[$NOW] [ERROR] $greenContainerLogs" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        for loopCount in {1..2}
-        do
-          if [ $loopCount == 1 ];
-          then
-            removeTargetContainerName=$NGINX_BLUE_CONTAINER_NAME
-          else
-            removeTargetContainerName=$NGINX_GREEN_CONTAINER_NAME
-          fi
-
-          nginxDockerContainerRemove "${removeTargetContainerName}"
-        done
-      fi
+      nginxDockerContainerRemove
     fi
 }
 
 nginxDockerContainerRemove() {
 
-  local targetRemoveContainerName=$1
+#  local targetRemoveContainerName=$1
 
-  echo "[$NOW] [INFO] 기존 ${targetRemoveContainerName} Container 중지 및 삭제 작업을 시작할게요."
-  echo "[$NOW] [INFO] 기존 ${targetRemoveContainerName} Container 포함한 중지 및 삭제 작업을 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+  echo "[$NOW] [INFO] 기존 ${NGINX_CONTAINER_NAME} Container 중지 및 삭제 작업을 시작할게요."
+  echo "[$NOW] [INFO] 기존 ${NGINX_CONTAINER_NAME} Container 포함한 중지 및 삭제 작업을 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  stopContainerId=$(docker ps --filter "name=$targetRemoveContainerName" --format "{{.ID}}")
+  stopContainerId=$(docker ps --filter "name=$NGINX_CONTAINER_NAME" --format "{{.ID}}")
 
-  if ! docker stop $targetRemoveContainerName;
+  if ! docker stop $NGINX_CONTAINER_NAME;
   then
-    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다."
-    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다."
+    echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
     exit 1
 
   else
-    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요."
-    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요."
-    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 진행할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요."
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 종료 작업 성공 하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 진행할게요."
+    echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 진행할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-    if ! docker rm $targetRemoveContainerName;
+    if ! docker rm $NGINX_CONTAINER_NAME;
     then
-      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다."
-      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다."
+      echo "[$NOW] [ERROR] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 실패 하였어요. 스크립트 종료 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
       exit 1
 
     else
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요."
-      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${targetRemoveContainerName}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요."
+      echo "[$NOW] [INFO] 기존 동작 중이던 Container 이름: ${NGINX_CONTAINER_NAME}, Container ID: ${stopContainerId} 삭제 작업 성공 하였어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
       $NGINX_SHELL_SCRIPT_DIRECTORY/nginxDockerContainerRun.sh;
     fi
@@ -202,92 +149,64 @@ checkApplicationContainerExistenceStatus() {
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  for loopCount in {1..4}  # Application 기동할 컨테이너 개수가 총 4개이기 때문에 4번 반복하여 컨테이너 존재 여부 확인.
-  do
-    echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
-    echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-    APPLICATION_DOCKER_BLUE_A_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_A_CONTAINER_NAME")
-    APPLICATION_DOCKER_BLUE_B_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_B_CONTAINER_NAME")
+  APPLICATION_DOCKER_BLUE_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_CONTAINER_NAME")
 
-    if [[ -z "$APPLICATION_DOCKER_BLUE_A_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_BLUE_B_STATUS" ]];
+  echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+  APPLICATION_DOCKER_GREEN_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_CONTAINER_NAME")
+
+  if [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_GREEN_STATUS" ]];
+  then
+    if [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] && [[ -z "$APPLICATION_DOCKER_GREEN_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-      if [[ -z "$APPLICATION_DOCKER_BLUE_A_STATUS" ]];
-      then
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
-      elif [[ -z "$APPLICATION_DOCKER_BLUE_B_STATUS" ]];
-      then
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
-
-      else
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요."
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        applicationDockerContainerRun "${APPLICATION_BLUE_A_CONTAINER_NAME}"
-        applicationDockerContainerRun "${APPLICATION_BLUE_B_CONTAINER_NAME}"
-      fi
-
-    else
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-      echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요."
-      echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-      APPLICATION_DOCKER_GREEN_A_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_A_CONTAINER_NAME")
-      APPLICATION_DOCKER_GREEN_B_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_B_CONTAINER_NAME")
-
-      if [[ -z "$APPLICATION_DOCKER_GREEN_A_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_GREEN_B_STATUS" ]];
-      then
-        echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-        echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-        if [[ -z "$APPLICATION_DOCKER_GREEN_A_STATUS" ]];
+      for loopCount in {1..2}
+      do
+        if [ $loopCount -eq 1 ];
         then
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-          applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
-
-        elif [[ -z "$APPLICATION_DOCKER_GREEN_B_STATUS" ]];
-        then
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-          applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
-
+          containerName=$APPLICATION_BLUE_CONTAINER_NAME
         else
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-          echo "[$NOW] [INFO] ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-
-          applicationDockerContainerRun "${APPLICATION_GREEN_A_CONTAINER_NAME}"
-          applicationDockerContainerRun "${APPLICATION_GREEN_B_CONTAINER_NAME}"
+          containerName=$APPLICATION_GREEN_CONTAINER_NAME
         fi
 
-      else
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다."
-        echo "[$NOW] [INFO] ${APPLICATION_BLUE_A_CONTAINER_NAME}, ${APPLICATION_BLUE_B_CONTAINER_NAME}, ${APPLICATION_GREEN_A_CONTAINER_NAME}, ${APPLICATION_GREEN_B_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        echo "[$NOW] [INFO] ${containerName} 곧 컨테이너 기동 작업이 시작됩니다."
+        echo "[$NOW] [INFO] ${containerName} 곧 컨테이너 기동 작업이 시작됩니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-        $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
+        applicationDockerContainerRun "${containerName}"
+      done
 
-        $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+    elif [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] && [[ -n "$APPLICATION_DOCKER_GREEN_STATUS" ]];
+    then
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-        $NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueServiceSetting.sh;
-        $NGINX_SHELL_SCRIPT_DIRECTORY/nginxGreenServiceSetting.sh;
+      applicationDockerContainerRun "${APPLICATION_BLUE_CONTAINER_NAME}"
 
-        break
-      fi
+    else
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+      applicationDockerContainerRun "${APPLICATION_GREEN_CONTAINER_NAME}"
     fi
-  done
+
+  else
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 합니다."
+    echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+
+    $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
+
+    $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+
+    $NGINX_SHELL_SCRIPT_DIRECTORY/nginxBlueServiceSetting.sh;
+    $NGINX_SHELL_SCRIPT_DIRECTORY/nginxGreenServiceSetting.sh;
+
+  fi
 }
 
 applicationDockerContainerRun() {
@@ -297,25 +216,14 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
   echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  if [ "$containerName" == "$APPLICATION_BLUE_A_CONTAINER_NAME" ];
+  if [ "$containerName" == "$APPLICATION_BLUE_CONTAINER_NAME" ];
   then
-    containerAndHostName="giggal-total-back-office-api-blue-a"
-    portNumber=$APPLICATION_BLUE_A_EXTERNAL_PORT_NUMBER
-
-  elif [ "$containerName" == "$APPLICATION_BLUE_B_CONTAINER_NAME" ];
-  then
-    containerAndHostName="giggal-total-back-office-api-blue-b"
-    portNumber=$APPLICATION_BLUE_B_EXTERNAL_PORT_NUMBER
-
-  elif [ "$containerName" == "$APPLICATION_GREEN_A_CONTAINER_NAME" ];
-  then
-    containerAndHostName="giggal-total-back-office-api-green-a"
-    portNumber=$APPLICATION_GREEN_A_EXTERNAL_PORT_NUMBER
+    containerAndHostName="giggal-total-back-office-api-blue"
+    portNumber=$APPLICATION_BLUE_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName="giggal-total-back-office-api-green-b"
-    portNumber=$APPLICATION_GREEN_B_EXTERNAL_PORT_NUMBER
-
+    containerAndHostName="giggal-total-back-office-api-green"
+    portNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
   fi
 
   echo "[$NOW] [INFO] 설정된 변수 정보: "
