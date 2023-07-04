@@ -11,7 +11,7 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 NGINX_CONTAINER_NAME="nginx-total-back-office"
 
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/nginx/shell-script/nginx"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/nginx/shell-script"
 
 NGINX_CONTAINER_NAME="nginx-total-back-office"
 

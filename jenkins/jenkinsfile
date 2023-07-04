@@ -95,13 +95,16 @@ pipeline {
                 script {
                     def startTimeMillis = System.currentTimeMillis()
 
-                    if (env.DRIVE_ENV == 'dev') {
-                        echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                        sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
-                    } else {
-                        echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
-                        sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
-                    }
+//                    if (env.DRIVE_ENV == 'dev') {
+//                        echo '개발 환경 Project Build 그리고 Test 작업을 시작합니다!'
+//                        sh './gradlew clean build -Pspring.profiles.active=dev --stacktrace --warning-mode all --info'
+//                    } else {
+//                        echo '운영 환경 Project Build 그리고 Test 작업을 시작합니다!'
+//                        sh './gradlew clean build -Pspring.profiles.active=prod --stacktrace --warning-mode all --info'
+//                    }
+
+                    echo 'Dev 환경을 통해 Project Build 그리고 Test 작업을 시작합니다!'
+                    sh './gradlew clean build -Pprofile=dev --stacktrace --warning-mode all --info'
 
                     def endTimeMillis = System.currentTimeMillis()
                     def requiredTimeMillis = endTimeMillis - startTimeMillis
