@@ -104,7 +104,7 @@ pipeline {
 //                    }
 
                     echo 'Dev 환경을 통해 Project Build 그리고 Test 작업을 시작합니다!'
-                    sh './gradlew clean build -Pprofile=dev --stacktrace --warning-mode all --info'
+                    sh './gradlew clean build -Dspring.profiles.active=dev --stacktrace --warning-mode all --info'
 
                     def endTimeMillis = System.currentTimeMillis()
                     def requiredTimeMillis = endTimeMillis - startTimeMillis

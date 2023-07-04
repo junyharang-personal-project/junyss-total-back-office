@@ -11,8 +11,8 @@ echo "======================================[$NOW] 통합 백 오피스 api Ngin
 echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 HOST_NGINX_CONFIG_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/config"
-HOST_NGINX_DEFAULT_CONFIG_PATH_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/nginx/config/conf.d"
-NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/nginx/shell-script/nginx"
+HOST_NGINX_DEFAULT_CONFIG_PATH_DIR="/data/deploy/giggal-total-back-office/deploy/prod/nginx/config/conf.d"
+NGINX_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/nginx/shell-script"
 NGINX_CONFIG_DIR="/etc/nginx"
 DEFAULT_CONFIG_DIR="/etc/nginx/conf.d"
 NGINX_CONTAINER_NAME="nginx-total-back-office"
