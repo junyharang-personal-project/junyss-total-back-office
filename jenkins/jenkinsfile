@@ -461,7 +461,7 @@ pipeline {
                                             configName: "op-total-back-office-was",
                                             verbose: true,
                                             transfers: [
-                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/applicationContainerExistenceStatusCheck.sh")
+                                                    sshTransfer(execCommand: "$DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationContainerExistenceStatusCheck.sh")
                                             ]
                                     )
                             ]

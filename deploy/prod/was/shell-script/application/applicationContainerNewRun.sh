@@ -12,11 +12,11 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
-APPLICATION_BLUE_CONTAINER_NAME="giggal-total-back-office-api-blue"
-APPLICATION_GREEN_CONTAINER_NAME="giggal-total-back-office-api-green"
+APPLICATION_MAIN_CONTAINER_NAME="giggal-total-back-office-api-main"
+APPLICATION_SUB_CONTAINER_NAME="giggal-total-back-office-api-sub"
 
-APPLICATION_BLUE_EXTERNAL_PORT_NUMBER=1001
-APPLICATION_GREEN_EXTERNAL_PORT_NUMBER=1011
+APPLICATION_MAIN_EXTERNAL_PORT_NUMBER=1001
+APPLICATION_SUB_EXTERNAL_PORT_NUMBER=1011
 
 checkLogDirectory() {
   sleep 5
@@ -48,18 +48,18 @@ applicationOldDockerContainerRemove() {
     do
       if [ "$loopCount" == 1 ];
       then
-        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Green의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
-        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Green의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName=$APPLICATION_GREEN_CONTAINER_NAME
-        portNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
+        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
+        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        stopContainerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+        portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
       else
         sleep 10
-        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Blue의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
-        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Blue의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName=$APPLICATION_BLUE_CONTAINER_NAME
-        portNumber=$APPLICATION_BLUE_EXTERNAL_PORT_NUMBER
+        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
+        echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+        stopContainerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+        portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
       fi
 
@@ -111,14 +111,14 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
   echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  if [ "$containerName" == "$APPLICATION_BLUE_CONTAINER_NAME" ];
+  if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ];
   then
-    containerAndHostName=$APPLICATION_BLUE_CONTAINER_NAME
-    portNumber=$APPLICATION_BLUE_EXTERNAL_PORT_NUMBER
+    containerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+    portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName=$APPLICATION_GREEN_CONTAINER_NAME
-    portNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
+    containerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+    portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
   fi
 
   echo "[$NOW] [INFO] 설정된 변수 정보: "

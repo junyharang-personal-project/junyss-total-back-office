@@ -11,11 +11,11 @@ echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)"
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
-APPLICATION_BLUE_CONTAINER_NAME="giggal-total-back-office-api-blue"
-APPLICATION_GREEN_CONTAINER_NAME="giggal-total-back-office-api-green"
+APPLICATION_MAIN_CONTAINER_NAME="giggal-total-back-office-api-main"
+APPLICATION_SUB_CONTAINER_NAME="giggal-total-back-office-api-sub"
 
-APPLICATION_BLUE_EXTERNAL_PORT_NUMBER=1001
-APPLICATION_GREEN_EXTERNAL_PORT_NUMBER=1011
+APPLICATION_MAIN_EXTERNAL_PORT_NUMBER=1001
+APPLICATION_SUB_EXTERNAL_PORT_NUMBER=1011
 
 APPLICATION_SHELL_SCRIPT_DIRECTORY="/data/deploy/giggal-total-back-office/deploy/prod/was/shell-script/application"
 
@@ -47,27 +47,27 @@ checkApplicationContainerExistenceStatus() {
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  APPLICATION_DOCKER_BLUE_STATUS=$(docker ps -aqf "name=$APPLICATION_BLUE_CONTAINER_NAME")
+  APPLICATION_DOCKER_MAIN_STATUS=$(docker ps -aqf "name=$APPLICATION_MAIN_CONTAINER_NAME")
 
   echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  APPLICATION_DOCKER_GREEN_STATUS=$(docker ps -aqf "name=$APPLICATION_GREEN_CONTAINER_NAME")
+  APPLICATION_DOCKER_SUB_STATUS=$(docker ps -aqf "name=$APPLICATION_SUB_CONTAINER_NAME")
 
-  if [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_GREEN_STATUS" ]];
+  if [[ -z "$APPLICATION_DOCKER_MAIN_STATUS" ]] || [[ -z "$APPLICATION_DOCKER_SUB_STATUS" ]];
   then
-    if [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] && [[ -z "$APPLICATION_DOCKER_GREEN_STATUS" ]];
+    if [[ -z "$APPLICATION_DOCKER_MAIN_STATUS" ]] && [[ -z "$APPLICATION_DOCKER_SUB_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME}, ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME}, ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너 모두 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
       for loopCount in {1..2}
       do
         if [ $loopCount -eq 1 ];
         then
-          containerName=$APPLICATION_BLUE_CONTAINER_NAME
+          containerName=$APPLICATION_MAIN_CONTAINER_NAME
         else
-          containerName=$APPLICATION_GREEN_CONTAINER_NAME
+          containerName=$APPLICATION_SUB_CONTAINER_NAME
         fi
 
         echo "[$NOW] [INFO] ${containerName} 곧 컨테이너 기동 작업이 시작됩니다."
@@ -76,23 +76,23 @@ checkApplicationContainerExistenceStatus() {
         applicationDockerContainerRun "${containerName}"
       done
 
-    elif [[ -z "$APPLICATION_DOCKER_BLUE_STATUS" ]] && [[ -n "$APPLICATION_DOCKER_GREEN_STATUS" ]];
+    elif [[ -z "$APPLICATION_DOCKER_MAIN_STATUS" ]] && [[ -n "$APPLICATION_DOCKER_SUB_STATUS" ]];
     then
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-      applicationDockerContainerRun "${APPLICATION_BLUE_CONTAINER_NAME}"
+      applicationDockerContainerRun "${APPLICATION_MAIN_CONTAINER_NAME}"
 
     else
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
-      echo "[$NOW] [INFO] ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
+      echo "[$NOW] [INFO] ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너가 존재 하지 않아요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-      applicationDockerContainerRun "${APPLICATION_GREEN_CONTAINER_NAME}"
+      applicationDockerContainerRun "${APPLICATION_SUB_CONTAINER_NAME}"
     fi
 
   else
-    echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 합니다."
-    echo "[$NOW] [INFO] ${APPLICATION_BLUE_CONTAINER_NAME}, ${APPLICATION_GREEN_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME}, ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너가 존재 합니다."
+    echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME}, ${APPLICATION_SUB_CONTAINER_NAME} 컨테이너가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
     $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationContainerNewRun.sh;
 
@@ -107,14 +107,14 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요."
   echo "[$NOW] [INFO] ${containerName} 컨테이너 이름을 통해 docker 기동 명령어 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  if [ "$containerName" == "$APPLICATION_BLUE_CONTAINER_NAME" ];
+  if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ];
   then
-    containerAndHostName="giggal-total-back-office-api-blue"
-    portNumber=$APPLICATION_BLUE_EXTERNAL_PORT_NUMBER
+    containerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+    portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName="giggal-total-back-office-api-green"
-    portNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
+    containerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+    portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
   fi
 
   echo "[$NOW] [INFO] 설정된 변수 정보: "
