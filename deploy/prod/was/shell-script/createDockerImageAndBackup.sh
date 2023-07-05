@@ -7,7 +7,6 @@ SAVE_LOG_DATE=$(date +"%y-%m-%d")
 
 APPLICATION_DOCKER_IMAGE_NAME="giggal-people/total-back-office-api"
 
-#Application Docker File 경로
 APPLICATION_DOCKER_FILE_PATH="/data/deploy/giggal-total-back-office/deploy/prod/was/docker"
 
 APPLICATION_DOCKER_BACKUP_DIR="/data/deploy/giggal-total-back-office/deploy/prod/backup/application"
@@ -146,15 +145,14 @@ checkBackupDirectory() {
   echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요."
   echo "[$NOW] [INFO] Docker Backup Directory 가 존재하는지 확인해 볼게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-createImageAndBackup.log 2>&1
 
-  if [ -d "$backupDirectoryPath" ];
+  if ! ls -al $backupDirectoryPath;
   then
+    echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
+    echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-createImageAndBackup.log 2>&1
+    exit 1
+  else
     echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다."
     echo "[$NOW] [INFO] Docker Backup Directory ${backupDirectoryPath} 가 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-createImageAndBackup.log 2>&1
-
-  else
-      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다."
-      echo "[$NOW] [INFO] cicd-admin은 mkdir 명령어를 사용할 수 없어요. 관리자 혹은 DMSO 크루에게 ${backupDirectoryPath} 생성을 요청해 주세요. 스크립트가 종료됩니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-createImageAndBackup.log 2>&1
-      exit 1
   fi
 }
 

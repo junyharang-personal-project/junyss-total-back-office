@@ -633,10 +633,10 @@ void sendSuccessAlarmToDiscord(String stage) {
     )
 }
 
-void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, BigDecimal requiredTime) {
+void sendFailedAlarmToDiscord(String stage) {
     discordSend(
             title: stage,
-            description: stage + " 작업 성공했어요. 😀 \n " + "작업 소요 시간 : " + requiredTime + " 초",
+            description: stage + " 작업 실패 했어요 😤",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
@@ -644,10 +644,10 @@ void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, BigDecimal requiredT
     )
 }
 
-void sendFailedAlarmToDiscord(String stage) {
+void sendSuccessAlarmAndRequiredTimeToDiscord(String stage, BigDecimal requiredTime) {
     discordSend(
             title: stage,
-            description: stage + " 작업 실패 했어요 😤",
+            description: stage + " 작업 성공했어요. 😀 \n " + "작업 소요 시간 : " + requiredTime + " 초",
             footer: "ⓒ 2023. 기깔나는 사람들(giggals.pepole@gmail.com) All Rights Reserved. Blog : https://giggal-people.tistory.com/\n",
             link: env.BUILD_URL,
             result: currentBuild.currentResult,
