@@ -69,8 +69,8 @@ applicationContainerHealthCheck() {
       if [[ $MAIN_CONTAINER_STATUS == "Up"* ]] && [ $loopCount == 1 ]; then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        applicationExternalPortNumber=$APPLICATION_GREEN_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_GREEN_CONTAINER_NAME
+        applicationExternalPortNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
+        containerName=$APPLICATION_SUB_CONTAINER_NAME
 
       elif [[ "$SUB_CONTAINER_STATUS" == "Up"* ]] && [ $loopCount == 2 ]; then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container SUB 기동 상태가 정상임을 확인하였어요."
@@ -169,7 +169,7 @@ applicationContainerHealthCheck() {
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       elif [[ $MAIN_CONTAINER_STATUS != "Up"* ]]; then
-        containerName=$APPLICATION_BLUE_CONTAINER_NAME
+        containerName=$APPLICATION_MAIN_CONTAINER_NAME
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
@@ -178,7 +178,7 @@ applicationContainerHealthCheck() {
         applicationDockerContainerChangeOldErrorRemove "${containerName}"
 
       elif [[ $SUB_CONTAINER_STATUS != "Up"* ]]; then
-        containerName=$APPLICATION_GREEN_CONTAINER_NAME
+        containerName=$APPLICATION_SUB_CONTAINER_NAME
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요."
         echo "[$NOW] [ERROR] ${containerName} Container Health 상태 문제가 있어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
