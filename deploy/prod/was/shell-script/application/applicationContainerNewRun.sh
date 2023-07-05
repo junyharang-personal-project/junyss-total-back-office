@@ -50,7 +50,7 @@ applicationOldDockerContainerRemove() {
       then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+        stopContainerAndHostName="giggal-total-back-office-api-main"
         portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
@@ -58,7 +58,7 @@ applicationOldDockerContainerRemove() {
         sleep 10
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+        stopContainerAndHostName="giggal-total-back-office-api-sub"
         portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
       fi

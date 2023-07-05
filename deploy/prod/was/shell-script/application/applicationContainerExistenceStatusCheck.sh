@@ -76,6 +76,8 @@ checkApplicationContainerExistenceStatus() {
         applicationDockerContainerRun "${containerName}"
       done
 
+      $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
+
     elif [[ -z "$APPLICATION_DOCKER_MAIN_STATUS" ]] && [[ -n "$APPLICATION_DOCKER_SUB_STATUS" ]];
     then
       echo "[$NOW] [INFO] ${APPLICATION_MAIN_CONTAINER_NAME} 컨테이너가 존재 하지 않아요."
