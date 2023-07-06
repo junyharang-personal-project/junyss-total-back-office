@@ -28,7 +28,7 @@ checkLogDirectory() {
     echo "=====================================================================================================" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
     echo "[$NOW] [INFO] 기깔나는 사람들 통합 관리 서버 API 무중단 배포 서버 작업 중 새로운 Application Docker Container 기동 작업이 시작 되었어요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
     echo "======================================[$NOW] 통합 백 오피스 서버 배포======================================" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    echo "[$NOW] [INFO] @Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Author(만든이): 주니(junyharang8592@gmail.com)" >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
     echo "[$NOW] [INFO] LOG Directory 존재 합니다."
     echo "[$NOW] [INFO] LOG Directory 존재 합니다." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
@@ -50,16 +50,16 @@ applicationOldDockerContainerRemove() {
       then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Sub의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName="giggal-total-back-office-api-main"
-        portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
+        stopContainerAndHostName="giggal-total-back-office-api-sub"
+        portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
 
       else
         sleep 10
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문이 시작되었어요. Main의 기존 Docker Container 포함한 중지 및 삭제 명령어에 필요한 변수를 설정할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-        stopContainerAndHostName="giggal-total-back-office-api-sub"
-        portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
+        stopContainerAndHostName="giggal-total-back-office-api-main"
+        portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
         stopContainerId=$(docker ps --filter "name=$stopContainerAndHostName" --format "{{.ID}}")
       fi
 
