@@ -372,7 +372,7 @@ pipeline {
                                                     sshTransfer(
                                                             sourceFiles: "deploy/prod/was/**",
                                                             execCommand: "chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/createDockerImageAndBackup.sh; \
-                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/applicationContainerExistenceStatusCheck.sh; \
+                                                                          chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationContainerExistenceStatusCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationContainerNewRun.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/application/applicationHealthCheck.sh; \
                                                                           chmod +x $DOCKER_SERVER_BASE_DIRECTORY/deploy/prod/was/shell-script/nginx/nginxDockerContainerRun.sh; \

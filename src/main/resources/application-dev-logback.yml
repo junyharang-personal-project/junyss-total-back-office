@@ -20,4 +20,4 @@ logging:
 
 log:
   file:
-    path: log/Development-9998/Giggal-Total-Back-Office/*/Error_0.log
+    path: /var/log/Giggal-Total-Back-Office/*/Error_0.log
