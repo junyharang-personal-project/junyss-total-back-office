@@ -53,30 +53,30 @@ applicationContainerHealthCheck() {
     MAIN_CONTAINER_STATUS=$(docker ps --filter "name=$APPLICATION_MAIN_CONTAINER_NAME" --format "{{.Status}}")
     SUB_CONTAINER_STATUS=$(docker ps --filter "name=$APPLICATION_SUB_CONTAINER_NAME" --format "{{.Status}}")
 
-    echo "[$NOW] [INFO] Application Container BLUE 기동 상태 정보 : $MAIN_CONTAINER_STATUS"
-    echo "[$NOW] [INFO] Application Container BLUE 기동 상태 정보 : $MAIN_CONTAINER_STATUS" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-    echo "[$NOW] [INFO] Application Container GREEN 기동 상태 정보 : $SUB_CONTAINER_STATUS"
-    echo "[$NOW] [INFO] Application Container GREEN 기동 상태 정보 : $SUB_CONTAINER_STATUS" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container MAIN 기동 상태 정보 : $MAIN_CONTAINER_STATUS"
+    echo "[$NOW] [INFO] Application Container MAIN 기동 상태 정보 : $MAIN_CONTAINER_STATUS" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+    echo "[$NOW] [INFO] Application Container SUB 기동 상태 정보 : $SUB_CONTAINER_STATUS"
+    echo "[$NOW] [INFO] Application Container SUB 기동 상태 정보 : $SUB_CONTAINER_STATUS" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
     echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인"
     echo "[$NOW] [INFO] ${loopCount} 번째 Application Container 기동 상태 확인" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
     if [[ $MAIN_CONTAINER_STATUS == "Up"* ]] && [[ "$SUB_CONTAINER_STATUS" == "Up"* ]]; then
-      echo "[$NOW] [INFO] Application Container BLUE PORT 번호 : $APPLICATION_MAIN_EXTERNAL_PORT_NUMBER"
-      echo "[$NOW] [INFO] Application Container BLUE PORT 번호 : $APPLICATION_MAIN_EXTERNAL_PORT_NUMBER" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
-      echo "[$NOW] [INFO] Application Container GREEN PORT 번호 : $APPLICATION_SUB_EXTERNAL_PORT_NUMBER"
-      echo "[$NOW] [INFO] Application Container GREEN PORT 번호 : $APPLICATION_SUB_EXTERNAL_PORT_NUMBER" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] Application Container MAIN PORT 번호 : $APPLICATION_MAIN_EXTERNAL_PORT_NUMBER"
+      echo "[$NOW] [INFO] Application Container MAIN PORT 번호 : $APPLICATION_MAIN_EXTERNAL_PORT_NUMBER" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+      echo "[$NOW] [INFO] Application Container SUB PORT 번호 : $APPLICATION_SUB_EXTERNAL_PORT_NUMBER"
+      echo "[$NOW] [INFO] Application Container SUB PORT 번호 : $APPLICATION_SUB_EXTERNAL_PORT_NUMBER" >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
       if [[ $MAIN_CONTAINER_STATUS == "Up"* ]] && [ $loopCount == 1 ]; then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
         applicationExternalPortNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_SUB_CONTAINER_NAME
+        containerName="giggal-total-back-office-api-sub"
 
       elif [[ "$SUB_CONTAINER_STATUS" == "Up"* ]] && [ $loopCount == 2 ]; then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container SUB 기동 상태가 정상임을 확인하였어요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container SUB 기동 상태가 정상임을 확인하였어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
         applicationExternalPortNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
-        containerName=$APPLICATION_MAIN_CONTAINER_NAME
+        containerName="giggal-total-back-office-api-main"
 
       else
         echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요."
@@ -203,12 +203,12 @@ applicationDockerContainerChangeOldErrorRemove() {
 
   if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ]; then
     portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
-    stopContainerName=$APPLICATION_MAIN_CONTAINER_NAME
+    stopContainerName="giggal-total-back-office-api-main"
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
 
   else
     portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
-    stopContainerName=$APPLICATION_SUB_CONTAINER_NAME
+    stopContainerName="giggal-total-back-office-api-sub"
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
   fi
 
@@ -257,11 +257,11 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
   if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ]; then
-    containerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+    containerAndHostName="giggal-total-back-office-api-main"
     portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+    containerAndHostName="giggal-total-back-office-api-sub"
     portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
   fi
 
@@ -274,7 +274,8 @@ applicationDockerContainerRun() {
 
   dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME; then
+  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
+  then
     failedCommand "${dockerRunCommand}"
   else
     successCommand "${dockerRunCommand}"

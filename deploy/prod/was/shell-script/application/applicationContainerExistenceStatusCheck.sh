@@ -44,13 +44,13 @@ checkApplicationContainerExistenceStatus() {
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요."
   echo "[$NOW] [INFO] Application 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요."
-  echo "[$NOW] [INFO] Blue 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+  echo "[$NOW] [INFO] MAIN 환경 기준 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] MAIN 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
   APPLICATION_DOCKER_MAIN_STATUS=$(docker ps -aqf "name=$APPLICATION_MAIN_CONTAINER_NAME")
 
-  echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요."
-  echo "[$NOW] [INFO] Green 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
+  echo "[$NOW] [INFO] SUB 환경 기준 컨테이너 존재 여부 확인할게요."
+  echo "[$NOW] [INFO] SUB 환경 기준 컨테이너 존재 여부 확인할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
   APPLICATION_DOCKER_SUB_STATUS=$(docker ps -aqf "name=$APPLICATION_SUB_CONTAINER_NAME")
 
@@ -75,8 +75,6 @@ checkApplicationContainerExistenceStatus() {
 
         applicationDockerContainerRun "${containerName}"
       done
-
-      $APPLICATION_SHELL_SCRIPT_DIRECTORY/applicationHealthCheck.sh;
 
     elif [[ -z "$APPLICATION_DOCKER_MAIN_STATUS" ]] && [[ -n "$APPLICATION_DOCKER_SUB_STATUS" ]];
     then
@@ -111,11 +109,11 @@ applicationDockerContainerRun() {
 
   if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ];
   then
-    containerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
+    containerAndHostName="giggal-total-back-office-api-main"
     portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
+    containerAndHostName="giggal-total-back-office-api-sub"
     portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
   fi
 
