@@ -1,6 +1,5 @@
 package com.giggalpeople.backoffice.api.webhook.test;
 
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(APIUriInfo.API_PREFIX_URN + APIUriInfo.TEST)
 @RestController
 public class WebHookTestController {
-
-	private final Environment environment;
 
 	@ExecutionTimeCheck
 	@GetMapping(value = APIUriInfo.WEB_HOOK, produces = "text/plain;charset=UTF-8")
