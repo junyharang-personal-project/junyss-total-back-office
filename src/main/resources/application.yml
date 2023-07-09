@@ -28,4 +28,3 @@ spring:
         - prod-port
         - prod-logback
         - security
-        - 
