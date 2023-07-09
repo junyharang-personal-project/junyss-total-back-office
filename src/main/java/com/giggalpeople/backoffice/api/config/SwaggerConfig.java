@@ -18,7 +18,7 @@ import io.swagger.v3.oas.models.info.Info;
 public class SwaggerConfig {
 
 	@Bean
-	public OpenAPI openAPI(@Value("${springdoc.version}") String springdocVersion) {
+	public OpenAPI openAPI(@Value("${springdoc.swagger-ui.version}") String springdocVersion) {
 		Info info = new Info()
 			.title("기깔나는 사람들 Back Office")
 			.version(springdocVersion)
