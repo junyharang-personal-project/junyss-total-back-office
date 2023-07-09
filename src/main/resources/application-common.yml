@@ -7,23 +7,3 @@ management:
     web:
       exposure:
         include: "*"
-
-springdoc:
-  api-docs:
-    groups:
-      enabled: true
-  swagger-ui:
-    operations-sorter: alpha # alpha(??? ????), method(HTTP????)
-    tags-sorter: alpha # ?? ?? ??
-    path: /swagger.html # html ?? ?? ??
-    disable-swagger-default-url: true
-    display-query-params-without-oauth2: true
-    doc-expansion: none # tag, operation ??? ??
-    version: v1.1.0
-    display-request-duration: true
-
-  cache:
-    disabled: true
-
-  paths-to-match:
-    - /api/**

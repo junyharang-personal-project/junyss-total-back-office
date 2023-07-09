@@ -1,4 +1,16 @@
+spring:
+  main:
+    banner-mode: off
+
 server:
   name: Giggal-Total-Back-Office
   environment: Operation
   port: 8080
+
+# 운영 환경 Swagger 비 활성화
+springdoc:
+  api-docs:
+    enabled: false
+
+  swagger-ui:
+    enabled: false

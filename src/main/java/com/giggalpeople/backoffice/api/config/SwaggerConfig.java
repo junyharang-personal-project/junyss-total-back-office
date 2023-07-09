@@ -1,8 +1,11 @@
 package com.giggalpeople.backoffice.api.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 
@@ -11,15 +14,18 @@ import io.swagger.v3.oas.models.info.Info;
  */
 
 @Configuration
+@Profile("!prod")
 public class SwaggerConfig {
 
 	@Bean
-	public OpenAPI openAPI() {
+	public OpenAPI openAPI(@Value("${springdoc.version}") String springdocVersion) {
 		Info info = new Info()
-			.version("v1.1.0")
 			.title("기깔나는 사람들 Back Office")
+			.version(springdocVersion)
 			.description("API 명세서");
 
-		return new OpenAPI().info(info);
+		return new OpenAPI()
+			.components(new Components())
+			.info(info);
 	}
 }

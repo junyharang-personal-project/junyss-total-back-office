@@ -43,7 +43,7 @@ nginxDockerContainerRun() {
   echo "[$NOW] [INFO] Nginx Container 기동 할게요."
   echo "[$NOW] [INFO] Nginx Container 기동 할게요." >> $LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  dockerRunCommand=$(docker run -itd --privileged \
+  dockerRunCommand=$(docker run -itd \
                     --name $NGINX_CONTAINER_NAME \
                     --hostname $NGINX_CONTAINER_NAME \
                     -e container=docker \
@@ -51,7 +51,7 @@ nginxDockerContainerRun() {
                     --restart unless-stopped \
                     nginx:latest)
 
-  command="docker run -itd --privileged --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT:80 --restart unless-stopped nginx:latest"
+  command="docker run -itd --name $NGINX_CONTAINER_NAME --hostname $NGINX_CONTAINER_NAME -e container=docker -p $NGINX_EXTERNAL_PORT:80 --restart unless-stopped nginx:latest"
 
   if [ -z "$dockerRunCommand" ];
   then

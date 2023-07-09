@@ -24,29 +24,8 @@ spring:
       "prod":
         - common
         - prod-db
+        - prod-environment
         - prod-port
         - prod-logback
         - security
-
-#---
-#
-#spring:
-#  config:
-#    activate:
-#      on-profile: local
-#
-#---
-#
-#spring:
-#  config:
-#    activate:
-#      on-profile: local-port
-#
-#---
-#
-#spring:
-#  config:
-#    activate:
-#      on-profile: local-logback
-#
-#
+        - 

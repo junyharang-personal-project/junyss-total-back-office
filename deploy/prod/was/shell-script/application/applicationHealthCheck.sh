@@ -70,13 +70,13 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container MAIN 기동 상태가 정상임을 확인하였어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
         applicationExternalPortNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
-        containerName="giggal-total-back-office-api-sub"
+        containerName=$APPLICATION_SUB_CONTAINER_NAME
 
       elif [[ "$SUB_CONTAINER_STATUS" == "Up"* ]] && [ $loopCount == 2 ]; then
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container SUB 기동 상태가 정상임을 확인하였어요."
         echo "[$NOW] [INFO] ${loopCount} 번째 반복문을 통해 Application Container SUB 기동 상태가 정상임을 확인하였어요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
         applicationExternalPortNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
-        containerName="giggal-total-back-office-api-main"
+        containerName=$APPLICATION_MAIN_CONTAINER_NAME
 
       else
         echo "[$NOW] [ERROR] Application Container 상태 확인 중 문제가 발생하였어요. Application 컨테이너 존재 여부를 다시 확인할게요."
@@ -132,6 +132,8 @@ applicationContainerHealthCheck() {
           echo "[$NOW] [ERROR] ${containerName} Container 종료 및 삭제 시도할게요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
           applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+          break
         fi
 
         if [ "${retryCount}" -eq 10 ]; then
@@ -142,6 +144,8 @@ applicationContainerHealthCheck() {
           echo "[$NOW] [ERROR] ${containerName} Container 종료 및 삭제 시도할게요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
           applicationDockerContainerChangeOldErrorRemove "${containerName}"
+
+          break
         fi
 
         echo "[$NOW] [WARN] Health Check 작업에 실패하였어요."
@@ -150,7 +154,7 @@ applicationContainerHealthCheck() {
         echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다."
         echo "[$NOW] [ERROR] Nginx 연결 없이 스크립트를 종료 합니다." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
         exit 1
-      done
+      done # for retryCount in {1..10}
 
     else
       if [[ $MAIN_CONTAINER_STATUS != "Up"* ]] && [[ $SUB_CONTAINER_STATUS != "Up"* ]]; then
@@ -192,7 +196,7 @@ applicationContainerHealthCheck() {
         exit 1
       fi
     fi
-  done
+  done # for loopCount in {1..2} 끝
 }
 
 applicationDockerContainerChangeOldErrorRemove() {
@@ -203,12 +207,12 @@ applicationDockerContainerChangeOldErrorRemove() {
 
   if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ]; then
     portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
-    stopContainerName="giggal-total-back-office-api-main"
+    stopContainerName=$APPLICATION_MAIN_CONTAINER_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
 
   else
     portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
-    stopContainerName="giggal-total-back-office-api-sub"
+    stopContainerName=$APPLICATION_SUB_CONTAINER_NAME
     stopContainerId=$(docker ps --filter "name=$stopContainerName" --format "{{.ID}}")
   fi
 
@@ -257,11 +261,11 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] ${containerName} 컨테이너 기동 작업을 시작할게요." >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
   if [ "$containerName" == "$APPLICATION_MAIN_CONTAINER_NAME" ]; then
-    containerAndHostName="giggal-total-back-office-api-main"
+    containerAndHostName=$APPLICATION_MAIN_CONTAINER_NAME
     portNumber=$APPLICATION_MAIN_EXTERNAL_PORT_NUMBER
 
   else
-    containerAndHostName="giggal-total-back-office-api-sub"
+    containerAndHostName=$APPLICATION_SUB_CONTAINER_NAME
     portNumber=$APPLICATION_SUB_EXTERNAL_PORT_NUMBER
   fi
 
@@ -272,9 +276,9 @@ applicationDockerContainerRun() {
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} "
   echo "[$NOW] [INFO] Container Port Number : ${portNumber} " >>$LOG_DIR/"$SAVE_LOG_DATE"-deploy.log 2>&1
 
-  dockerRunCommand="docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
+  dockerRunCommand="docker run -itd --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME"
 
-  if ! docker run -itd --privileged --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
+  if ! docker run -itd --name $containerAndHostName --hostname $containerAndHostName -e container=docker -p $portNumber:8080 --restart unless-stopped $APPLICATION_DOCKER_IMAGE_NAME;
   then
     failedCommand "${dockerRunCommand}"
   else
