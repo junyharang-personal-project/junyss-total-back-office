@@ -340,10 +340,13 @@ gradle-app.setting
 *.hprof
 
 ### application.yml ###
-#application-local-db.yml
+application*.yml
 
 ### Log Back to Log ###
 /log/
 
 ### Juny ###
 h2-db/
+/src/java/com/ggiggalpeople/backoffid/api/crew/**
+/src/resource/init/**
+/src/resource/mapper/Crew*.xml
