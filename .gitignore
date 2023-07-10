@@ -347,6 +347,6 @@ application*.yml
 
 ### Juny ###
 h2-db/
-/src/main/java/com/ggiggalpeople/backoffid/api/crew/**
-/src/main/resource/init/**
-/src/main/resource/mapper/Crew*.xml
+/src/main/java/com/ggiggalpeople/backoffice/api/crew/
+/src/main/resources/init/**
+/src/main/resources/mapper/CrewManagementMapper.xml
