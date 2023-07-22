@@ -340,7 +340,7 @@ gradle-app.setting
 *.hprof
 
 ### application.yml ###
-application*.yml
+/application*.yml
 
 ### Log Back to Log ###
 /log/
