@@ -1,6 +1,9 @@
 package com.giggalpeople.backoffice.api.user.controller;
 
-import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.*;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_CALLER_DISCORD_BOT;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_PREFIX_URN;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.API_VERSION;
+import static com.giggalpeople.backoffice.api.common.constant.APIUriInfo.CONNECTED_USER;
 
 import java.util.List;
 
@@ -41,20 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ConnectedUserInfoController {
 
 	private final ConnectedUserInfoService connectedUserInfoService;
-
-	// @Operation(summary = "접속 이용자 정보 저장", description = "접속 이용자 정보 저장하기 위한 API로써 해당 API는 자동으로 동작하는 API로 Client 개발 시 이용하지 않습니다.")
-	// @ApiResponses(value = {
-	// 	@ApiResponse(responseCode = "201", description = "등록 성공"),
-	// 	@ApiResponse(responseCode = "400", description = "잘못된 요청"),
-	// 	@ApiResponse(responseCode = "500", description = "서버 에러")
-	// })
-	// @ExecutionTimeCheck
-	// @PostMapping(CONNECTED_USER)
-	// public DefaultResponse<Map<String, Long>> save(
-	// 	@Valid @RequestBody UserRequestTotalInfoSaveRequestDTO userRequestTotalInfoSaveRequestDto) {
-	// 	return connectedUserInfoService.save(userRequestTotalInfoSaveRequestDto);
-	// }
-
+	
 	@Operation(summary = "Discord Bot을 이용한 이용자 접속 및 요청 정보 목록 조회", description = "이용자 접속 및 요청 정보 목록 조회 API")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "작업 성공"),

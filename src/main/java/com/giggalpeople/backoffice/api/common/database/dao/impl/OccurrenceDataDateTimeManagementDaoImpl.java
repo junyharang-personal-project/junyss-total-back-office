@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.api.common.database.dao.impl;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.COMMON_DATA_DATE_TIME_SAVE_FAILURE;
 
 import org.springframework.stereotype.Repository;
 
@@ -28,8 +28,8 @@ public class OccurrenceDataDateTimeManagementDaoImpl implements OccurrenceDataDa
 
 	@Override
 	public Long save(DataCreatedDateTimeVo dataCreatedDateTimeVO) {
-		Long saveCount = occurrenceDataDateTimeManagementMapper.save(dataCreatedDateTimeVO);
-		if (saveCount != null && saveCount != 0) {
+		Long savePrimaryKey = occurrenceDataDateTimeManagementMapper.save(dataCreatedDateTimeVO);
+		if (savePrimaryKey != null && savePrimaryKey != 0) {
 			return dataCreatedDateTimeVO.getDataCreatedDateTimeID();
 		}
 		throw new OccurrenceDateTimeException(COMMON_DATA_DATE_TIME_SAVE_FAILURE,

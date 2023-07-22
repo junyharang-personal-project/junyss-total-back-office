@@ -1,6 +1,6 @@
 package com.giggalpeople.backoffice.common.util;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
+import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.API_RESPONSE_NOT_FOUND;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,14 +67,14 @@ public class ApiCallUtil {
 	/**
 	 * <b>Http Method POST를 이용하여 API 호출을 위한 Method</b>
 	 *
-	 * @param suffixURL URL 중 접미사로 처리될 URL
+	 * @param suffixUrl URL 중 접미사로 처리될 URL
 	 * @param object    Request Body로 보낼 객체
 	 * @throws IOException URL 처리 중 발생한 Exception
 	 */
 
-	public static void callDiscordBotPostAPI(StringBuilder suffixURL, Object object) throws IOException {
-		StringBuilder defaultAPICallURLInfo = Environment.initPrefixAPIURL();
-		URL defaultAPICallUrl = new URL(defaultAPICallURLInfo.append(suffixURL).toString());
+	public static void callPostApi(StringBuilder suffixUrl, Object object) throws IOException {
+		StringBuilder defaultApiCallUrlInfo = Environment.initPrefixAPIURL();
+		URL defaultApiCallUrl = new URL(defaultApiCallUrlInfo.append(suffixUrl).toString());
 		ObjectMapper objectMapper = new ObjectMapper();
 		String requestBodyJsonData = "";
 
@@ -82,7 +82,7 @@ public class ApiCallUtil {
 			requestBodyJsonData = objectMapper.writeValueAsString(object);
 		}
 
-		HttpURLConnection connection = (HttpURLConnection)defaultAPICallUrl.openConnection();
+		HttpURLConnection connection = (HttpURLConnection)defaultApiCallUrl.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setConnectTimeout(5000);
 		connection.setRequestProperty("Content-Type", "application/json");

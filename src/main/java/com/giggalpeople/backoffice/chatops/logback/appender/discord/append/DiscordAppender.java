@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DiscordAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
-	private String discordWebhookURL;
+	private String discordWebhookUrl;
 
 	private static Color getLevelColor(ILoggingEvent eventObject) {
 		String level = eventObject.getLevel().levelStr;
@@ -47,7 +47,7 @@ public class DiscordAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
 	@Override
 	protected void append(ILoggingEvent eventObject) {
-		DiscordWebHook discordWebhook = new DiscordWebHook(discordWebhookURL);
+		DiscordWebHook discordWebhook = new DiscordWebHook(discordWebhookUrl);
 		DataBaseAppender dataBaseAppender = new DataBaseAppender();
 		ServerInfo serverInfo;
 		Map<String, String> mdcPropertyMap = eventObject.getMDCPropertyMap();

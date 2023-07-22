@@ -75,7 +75,7 @@
         </filter>
         <file>${LOG_PATH_NAME}/${ERR_LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${LOG_PATTERN}</pattern>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
         </encoder>
         <!-- Rolling 정책 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

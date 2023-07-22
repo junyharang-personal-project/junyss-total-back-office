@@ -330,15 +330,15 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 	/**
 	 * <b>Log Back을 통해 Error Log를 저장하기 위한 API가 호출되면 totalErrorLogSaveRequestDTO 안에 Error Log를 저장하기 위한 Method</b>
 	 *
-	 * @param totalErrorRecordSaveRequestDTO Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
+	 * @param totalErrorRecordSaveRequestDto Server 정보, 이용자 정보, Error Log 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
-	private Long processErrorLogInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO,
+	private Long processErrorLogInfoSave(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto,
 		Long internalServerSaveId, Long occurrenceInfoDateTimeSaveId, Long connectedUserID,
 		Long connectedUserRequestInfoSaveId) {
 
-		if (totalErrorRecordSaveRequestDTO == null) {
+		if (totalErrorRecordSaveRequestDto == null) {
 			throw new ErrorRecordException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveId == null) {
@@ -355,10 +355,10 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 				CONNECTED_USER_REQUEST_SAVE_FAILURE.getMessage(String.valueOf(NullPointerException.class)));
 		} else {
 
-			Long isIDbyErrorLogLevelIp = errorRecordManagementDao.findByErrorLogLevel(
-				totalErrorRecordSaveRequestDTO.getLevel());
+			Long isIDbyErrorLogLevel = errorRecordManagementDao.findByErrorLogLevel(
+				totalErrorRecordSaveRequestDto.getLevel());
 
-			if (isIDbyErrorLogLevelIp == null) {
+			if (isIDbyErrorLogLevel == null) {
 				throw new ErrorRecordException(NOT_FOUND_ERROR_LOG_LEVEL, NOT_FOUND_ERROR_LOG_LEVEL.getMessage());
 			}
 
@@ -367,9 +367,9 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 				.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveId)
 				.connectedUserID(connectedUserID)
 				.connectedUserRequestInfoID(connectedUserRequestInfoSaveId)
-				.logLevelID(isIDbyErrorLogLevelIp)
-				.exceptionBrief(totalErrorRecordSaveRequestDTO.getExceptionBrief())
-				.exceptionDetail(totalErrorRecordSaveRequestDTO.getExceptionDetail())
+				.logLevelID(isIDbyErrorLogLevel)
+				.exceptionBrief(totalErrorRecordSaveRequestDto.getExceptionBrief())
+				.exceptionDetail(totalErrorRecordSaveRequestDto.getExceptionDetail())
 				.build()));
 		}
 	}
@@ -377,18 +377,18 @@ public class ErrorRecordServiceImpl implements ErrorRecordService {
 	/**
 	 * <b>LogRequestDTO에 필수로 들어가야 하는 내용들이 있는지 확인하기 위한 Method</b>
 	 *
-	 * @param totalErrorRecordSaveRequestDTO Log 정보를 담은 요청 객체
+	 * @param totalErrorRecordSaveRequestDto Log 정보를 담은 요청 객체
 	 * @return Null이 있으면 false, 없으면 True 반환
 	 */
 
-	private boolean checkNotNull(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
-		return totalErrorRecordSaveRequestDTO.getCreatedAt() != null
-			&& totalErrorRecordSaveRequestDTO.getLevel() != null
-			&& totalErrorRecordSaveRequestDTO.getUserIp() != null
-			&& totalErrorRecordSaveRequestDTO.getUserLocation() != null
-			&& totalErrorRecordSaveRequestDTO.getRequestHeader() != null
-			&& totalErrorRecordSaveRequestDTO.getRequestParameter() != null
-			&& totalErrorRecordSaveRequestDTO.getExceptionDetail() != null;
+	private boolean checkNotNull(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
+		return totalErrorRecordSaveRequestDto.getCreatedAt() != null
+			&& totalErrorRecordSaveRequestDto.getLevel() != null
+			&& totalErrorRecordSaveRequestDto.getUserIp() != null
+			&& totalErrorRecordSaveRequestDto.getUserLocation() != null
+			&& totalErrorRecordSaveRequestDto.getRequestHeader() != null
+			&& totalErrorRecordSaveRequestDto.getRequestParameter() != null
+			&& totalErrorRecordSaveRequestDto.getExceptionDetail() != null;
 	}
 
 	/**

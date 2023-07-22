@@ -25,7 +25,7 @@ public interface ServerManagementMapper {
 	/**
 	 * <b>기깔나는 사람들 보유 WAS 상세 조회를 위한 Method</b>
 	 * @param serverIP WAS IP
-	 * @return WAS 상세 정보
+	 * @return WAS PK 값
 	 */
 	@Select("select internal_server_id from server_info where server_ip = #{serverIP}")
 	Long findByServerID(String serverIP);

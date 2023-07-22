@@ -66,6 +66,6 @@ public class DataBaseAppender {
 			}
 		}
 
-		BackOfficeAPICaller.logSaveAPICall(totalErrorRecordSaveRequestDTO);
+		BackOfficeAPICaller.logSaveApiCall(totalErrorRecordSaveRequestDTO);
 	}
 }

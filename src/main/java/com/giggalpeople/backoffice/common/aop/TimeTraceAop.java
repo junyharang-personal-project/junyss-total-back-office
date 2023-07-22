@@ -1,14 +1,11 @@
 package com.giggalpeople.backoffice.common.aop;
 
-import static com.giggalpeople.backoffice.common.enumtype.ErrorCode.*;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import com.giggalpeople.backoffice.common.env.Environment;
-import com.giggalpeople.backoffice.common.exception.TimeTraceException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 
 @Slf4j
-//@Profile(value = "!prod")
 @Aspect
 @Component
 public class TimeTraceAop {
@@ -55,94 +51,95 @@ public class TimeTraceAop {
 				+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
 				+ ")초 입니다.");
 
-			//            if (progressMethodMsTime >= standardExecutionMsTime && progressMethodMsTime < dangerStandardExecutionMsTime) {
-			//                if (serverEnvironment.equals("local") || serverEnvironment.equals("dev")) {
-			//                    longTimeExceptionHandler(joinPoint, progressMethodMsTime);
+			// 	if (progressMethodMsTime >= standardExecutionMsTime
+			// 		&& progressMethodMsTime < dangerStandardExecutionMsTime) {
+			// 		if (serverEnvironment.equals("local") || serverEnvironment.equals("dev")) {
+			// 			longTimeExceptionHandler(joinPoint, progressMethodMsTime);
 			//
-			//                    log.warn("Method 동작 시간 검증 완료 : "
-			//                            + "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
-			//                            + joinPoint
-			//                            + " Method 동작 시간은 "
-			//                            + progressMethodMsTime
-			//                            + "ms "
-			//                            + "(" + String.format("%.3f", (double) progressMethodMsTime / 1000)
-			//                            + ")초 입니다.");
-			//                } else {
-			//                    log.warn("Method 동작 시간 검증 완료 : "
-			//                            + "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
-			//                            + joinPoint
-			//                            + " Method 동작 시간은 "
-			//                            + progressMethodMsTime
-			//                            + "ms "
-			//                            + "(" + String.format("%.3f", (double) progressMethodMsTime / 1000)
-			//                            + ")초 입니다.");
-			//                }
+			// 			log.warn("Method 동작 시간 검증 완료 : "
+			// 				+ "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
+			// 				+ joinPoint
+			// 				+ " Method 동작 시간은 "
+			// 				+ progressMethodMsTime
+			// 				+ "ms "
+			// 				+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+			// 				+ ")초 입니다.");
+			// 		} else {
+			// 			log.warn("Method 동작 시간 검증 완료 : "
+			// 				+ "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
+			// 				+ joinPoint
+			// 				+ " Method 동작 시간은 "
+			// 				+ progressMethodMsTime
+			// 				+ "ms "
+			// 				+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+			// 				+ ")초 입니다.");
+			// 		}
 			//
-			//            } else if (progressMethodMsTime >= dangerStandardExecutionMsTime) {
-			//                if (serverEnvironment.equals("local") || serverEnvironment.equals("dev")) {
-			//                    veryLongTimeExceptionHandler(joinPoint, progressMethodMsTime);
+			// 	} else if (progressMethodMsTime >= dangerStandardExecutionMsTime) {
+			// 		if (serverEnvironment.equals("local") || serverEnvironment.equals("dev")) {
+			// 			veryLongTimeExceptionHandler(joinPoint, progressMethodMsTime);
 			//
-			//                    log.error("Method 동작 시간 검증 완료 : "
-			//                            + "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
-			//                            + joinPoint
-			//                            + " Method 동작 시간은 "
-			//                            + progressMethodMsTime
-			//                            + "ms "
-			//                            + "(" + String.format("%.3f", (double) progressMethodMsTime / 1000)
-			//                            + ")초 입니다.");
-			//                } else {
-			//                    log.error("Method 동작 시간 검증 완료 : "
-			//                            + "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
-			//                            + joinPoint
-			//                            + " Method 동작 시간은 "
-			//                            + progressMethodMsTime
-			//                            + "ms "
-			//                            + "(" + String.format("%.3f", (double) progressMethodMsTime / 1000)
-			//                            + ")초 입니다.");
-			//                }
+			// 			log.error("Method 동작 시간 검증 완료 : "
+			// 				+ "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
+			// 				+ joinPoint
+			// 				+ " Method 동작 시간은 "
+			// 				+ progressMethodMsTime
+			// 				+ "ms "
+			// 				+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+			// 				+ ")초 입니다.");
+			// 		} else {
+			// 			log.error("Method 동작 시간 검증 완료 : "
+			// 				+ "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
+			// 				+ joinPoint
+			// 				+ " Method 동작 시간은 "
+			// 				+ progressMethodMsTime
+			// 				+ "ms "
+			// 				+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+			// 				+ ")초 입니다.");
+			// 		}
 			//
-			//            } else {
-			//                log.info("Method 동작 시간 검증 완료 : "
-			//                        + joinPoint
-			//                        + " Method 동작 시간은 "
-			//                        + progressMethodMsTime
-			//                        + "ms "
-			//                        + "(" + String.format("%.3f", (double) progressMethodMsTime / 1000)
-			//                        + ")초 입니다.");
-			//            }
+			// 	} else {
+			// 		log.info("Method 동작 시간 검증 완료 : "
+			// 			+ joinPoint
+			// 			+ " Method 동작 시간은 "
+			// 			+ progressMethodMsTime
+			// 			+ "ms "
+			// 			+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+			// 			+ ")초 입니다.");
+			// 	}
+			// }
 		}
-	}
 
-	/**
-	 * <b>Controller 호출 뒤 standardExecutionMsTime 변수 ms 이상 시간 소요 시 Exception 발생을 위한 Method</b>
-	 * @param joinPoint 특정 관심사가 처리 되는 지점을 뜻하는 것으로 Around advice(@Around)에서만 지원되는 JoinPoint이며, JoinPoint Interface는 호출 되는 대상 객체, Method, 매개 변수 목록에 접근할 수 있는 Method 제공
-	 * @param progressMethodMsTime 경고를 발생 시킬 기준 ms
-	 */
+		/**
+		 * <b>Controller 호출 뒤 standardExecutionMsTime 변수 ms 이상 시간 소요 시 Exception 발생을 위한 Method</b>
+		 * @param joinPoint 특정 관심사가 처리 되는 지점을 뜻하는 것으로 Around advice(@Around)에서만 지원되는 JoinPoint이며, JoinPoint Interface는 호출 되는 대상 객체, Method, 매개 변수 목록에 접근할 수 있는 Method 제공
+		 * @param progressMethodMsTime 경고를 발생 시킬 기준 ms
+		 */
 
-	private void longTimeExceptionHandler(ProceedingJoinPoint joinPoint, long progressMethodMsTime) {
-		throw new TimeTraceException(API_PROCESSING_TAKES_LONG, "Method 동작 시간 검증 완료 : "
-			+ "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
-			+ joinPoint
-			+ " Method 동작 시간은 "
-			+ progressMethodMsTime
-			+ "ms "
-			+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
-			+ ")초 입니다.");
-	}
+		// private void longTimeExceptionHandler(ProceedingJoinPoint joinPoint, long progressMethodMsTime) {
+		// 	throw new TimeTraceException(API_PROCESSING_TAKES_LONG, "Method 동작 시간 검증 완료 : "
+		// 		+ "Warning!! 기준치보다 동작 시간이 높게 측정 되고 있습니다!!"
+		// 		+ joinPoint
+		// 		+ " Method 동작 시간은 "
+		// 		+ progressMethodMsTime
+		// 		+ "ms "
+		// 		+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+		// 		+ ")초 입니다.");
+		// }
 
-	/**
-	 * <b>Controller 호출 뒤 progressMethodMsTime 변수 ms 이상 시간 소요 시 Exception 발생을 위한 Method</b>
-	 * @param joinPoint 특정 관심사가 처리 되는 지점을 뜻하는 것으로 Around advice(@Around)에서만 지원되는 JoinPoint이며, JoinPoint Interface는 호출 되는 대상 객체, Method, 매개 변수 목록에 접근할 수 있는 Method 제공
-	 * @param progressMethodMsTime 위험 발생 시킬 기준 ms
-	 */
-	private void veryLongTimeExceptionHandler(ProceedingJoinPoint joinPoint, long progressMethodMsTime) {
-		throw new TimeTraceException(API_PROCESSING_TAKES_TOO_LONG, "Method 동작 시간 검증 완료 : "
-			+ "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
-			+ joinPoint
-			+ " Method 동작 시간은 "
-			+ progressMethodMsTime
-			+ "ms "
-			+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
-			+ ")초 입니다.");
+		/**
+		 * <b>Controller 호출 뒤 progressMethodMsTime 변수 ms 이상 시간 소요 시 Exception 발생을 위한 Method</b>
+		 * @param joinPoint 특정 관심사가 처리 되는 지점을 뜻하는 것으로 Around advice(@Around)에서만 지원되는 JoinPoint이며, JoinPoint Interface는 호출 되는 대상 객체, Method, 매개 변수 목록에 접근할 수 있는 Method 제공
+		 * @param progressMethodMsTime 위험 발생 시킬 기준 ms
+		 */
+		// private void veryLongTimeExceptionHandler(ProceedingJoinPoint joinPoint, long progressMethodMsTime) {
+		// 	throw new TimeTraceException(API_PROCESSING_TAKES_TOO_LONG, "Method 동작 시간 검증 완료 : "
+		// 		+ "Danger!! 기준치보다 동작 시간이 너무 높게 측정 되고 있습니다!!"
+		// 		+ joinPoint
+		// 		+ " Method 동작 시간은 "
+		// 		+ progressMethodMsTime
+		// 		+ "ms "
+		// 		+ "(" + String.format("%.3f", (double)progressMethodMsTime / 1000)
+		// 		+ ")초 입니다.");
 	}
 }

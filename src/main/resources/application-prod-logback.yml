@@ -13,10 +13,10 @@ logging:
             sql:
               BasicBinder: TRACE
         SQL: INFO
-#  logback:
-#    rollingpolicy:
-#      max-history: 180
-#      max-file-size: 100MB
+  logback:
+    rollingpolicy:
+      max-history: 180
+      max-file-size: 100MB
 
 log:
   file:

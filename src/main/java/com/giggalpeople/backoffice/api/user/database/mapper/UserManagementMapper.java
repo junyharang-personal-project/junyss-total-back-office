@@ -17,7 +17,7 @@ import com.giggalpeople.backoffice.api.user.request_info.model.UpdateUserRequest
 import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInfoVo;
 
 /**
- * <h2><b>기깔나는 사람들 서비스 접속 이용자 정보 관리 Mapper</b></h2>
+ * <h2><b>기깔나는 사람들 서비스 요청 이용자 정보 관리 Mapper</b></h2>
  */
 
 @Mapper
@@ -25,7 +25,7 @@ import com.giggalpeople.backoffice.api.user.request_info.model.vo.UserRequestInf
 public interface UserManagementMapper {
 
 	/**
-	 * <b>기존에 접속한 정보가 있는지 확인하기 위한 Method로 동일 IP가 여러개 조회 될 수 있기 때문에 마지막 결과 값을 가져오기 위해 MAX() 사용</b>
+	 * <b>기존에 요청한 정보가 있는지 확인하기 위한 Method로 동일 IP가 여러개 조회 될 수 있기 때문에 마지막 결과 값을 가져오기 위해 MAX() 사용</b>
 	 * @param userIp 이용자 사용 IP
 	 * @return Data Base에 저장된 접속 이용자 접속 순서 번호
 	 */
@@ -40,6 +40,12 @@ public interface UserManagementMapper {
 	 */
 
 	Long connectedUserSave(ConnectedUserInfoVo connectedUserInfoVo);
+
+	/**
+	 * <b>동일 정보로 요청한 이용자가 있을 때, 해당 이용자의 정보를 Daba Base에 중복 저장하는 것이 아닌 접속 횟수를 올리기 위한 Method</b>
+	 * @param updateUserInfo 이용자 접속 순서 번호와 접속일 순서 번호
+	 * @return 접속 횟수 증가 이후 반환 된 PK 값
+	 */
 
 	Long updateCount(@Param("updateUserInfo") UpdateUserInfo updateUserInfo);
 
@@ -57,7 +63,7 @@ public interface UserManagementMapper {
 	Long findByRequestInfoSave(UserRequestInfoVo userRequestInfoVO);
 
 	/**
-	 * <b>이용자 접속 및 요청 정보 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
+	 * <b>요청 이용자 정보 및 요청 정보 목록 조회 시 일치하는 Data가 몇 개 있는지 알기 위한 Method</b>
 	 * @param userInfoSearchDto 이용자 접속 및 요청 정보 검색을 위한 검색 Type과 검색어가 들어 있는 요청 DTO
 	 * @return Data Base에서 조회된 Data의 ID 개수
 	 */
@@ -65,7 +71,7 @@ public interface UserManagementMapper {
 	int totalUserInfoSearchCount(@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
-	 * <b>이용자 접속 및 요청 정보 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
+	 * <b>요청 이용자 정보 및 요청 정보 목록 조회 시 1개만 검색 결과가 있을 경우 해당 Data Limit 절 타지 않고, Optional로 감싸 반환하기 위한 Method</b>
 	 * @param userInfoSearchDto 이용자 접속 및 요청 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
@@ -74,7 +80,7 @@ public interface UserManagementMapper {
 		@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
-	 * <b>이용자 접속 및 요청 정보 목록 조회 시 여러 개 검색 결과가 있을 경우 해당 Data Limit 절 태우면서, Paging 처리 위한 Method</b>
+	 * <b>요청 이용자 정보 및 요청 정보 목록 조회 시 여러 개 검색 결과가 있을 경우 해당 Data Limit 절 태우면서, Paging 처리 위한 Method</b>
 	 * @param userInfoSearchDto 이용자 접속 및 요청 검색을 위한 DTO
 	 * @return Data Base에서 조회된 Optional로 감싼 Data
 	 */
@@ -83,7 +89,7 @@ public interface UserManagementMapper {
 		@Param("userInfoSearchDto") UserInfoSearchDto userInfoSearchDto);
 
 	/**
-	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
+	 * <b>요청 이용자 정보 및 요청 정보 상세 조회를 위한 Method</b>
 	 * @param connectedUserRequestInfoID Discord에서 입력 받은 조회할 이용자 요청 정보 ID
 	 * @return 이용자 접속 및 요청 정보를 담은 VO 객체
 	 */

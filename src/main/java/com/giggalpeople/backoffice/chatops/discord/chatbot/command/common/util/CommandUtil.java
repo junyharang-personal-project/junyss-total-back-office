@@ -113,7 +113,7 @@ public class CommandUtil {
 					break;
 				case "로그상세조회":
 					resultMap.put(event.getAuthor().getName() + "님 기깔나는 사람들 해당 Error Log 정보는 아래와 같아요!",
-						Collections.singletonList(BackOfficeAPICaller.errorLogDetailAPICall(event,
+						Collections.singletonList(BackOfficeAPICaller.errorLogDetailApiCall(event,
 							new URL(HttpUtil.errorLogDetailCreateURL(event, value)))));
 					break;
 				case "서버자원조회":

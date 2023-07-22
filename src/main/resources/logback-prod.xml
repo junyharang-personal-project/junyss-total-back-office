@@ -14,15 +14,12 @@
         <property resource="application-prod-logback.yml"/>
         <property resource="application-prod-environment.yml"/>
     </springProfile>
-    <!-- application-dev-logback.yml에서 정보를 가져옴 -->
     <springProperty name="DISCORD_WEBHOOK_URI" source="logging.discord.webhook-uri"/>
     <property name="LOG_ROOT_PATH" value="log"/>
-    <!-- application-dev-port.yml에서 정보를 가져옴 -->
     <springProperty name="SERVER_NAME" source="server.name"/>
     <springProperty name="ENVIRONMENT" source="server.environment"/>
     <springProperty name="PORT" source="server.port"/>
     <property name="LOG_PATH_NAME" value="${LOG_ROOT_PATH}/${SERVER_NAME}/${ENVIRONMENT}-${PORT}/%d{yyyy-MM-dd}"/>
-    <!--Environment 내의 프로퍼티들을 개별적으로 설정할 수도 있다.-->
     <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root"/>
     <!-- err log file name -->
     <property name="ERR_LOG_FILE_NAME" value="Error"/>
@@ -37,7 +34,7 @@
         <discordWebhookURL>${DISCORD_WEBHOOK_URI}</discordWebhookURL>
     </appender>
 
-    Console appender 설정
+    <!-- Console appender 설정 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <!--     날짜       시간   로그레벨  로거이름  프로세스 ID  [로깅 발생 파일명]메소드 명,호출지 정보,(라인 수) 로그메세지 -->

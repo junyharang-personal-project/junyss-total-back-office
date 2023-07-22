@@ -91,13 +91,13 @@ public class StringUtil {
 
 	/**
 	 * <b>Error Log 발생으로 인한 API 발동 시 발생 날짜와 시각을 나누기 위한 Method</b>
-	 * @param totalErrorRecordSaveRequestDTO 이용자 정보, 이용자 접속 정보, Error Log 등의 정보를 담은 요청 DTO
+	 * @param totalErrorRecordSaveRequestDto 이용자 정보, 이용자 접속 정보, Error Log 등의 정보를 담은 요청 DTO
 	 */
-	public static void dateTimeSplit(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) {
-		String[] splitCreateDateTime = totalErrorRecordSaveRequestDTO.getCreatedAt().split(" ");
+	public static void dateTimeSplit(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) {
+		String[] splitCreateDateTime = totalErrorRecordSaveRequestDto.getCreatedAt().split(" ");
 
-		totalErrorRecordSaveRequestDTO.setCreatedDate(splitCreateDateTime[0]);
-		totalErrorRecordSaveRequestDTO.setCreatedTime(splitCreateDateTime[1]);
+		totalErrorRecordSaveRequestDto.setCreatedDate(splitCreateDateTime[0]);
+		totalErrorRecordSaveRequestDto.setCreatedTime(splitCreateDateTime[1]);
 	}
 
 	/**

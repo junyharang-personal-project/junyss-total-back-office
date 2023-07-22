@@ -61,7 +61,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	private final UserInfoDao userInfoDAO;
 
 	/**
-	 * <b>접속 이용자 정보 Data Base 저장을 위한 Method</b>
+	 * <b>요청 이용자 정보 Data Base 저장을 위한 Method</b>
 	 * @param userRequestTotalInfoSaveRequestDto 접속 일시, 이용자 정보, 이용자 요청 정보를 담은 DTO
 	 * @return 접속 일시 저장 PK, 이용자 정보 PK, 이용자 요청 정보 PK를 묶은 Map
 	 */
@@ -94,7 +94,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>Application 이용자 접속 및 요청 정보 목록 조회를 위한 Method</b>
+	 * <b>Application 요청 이용자 정보 및 요청 정보 목록 조회를 위한 Method</b>
 	 *
 	 * @param criteria          페이징 처리를 위한 정보
 	 * @param userInfoSearchDto 검색어(검색 조건) Request 객체
@@ -140,7 +140,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>이용자 접속 및 요청 정보 상세 조회를 위한 Method</b>
+	 * <b>요청 이용자 정보 및 요청 정보 상세 조회를 위한 Method</b>
 	 *
 	 * @param userInfoDetailSearchRequestDto Discord에서 입력 받은 조회할 이용자 요청 정보 ID와 Crew 등급을 담은 DTO 객체
 	 * @return 이용자 접속 및 요청 정보를 담은 응답 DTO 객체
@@ -168,7 +168,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>MDCFilter 통해 접속 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 WAS 정보를 저장하기 위한 Method</b>
+	 * <b>MDCFilter 통해 요청 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 WAS 정보를 저장하기 위한 Method</b>
 	 *
 	 * @param serverInfo Server 정보를 담은 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
@@ -197,7 +197,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>MDCFilter 통해 접속 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 날짜와 시각 정보 저장하기 위한 Method</b>
+	 * <b>MDCFilter 통해 요청 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 요청 날짜와 시각 정보 저장하기 위한 Method</b>
 	 *
 	 * @param dataCreatedDateTimeRequestDTO MDCUtil이 호출된 일시를 담은 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
@@ -229,7 +229,7 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>MDCFilter 통해 접속 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 접속 및 요청을 보낸 이용자 정보를 저장하기 위한 Method</b>
+	 * <b>MDCFilter 통해 요청 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 요청을 보낸 이용자 정보를 저장하기 위한 Method</b>
 	 *
 	 * @param connectedUserInfoSaveRequestDto 이용자 정보가 담긴 요청 DTO 객체
 	 * @param internalServerSaveID            Server 정보 PK
@@ -278,16 +278,16 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 	}
 
 	/**
-	 * <b>MDCFilter를 통해 접속 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 요청 이용자가 보낸 요청 정보를 저장하기 위한 Method</b>
+	 * <b>MDCFilter를 통해 요청 이용자 정보를 저장하기 위한 API가 호출되면 userRequestTotalInfoSaveRequestDTO 안에 요청 이용자가 보낸 요청 정보를 저장하기 위한 Method</b>
 	 *
-	 * @param connectedUserRequestInfoSaveRequestDTO 이용자 요청 정보가 담긴 요청 DTO 객체
+	 * @param connectedUserRequestInfoSaveRequestDto 이용자 요청 정보가 담긴 요청 DTO 객체
 	 * @return Data Base에 저장 뒤 저장 순서 번호(ID)
 	 */
 
 	private Long processUserRequestInfoSave(
-		ConnectedUserRequestInfoSaveRequestDto connectedUserRequestInfoSaveRequestDTO, Long internalServerSaveID,
+		ConnectedUserRequestInfoSaveRequestDto connectedUserRequestInfoSaveRequestDto, Long internalServerSaveID,
 		Long occurrenceInfoDateTimeSaveID, Long connectedUserSaveID) {
-		if (connectedUserRequestInfoSaveRequestDTO == null) {
+		if (connectedUserRequestInfoSaveRequestDto == null) {
 			throw new ConnectedUserException(PARAMETER_NULL,
 				PARAMETER_NULL.getMessage(String.valueOf(NullPointerException.class)));
 		} else if (internalServerSaveID == null) {
@@ -307,10 +307,10 @@ public class ConnectedUserInfoServiceImpl implements ConnectedUserInfoService {
 						.internalServerID(internalServerSaveID)
 						.dataCreatedDateTimeID(occurrenceInfoDateTimeSaveID)
 						.connectedUserID(connectedUserSaveID)
-						.requestHeader(connectedUserRequestInfoSaveRequestDTO.getRequestHeader())
-						.userCookies(connectedUserRequestInfoSaveRequestDTO.getUserCookies())
-						.requestParameter(connectedUserRequestInfoSaveRequestDTO.getRequestParameter())
-						.requestBody(connectedUserRequestInfoSaveRequestDTO.getRequestBody())
+						.requestHeader(connectedUserRequestInfoSaveRequestDto.getRequestHeader())
+						.userCookies(connectedUserRequestInfoSaveRequestDto.getUserCookies())
+						.requestParameter(connectedUserRequestInfoSaveRequestDto.getRequestParameter())
+						.requestBody(connectedUserRequestInfoSaveRequestDto.getRequestBody())
 						.build()));
 		}
 	}

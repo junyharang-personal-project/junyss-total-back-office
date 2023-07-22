@@ -249,7 +249,7 @@ public class BackOfficeAPICaller {
 			Objects.requireNonNull(ApiCallUtil.callDiscordBotGetAPI(url)).getJSONObject("data"));
 	}
 
-	public static String errorLogDetailAPICall(MessageReceivedEvent event, URL url) throws IOException {
+	public static String errorLogDetailApiCall(MessageReceivedEvent event, URL url) throws IOException {
 		CrewGrade crewGrade = CheckDiscordCommand.checkCrewGradeString(
 			event.getMessage().getMember().getRoles().get(0).getName());
 		JSONObject jsonObject = ApiCallUtil.callDiscordBotGetAPI(url);
@@ -272,12 +272,12 @@ public class BackOfficeAPICaller {
 
 	/**
 	 * <b>Log Back을 통한 Log 저장 API를 호출하여 Data Base에 Log를 저장하기 위하여 API 호출 처리를 위한 Method</b>
-	 * @param totalErrorRecordSaveRequestDTO Log 정보를 담은 DTO
+	 * @param totalErrorRecordSaveRequestDto Log 정보를 담은 DTO
 	 * @throws IOException JSONObject 처리에 문제 발생 시 발생하는 Exception
 	 */
-	public static void logSaveAPICall(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDTO) throws
+	public static void logSaveApiCall(TotalErrorRecordSaveRequestDto totalErrorRecordSaveRequestDto) throws
 		IOException {
-		StringBuilder suffixURL = new StringBuilder(APIUriInfo.LOG);
-		ApiCallUtil.callDiscordBotPostAPI(suffixURL, totalErrorRecordSaveRequestDTO);
+		StringBuilder suffixUrl = new StringBuilder(APIUriInfo.LOG);
+		ApiCallUtil.callPostApi(suffixUrl, totalErrorRecordSaveRequestDto);
 	}
 }

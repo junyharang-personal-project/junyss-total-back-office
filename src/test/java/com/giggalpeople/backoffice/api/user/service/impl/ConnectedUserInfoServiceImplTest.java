@@ -59,26 +59,21 @@ import com.giggalpeople.backoffice.common.enumtype.GiggalPeopleServerNames;
 import com.giggalpeople.backoffice.common.env.exception.ServerInfoException;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-// JUnit 5 사용 시 사용, MyBatisTest 2.0.1 Version 이상에서 생략 가능
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/data.sql")
 class ConnectedUserInfoServiceImplTest {
 
-	// @InjectMocks
 	@Autowired
 	ConnectedUserInfoService connectedUserInfoService;
 
-	// @Mock
 	@Autowired
 	UserInfoDao userInfoDAO;
 
-	// @Mock
 	@Autowired
 	ServerInfoDao serverInfoDAO;
 
-	// @Mock
 	@Autowired
 	OccurrenceDataDateTimeManagementDao occurrenceDataDateTimeManagementDAO;
 
@@ -149,13 +144,13 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(0)
-	@DisplayName("접속 이용자 정보 Data Base 저장 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 테스트")
 	void save() {
 		//given
-		//when
 		DefaultResponse<Map<String, Long>> responseInfo = connectedUserInfoService.save(
 			userRequestTotalInfoSaveRequestDto);
 
+		//when
 		System.out.println("응답 값 : " + responseInfo);
 
 		//then
@@ -165,7 +160,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(1)
-	@DisplayName("접속 이용자 정보 Data Base 저장 시 내부 서버 정보 Null 값 입력으로 인한 문제 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 시 내부 서버 정보 Null 값 입력으로 인한 문제 테스트")
 	void causedByServerInfoSaveFailure() {
 		//given
 		UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestErrorStatusDto = createErrorStatusDto(
@@ -183,7 +178,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(2)
-	@DisplayName("접속 이용자 정보 Data Base 저장 시 Data 발생 일시 Null 값 입력으로 인한 문제 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 시 Data 발생 일시 Null 값 입력으로 인한 문제 테스트")
 	void causedByOccurrenceDateTimeSaveFailure() {
 		//given
 		UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestErrorStatusDto = createErrorStatusDto(
@@ -201,7 +196,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(3)
-	@DisplayName("접속 이용자 정보 Data Base 저장 시 이용자 접속 정보 Null로 인한 문제 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 시 요청 이용자 정보 Null로 인한 문제 테스트")
 	void causedByUserInfoSaveFailure() {
 		//given
 		UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestErrorStatusDto = createErrorStatusDto(
@@ -219,7 +214,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(4)
-	@DisplayName("접속 이용자 정보 Data Base 저장 시 이용자 요청 정보 Null로 인한 문제 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 시 이용자 요청 정보 Null로 인한 문제 테스트")
 	void causedByUserRequestInfoSaveFailure() {
 		//given
 		UserRequestTotalInfoSaveRequestDto userRequestTotalInfoSaveRequestErrorStatusDto = createErrorStatusDto(
@@ -237,7 +232,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(5)
-	@DisplayName("접속 이용자 정보 Data Base 저장 시 저장 DTO 값 Null 일 경우 문제 테스트")
+	@DisplayName("요청 이용자 정보 Data Base 저장 시 저장 DTO 값 Null 일 경우 문제 테스트")
 	void saveNotNull() {
 		//given
 		//when
@@ -250,7 +245,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(6)
-	@DisplayName("Application 이용자 접속 및 요청 정보 기본 목록 조회 테스트")
+	@DisplayName("Application 요청 이용자 및 요청 정보 기본 목록 조회 테스트")
 	@Transactional
 	void toDiscordAllUserInfoFind() {
 		//given
@@ -276,7 +271,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(7)
-	@DisplayName("Application 이용자 접속 및 요청 정보 기본 목록 조회 시 결과 하나 테스트")
+	@DisplayName("Application 요청 이용자 정보 및 요청 정보 기본 목록 조회 시 결과 하나 테스트")
 	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
 	void toDiscordAllUserInfoFindOneThing() {
 		//given
@@ -306,7 +301,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(8)
-	@DisplayName("Application 이용자 접속 및 요청 정보 Paging 처리 목록 조회 테스트")
+	@DisplayName("Application 요청 이용자 정보 및 요청 정보 Paging 처리 목록 조회 테스트")
 	@Transactional
 	void toDiscordAllUserInfoFindPaging() {
 		//given
@@ -339,7 +334,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(9)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 검색 결과 없을 때, 문제 사항 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 검색 결과 없을 때, 문제 사항 테스트")
 	@Transactional
 	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
 	void totalSearchNotFound() {
@@ -364,7 +359,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(10)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 이용자 순서 번호를 통해 검색 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 이용자 순서 번호를 통해 검색 테스트")
 	void totalUserInfoIdSearch() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
@@ -385,7 +380,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(11)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 접속일 범위를 통해 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 접속일 범위를 통해 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
 	void totalUserInfoConnectedDateRangeSearchCount() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
@@ -406,7 +401,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(12)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 접속일 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 접속일 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
 	void totalUserInfoConnectedDateSearchCount() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
@@ -427,7 +422,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(13)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 내부 서버 이름 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 내부 서버 이름 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
 	void totalUserInfoServerNameSearchCount() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
@@ -448,7 +443,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(14)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 내부 서버 IP 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 내부 서버 IP 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
 	void totalUserInfoServerIpSearchCount() {
 		//given
 		IntStream.rangeClosed(1, 11).forEach(count -> {
@@ -469,7 +464,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(9)
-	@DisplayName("이용자 접속 및 요청 정보 목록 조회 시 이용자 IP 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 목록 조회 시 이용자 IP 검색 했을 때, 일치하는 Data가 몇 개 있는지 알기 위한 테스트")
 	void totalUserInfoUserIpSearchCount() {
 		//given
 		System.out.println(
@@ -489,7 +484,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(15)
-	@DisplayName("이용자 접속 및 요청 정보 검색 목록 조회 시 검색 결과 없을 때, 문제 사항 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 검색 목록 조회 시 검색 결과 없을 때, 문제 사항 테스트")
 	@Transactional
 	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:/init/database/schema.sql")
 	void totalUserInfoSearchNotFound() {
@@ -510,7 +505,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(16)
-	@DisplayName("이용자 접속 및 요청 정보 상세 조회 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 상세 조회 테스트")
 	void toDiscordDetailConnectedUserInfoFind() {
 		//given
 		System.out.println(
@@ -531,7 +526,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(17)
-	@DisplayName("이용자 접속 및 요청 정보 상세 조회 시 권한 없는 크루가 조회 요청 시 문제 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 상세 조회 시 권한 없는 크루가 조회 요청 시 문제 테스트")
 	void toDiscordDetailConnectedUserInfoUnAuthorizedFind() {
 		//given
 		UserInfoDetailSearchRequestDto userInfoDetailSearchRequestDto = new UserInfoDetailSearchRequestDto();
@@ -548,7 +543,7 @@ class ConnectedUserInfoServiceImplTest {
 
 	@Test
 	@Order(18)
-	@DisplayName("이용자 접속 및 요청 정보 상세 조회 시 결과 값 없을 때, 문제 테스트")
+	@DisplayName("요청 이용자 정보 및 요청 정보 상세 조회 시 결과 값 없을 때, 문제 테스트")
 	void toDiscordDetailConnectedUserInfoNotFind() {
 		//given
 		UserInfoDetailSearchRequestDto userInfoDetailSearchRequestDto = new UserInfoDetailSearchRequestDto();
@@ -602,14 +597,14 @@ class ConnectedUserInfoServiceImplTest {
 	}
 
 	/**
-	 * <b>Test에 사용될 DTO, VO를 만들기 위한 VO</b>
+	 * <b>Test에 사용될 DTO, VO를 만들기 위한 Method</b>
 	 * @return 이용자 요청 정보와 서버 정보 등을 포함한 요청 DTO 객체
 	 */
 	private UserRequestTotalInfoSaveRequestDto initializedMockModels() {
-		dataCreatedDateTimeVo = initializedCreateDateTime();
-		serverInfoVo = initializedServerInfo();
-		userInfoVO = initializedConnectedUserInfo();
-		userRequestInfoVo = initializedConnectedUserRequestInfo();
+		this.dataCreatedDateTimeVo = initializedCreateDateTime();
+		this.serverInfoVo = initializedServerInfo();
+		this.userInfoVO = initializedConnectedUserInfo();
+		this.userRequestInfoVo = initializedConnectedUserRequestInfo();
 
 		return UserRequestTotalInfoSaveRequestDto.builder()
 			.serverInfo(serverInfo)
