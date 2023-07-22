@@ -1,9 +1,0 @@
-discord:
-  bot:
-    token: MTA4MzI4MTI5MzQwMTQwNzU2MA.G1-Els.bo-z7SO1R-T2KuPm3Q9er4TkPltr29EOYaTTo8
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
